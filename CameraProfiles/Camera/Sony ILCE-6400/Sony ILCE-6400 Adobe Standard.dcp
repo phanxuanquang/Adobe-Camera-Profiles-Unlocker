@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dcpData>
+  <CalibrationIlluminant1>0</CalibrationIlluminant1>
+  <CalibrationIlluminant2>0</CalibrationIlluminant2>
+  <ColorMatrix1 Rows="0" Cols="0"/>
+  <ColorMatrix2 Rows="0" Cols="0"/>
+  <ForwardMatrix1 Rows="0" Cols="0"/>
+  <ForwardMatrix2 Rows="0" Cols="0"/>
+  <ReductionMatrix1 Rows="0" Cols="0"/>
+  <ReductionMatrix2 Rows="0" Cols="0"/>
+  <EmbedPolicy>0</EmbedPolicy>
+  <ProfileHueSatMapEncoding>0</ProfileHueSatMapEncoding>
+  <ProfileLookTableEncoding>0</ProfileLookTableEncoding>
+  <BaselineExposureOffset>0.000000</BaselineExposureOffset>
+  <DefaultBlackRender>0</DefaultBlackRender>
+</dcpData>

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34511.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adobe Camera Profiles Unlocker", "Adobe Camera Profiles Unlocker\Adobe Camera Profiles Unlocker.csproj", "{BD5CAE17-176E-4B57-9AB4-BD5DB0A09D0C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BD5CAE17-176E-4B57-9AB4-BD5DB0A09D0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD5CAE17-176E-4B57-9AB4-BD5DB0A09D0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD5CAE17-176E-4B57-9AB4-BD5DB0A09D0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD5CAE17-176E-4B57-9AB4-BD5DB0A09D0C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0E377E35-02B5-4A78-8EFB-CFF7573F3FFA}
+	EndGlobalSection
+EndGlobal
