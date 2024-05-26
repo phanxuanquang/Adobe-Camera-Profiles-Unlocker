@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>bin\Debug\net8.0-windows\icon.ico</ApplicationIcon>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Authors>Phan Xuan Quang</Authors>
     <Company>Phan Xuan Quang</Company>
@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="bin\Debug\net8.0-windows\icon.ico" />
+    <Content Include="icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
