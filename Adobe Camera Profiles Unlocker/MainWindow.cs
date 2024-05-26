@@ -4,11 +4,12 @@ namespace Adobe_Camera_Profiles_Unlocker
 {
     public partial class MainWindow : Form
     {
-        private string[] ModelDirs;
-        private List<string> SelectedProfileDirs = new List<string>();
-        private AutoCompleteStringCollection DataSource = new AutoCompleteStringCollection();
         private readonly string ModelsDir = @"C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Camera";
         private readonly string[] Brands = { "Canon", "Leica", "Nikon", "Olympus", "Panasonic", "Pentax", "Ricoh", "Sony" };
+        private string[] ModelDirs;
+        private string CameraProfilesDir;
+        private List<string> SelectedProfileDirs = new List<string>();
+        private AutoCompleteStringCollection DataSource = new AutoCompleteStringCollection();
         public MainWindow()
         {
             InitializeComponent();
@@ -18,23 +19,31 @@ namespace Adobe_Camera_Profiles_Unlocker
             InputSearchBox.AutoCompleteSource = OutputSearchBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        #region Events
+        private void Form_Load(object sender, EventArgs e)
         {
+            CameraProfilesDir = @$"C:\Users\{Environment.UserName}\AppData\Roaming\Adobe\CameraRaw\CameraProfiles";
+
+            if (!Directory.Exists(ModelsDir) || !Directory.Exists(CameraProfilesDir))
+            {
+                MessageBox.Show("Cannot find Lightroom or Camera Raw on your device.\nPlease install the latest version of Adobe Camera Raw or Adobe Lightroom.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
             ModelDirs = GetChilds(ModelsDir);
             var models = ModelDirs.Select(Path.GetFileName).ToArray();
             DataSource.AddRange(models);
         }
-
-        public string[] GetChilds(string folderPath)
+        private void ProfileTable_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            return Directory.GetDirectories(folderPath);
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            {
+                DataGridViewRow selectedRow = ProfileTable.Rows[e.RowIndex];
+                if (selectedRow.Selected)
+                {
+                    selectedRow.Selected = false;
+                }
+            }
         }
-
-        static List<string> GetFiles(string folderPath)
-        {
-            return Directory.GetFiles(folderPath, "*.dcp").ToList();
-        }
-
         private void InputSearchBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode != Keys.Enter)
@@ -60,63 +69,62 @@ namespace Adobe_Camera_Profiles_Unlocker
                 ProfileTable.Rows.Add(i + 1, profileNames[i].Replace(".dcp", null).Replace(cameraPrefix, null));
             }
         }
+        private void OutputSearchBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter)
+            {
+                return;
+            }
 
+            var searchResult = InputSearchBox.Text.Trim();
+            var cameraDir = ModelDirs.FirstOrDefault(dir => dir.Contains(searchResult));
+        }
         private void ExportBtn_Click(object sender, EventArgs e)
         {
             if (InputSearchBox.Text == OutputSearchBox.Text)
             {
-                MessageBox.Show("Complete. Please restart your Lightroom and your Photoshop if they are currently opened.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Please restart the Lightroom and the Photoshop applications to apply changes.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            List<DataGridViewRow> selectedRows = new List<DataGridViewRow>();
-            var windowsUsername = Environment.UserName;
-            var brandName = string.Empty;
 
-            foreach (DataGridViewRow row in ProfileTable.Rows)
-            {
-                if (row.Selected)
-                {
-                    selectedRows.Add(row);
-                }
-            }
+            var selectedRows = ProfileTable.SelectedRows;
 
-            if (!selectedRows.Any())
+            if (selectedRows.Count == 0)
             {
                 MessageBox.Show("Please select at least one Camera Profile to export.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
             }
 
-            foreach (string brand in Brands)
-            {
-                if (InputSearchBox.Text.Contains(brand))
-                {
-                    brandName = brand;
-                    break;
-                }
-            }
+            var brandName = Brands.FirstOrDefault(brand => InputSearchBox.Text.Contains(brand)) ?? string.Empty;
 
             foreach (DataGridViewRow row in selectedRows)
             {
                 var selectedProfileName = row.Cells[1].Value.ToString();
-                var dcpPath = SelectedProfileDirs.FirstOrDefault(i => i.Contains(selectedProfileName));
+
+                var dcpPath = SelectedProfileDirs.FirstOrDefault(dir => dir.Contains(selectedProfileName));
+
+                if (string.IsNullOrEmpty(dcpPath))
+                {
+                    continue;
+                }
+
                 var inputXml = AsXML(dcpPath);
                 UpdateXMLContent(inputXml, brandName);
-                AsDCP(inputXml, @$"C:\Users\{windowsUsername}\AppData\Roaming\Adobe\CameraRaw\CameraProfiles\{brandName} - {selectedProfileName}");
+                AsDCP(inputXml, Path.Combine(CameraProfilesDir, $"{brandName} - {selectedProfileName}"));
                 File.Delete(inputXml);
             }
 
-            MessageBox.Show("Complete. Please restart your Lightroom and your Photoshop if they are currently opened.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Please restart the Lightroom and the Photoshop applications if they are currently opened to apply changes.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+        #endregion
 
-        private void ProfileTable_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private string[] GetChilds(string folderPath)
         {
-            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
-            {
-                DataGridViewRow selectedRow = ProfileTable.Rows[e.RowIndex];
-                if (selectedRow.Selected)
-                {
-                    selectedRow.Selected = false;
-                }
-            }
+            return Directory.GetDirectories(folderPath);
+        }
+        private List<string> GetFiles(string folderPath)
+        {
+            return Directory.GetFiles(folderPath, "*.dcp").ToList();
         }
 
         private string AsXML(string dcpPath)
@@ -133,7 +141,6 @@ namespace Adobe_Camera_Profiles_Unlocker
 
             return xmlPath;
         }
-
         private void AsDCP(string inputPath, string outputPath)
         {
             var exeInfor = new ProcessStartInfo();
@@ -143,8 +150,7 @@ namespace Adobe_Camera_Profiles_Unlocker
             var executer = Process.Start(exeInfor);
             executer.WaitForExit();
         }
-
-        private void UpdateXMLContent(string filePath, string brandName)
+        private void UpdateXMLContent(string filePath, string brand)
         {
             var lines = File.ReadAllLines(filePath);
 
@@ -152,7 +158,7 @@ namespace Adobe_Camera_Profiles_Unlocker
             {
                 if (lines[i].Contains("<ProfileName>"))
                 {
-                    lines[i] = lines[i].Replace("Camera", $"{brandName}:");
+                    lines[i] = lines[i].Replace("Camera", $"{brand}:");
                 }
 
                 if (lines[i].Contains("Copyright"))
@@ -172,17 +178,6 @@ namespace Adobe_Camera_Profiles_Unlocker
             }
 
             File.WriteAllLines(filePath, lines);
-        }
-
-        private void OutputSearchBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode != Keys.Enter)
-            {
-                return;
-            }
-
-            var searchResult = InputSearchBox.Text.Trim();
-            var cameraDir = ModelDirs.FirstOrDefault(dir => dir.Contains(searchResult));
         }
     }
 }

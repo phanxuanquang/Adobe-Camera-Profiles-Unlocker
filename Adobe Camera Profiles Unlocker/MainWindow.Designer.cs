@@ -165,7 +165,7 @@
             Name = "MainWindow";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Adobe Camera Profiles Unlocker";
-            Load += Form1_Load;
+            Load += Form_Load;
             ((System.ComponentModel.ISupportInitialize)ProfileTable).EndInit();
             ResumeLayout(false);
             PerformLayout();
