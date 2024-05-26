@@ -11,10 +11,11 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Authors>Phan Xuan Quang</Authors>
     <Company>Phan Xuan Quang</Company>
-    <Description>A tool use to unlock the hidden Camera Profiles in the Adobe Lightroom and Adobe Camera Raw</Description>
+    <Description>Unlock the hidden Camera Profiles in the Adobe Lightroom and Adobe Camera Raw</Description>
     <Copyright>© 2024 Phan Xuan Quang</Copyright>
     <PackageProjectUrl>https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker</PackageProjectUrl>
     <RepositoryUrl>https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker</RepositoryUrl>
+    <Title>Adobe Camera Profiles Unlocker</Title>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
