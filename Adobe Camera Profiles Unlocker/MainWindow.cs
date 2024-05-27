@@ -125,6 +125,23 @@ namespace Adobe_Camera_Profiles_Unlocker
 
             MessageBox.Show("Please restart the Lightroom and the Photoshop applications if they are currently opened to apply changes.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
+        private void Flickr_Click(object sender, EventArgs e)
+        {
+            OpenUrl("https://www.flickr.com/photos/pxq2002");
+        }
+        private void Instagram_Click(object sender, EventArgs e)
+        {
+            OpenUrl("https://www.instagram.com/pxquang.2002");
+        }
+        private void Github_Click(object sender, EventArgs e)
+        {
+            OpenUrl("https://github.com/phanxuanquang");
+        }
+        private void TikTok_Click(object sender, EventArgs e)
+        {
+            OpenUrl("https://www.tiktok.com/@tuyenoaminhnhan");
+        }
         #endregion
 
         public bool IsUserAdministrator()
@@ -140,6 +157,15 @@ namespace Adobe_Camera_Profiles_Unlocker
         private List<string> GetFiles(string folderPath)
         {
             return Directory.GetFiles(folderPath, "*.dcp").ToList();
+        }
+        private void OpenUrl(string url)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true,
+                CreateNoWindow = true
+            });
         }
 
         private string AsXML(string dcpPath)
@@ -179,7 +205,7 @@ namespace Adobe_Camera_Profiles_Unlocker
 
                 if (lines[i].Contains("Copyright"))
                 {
-                    lines[i] = lines[i].Replace(lines[i], "<Copyright>Copyright 2024 Phan Xuan Quang / Github: @phanxuanquang</Copyright>");
+                    lines[i] = lines[i].Replace(lines[i], "<Copyright>© 2024 Phan Xuan Quang / Github: @phanxuanquang</Copyright>");
                 }
 
                 if (lines[i].Contains("<ProfileCalibrationSignature>"))
@@ -194,35 +220,6 @@ namespace Adobe_Camera_Profiles_Unlocker
             }
 
             File.WriteAllLines(filePath, lines);
-        }
-
-        private void OpenUrl(string url)
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = url,
-                UseShellExecute = true,
-                CreateNoWindow = true
-            });
-        }
-        private void Flickr_Click(object sender, EventArgs e)
-        {
-            OpenUrl("https://www.flickr.com/photos/pxq2002");
-        }
-
-        private void Instagram_Click(object sender, EventArgs e)
-        {
-            OpenUrl("https://www.instagram.com/pxquang.2002");
-        }
-
-        private void Github_Click(object sender, EventArgs e)
-        {
-            OpenUrl("https://github.com/phanxuanquang");
-        }
-
-        private void TikTok_Click(object sender, EventArgs e)
-        {
-            OpenUrl("https://www.tiktok.com/@tuyenoaminhnhan");
         }
     }
 }
