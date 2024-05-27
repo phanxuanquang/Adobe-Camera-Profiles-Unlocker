@@ -6,6 +6,7 @@ A tool to unlock the hidden Camera Profiles in the Adobe Lightroom and Adobe Cam
 - A Windows 10 or Windows 11 device
 ## 2. Usage Guidance
 ### Windows
+In order to ensure that the application run properly, you should turn off the **Windows Defender** before downloading.
 - Step 1: Download the **Adobe.Camera.Profiles.Unlocker.zip** from [THIS](https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/releases/latest) page.
 - Step 2: Follow the guidance video as below.
 
