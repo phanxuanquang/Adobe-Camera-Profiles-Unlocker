@@ -1,11 +1,12 @@
 ﻿using System.Diagnostics;
+using System.Security.Policy;
 
 namespace Adobe_Camera_Profiles_Unlocker
 {
     public partial class MainWindow : Form
     {
         private readonly string ModelsDir = @"C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Camera";
-        private readonly string[] Brands = { "Canon", "Leica", "Nikon", "Olympus", "Panasonic", "Pentax", "Ricoh", "Sony" };
+        private readonly string[] Brands = { "Canon", "Leica", "Nikon", "Olympus", "Panasonic", "Pentax", "Ricoh", "Sony", "Sigma" };
         private string[] ModelDirs;
         private string CameraProfilesDir;
         private List<string> SelectedProfileDirs = new List<string>();
@@ -146,6 +147,7 @@ namespace Adobe_Camera_Profiles_Unlocker
             var exeInfor = new ProcessStartInfo();
             exeInfor.FileName = @"dcpTool.exe";
             exeInfor.Arguments = $"-c \"{inputPath}\" \"{outputPath}.dcp\"";
+            exeInfor.CreateNoWindow = true;
 
             var executer = Process.Start(exeInfor);
             executer.WaitForExit();
@@ -178,6 +180,35 @@ namespace Adobe_Camera_Profiles_Unlocker
             }
 
             File.WriteAllLines(filePath, lines);
+        }
+
+        private void OpenUrl(string url)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true,
+                CreateNoWindow = true
+            });
+        }
+        private void Flickr_Click(object sender, EventArgs e)
+        {
+            OpenUrl("https://www.flickr.com/photos/pxq2002");
+        }
+
+        private void Instagram_Click(object sender, EventArgs e)
+        {
+            OpenUrl("https://www.instagram.com/pxquang.2002");
+        }
+
+        private void Github_Click(object sender, EventArgs e)
+        {
+            OpenUrl("https://github.com/phanxuanquang");
+        }
+
+        private void TikTok_Click(object sender, EventArgs e)
+        {
+            OpenUrl("https://www.tiktok.com/@tuyenoaminhnhan");
         }
     }
 }
