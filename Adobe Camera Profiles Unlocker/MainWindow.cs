@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Security.Policy;
+using System.Security.Principal;
 
 namespace Adobe_Camera_Profiles_Unlocker
 {
@@ -28,6 +29,13 @@ namespace Adobe_Camera_Profiles_Unlocker
             if (!Directory.Exists(ModelsDir) || !Directory.Exists(CameraProfilesDir))
             {
                 MessageBox.Show("Cannot find Lightroom or Camera Raw on your device.\nPlease install the latest version of Adobe Camera Raw or Adobe Lightroom.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Application.Exit();
+            }
+
+            if (!IsUserAdministrator())
+            {
+                MessageBox.Show("The application must be ran with the administrator right.\nPlease try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Application.Exit();
             }
 
             ModelDirs = GetChilds(ModelsDir);
@@ -119,6 +127,12 @@ namespace Adobe_Camera_Profiles_Unlocker
         }
         #endregion
 
+        public bool IsUserAdministrator()
+        {
+            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            WindowsPrincipal principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
         private string[] GetChilds(string folderPath)
         {
             return Directory.GetDirectories(folderPath);
