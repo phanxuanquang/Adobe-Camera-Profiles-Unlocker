@@ -111,7 +111,7 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
                 Application.Exit();
             }
 
-            if (IsUserAdministrator())
+            if (!IsUserAdministrator())
             {
                 MessageBox.Show("The application must be ran with the administrator right.\nPlease try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Application.Exit();
