@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Adobe Camera Profiles Unlocker", "Adobe Camera Profiles Unlocker\Adobe Camera Profiles Unlocker.csproj", "{BD5CAE17-176E-4B57-9AB4-BD5DB0A09D0C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adobe Camera Profiles Unlocker 2.0", "Adobe Camera Profiles Unlocker 2.0\Adobe Camera Profiles Unlocker 2.0.csproj", "{0F5E4DAA-7201-43B9-A951-81FADBCA4E55}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BD5CAE17-176E-4B57-9AB4-BD5DB0A09D0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BD5CAE17-176E-4B57-9AB4-BD5DB0A09D0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BD5CAE17-176E-4B57-9AB4-BD5DB0A09D0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BD5CAE17-176E-4B57-9AB4-BD5DB0A09D0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F5E4DAA-7201-43B9-A951-81FADBCA4E55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F5E4DAA-7201-43B9-A951-81FADBCA4E55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F5E4DAA-7201-43B9-A951-81FADBCA4E55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F5E4DAA-7201-43B9-A951-81FADBCA4E55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
