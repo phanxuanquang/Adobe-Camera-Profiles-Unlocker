@@ -32,9 +32,9 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
             this.InputSearchBox = new Guna.UI2.WinForms.Guna2TextBox();
             this.OutputSearchBox = new Guna.UI2.WinForms.Guna2TextBox();
             this.ProfileTable = new Guna.UI2.WinForms.Guna2DataGridView();
@@ -49,6 +49,7 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.ResetBtn = new Guna.UI2.WinForms.Guna2GradientTileButton();
             ((System.ComponentModel.ISupportInitialize)(this.ProfileTable)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Flickr)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Instagram)).BeginInit();
@@ -85,7 +86,7 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.InputSearchBox.PlaceholderText = "Take the Camera Profiles from . . .  ";
             this.InputSearchBox.SelectedText = "";
             this.InputSearchBox.ShadowDecoration.Parent = this.InputSearchBox;
-            this.InputSearchBox.Size = new System.Drawing.Size(584, 54);
+            this.InputSearchBox.Size = new System.Drawing.Size(518, 54);
             this.InputSearchBox.TabIndex = 10;
             this.InputSearchBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.InputSearchBox_KeyDown);
             // 
@@ -110,14 +111,14 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.OutputSearchBox.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
             this.OutputSearchBox.HoverState.Parent = this.OutputSearchBox;
             this.OutputSearchBox.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.OutputSearchBox.Location = new System.Drawing.Point(612, 65);
+            this.OutputSearchBox.Location = new System.Drawing.Point(546, 65);
             this.OutputSearchBox.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
             this.OutputSearchBox.Name = "OutputSearchBox";
             this.OutputSearchBox.PasswordChar = '\0';
             this.OutputSearchBox.PlaceholderText = "And import them into . . . ";
             this.OutputSearchBox.SelectedText = "";
             this.OutputSearchBox.ShadowDecoration.Parent = this.OutputSearchBox;
-            this.OutputSearchBox.Size = new System.Drawing.Size(587, 54);
+            this.OutputSearchBox.Size = new System.Drawing.Size(455, 54);
             this.OutputSearchBox.TabIndex = 2;
             this.OutputSearchBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OutputSearchBox_KeyDown);
             // 
@@ -126,8 +127,8 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.ProfileTable.AllowUserToAddRows = false;
             this.ProfileTable.AllowUserToDeleteRows = false;
             this.ProfileTable.AllowUserToResizeRows = false;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
-            this.ProfileTable.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle7.BackColor = System.Drawing.Color.White;
+            this.ProfileTable.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle7;
             this.ProfileTable.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -136,26 +137,26 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.ProfileTable.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.ProfileTable.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
             this.ProfileTable.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(88)))), ((int)(((byte)(255)))));
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 10.5F);
-            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.White;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.ProfileTable.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle8.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(88)))), ((int)(((byte)(255)))));
+            dataGridViewCellStyle8.Font = new System.Drawing.Font("Segoe UI", 10.5F);
+            dataGridViewCellStyle8.ForeColor = System.Drawing.Color.White;
+            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.ProfileTable.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle8;
             this.ProfileTable.ColumnHeadersHeight = 4;
             this.ProfileTable.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.No,
             this.Profile});
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 10.5F);
-            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(69)))), ((int)(((byte)(94)))));
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(229)))), ((int)(((byte)(255)))));
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(69)))), ((int)(((byte)(94)))));
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.ProfileTable.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle9.BackColor = System.Drawing.Color.White;
+            dataGridViewCellStyle9.Font = new System.Drawing.Font("Segoe UI", 10.5F);
+            dataGridViewCellStyle9.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(69)))), ((int)(((byte)(94)))));
+            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(229)))), ((int)(((byte)(255)))));
+            dataGridViewCellStyle9.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(69)))), ((int)(((byte)(94)))));
+            dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.ProfileTable.DefaultCellStyle = dataGridViewCellStyle9;
             this.ProfileTable.EnableHeadersVisualStyles = false;
             this.ProfileTable.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(229)))), ((int)(((byte)(255)))));
             this.ProfileTable.Location = new System.Drawing.Point(16, 134);
@@ -209,6 +210,7 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             // ExportBtn
             // 
             this.ExportBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.ExportBtn.Animated = true;
             this.ExportBtn.BorderRadius = 6;
             this.ExportBtn.CheckedState.Parent = this.ExportBtn;
             this.ExportBtn.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -216,10 +218,10 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.ExportBtn.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ExportBtn.ForeColor = System.Drawing.Color.White;
             this.ExportBtn.HoverState.Parent = this.ExportBtn;
-            this.ExportBtn.Location = new System.Drawing.Point(1208, 29);
+            this.ExportBtn.Location = new System.Drawing.Point(1011, 65);
             this.ExportBtn.Name = "ExportBtn";
             this.ExportBtn.ShadowDecoration.Parent = this.ExportBtn;
-            this.ExportBtn.Size = new System.Drawing.Size(186, 91);
+            this.ExportBtn.Size = new System.Drawing.Size(186, 54);
             this.ExportBtn.TabIndex = 4;
             this.ExportBtn.Text = "EXECUTE";
             this.ExportBtn.Click += new System.EventHandler(this.ExportBtn_Click);
@@ -308,18 +310,40 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.label3.Location = new System.Drawing.Point(607, 29);
+            this.label3.Location = new System.Drawing.Point(547, 29);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(180, 28);
             this.label3.TabIndex = 12;
             this.label3.Text = "Your camera model";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // ResetBtn
+            // 
+            this.ResetBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.ResetBtn.Animated = true;
+            this.ResetBtn.BorderRadius = 6;
+            this.ResetBtn.CheckedState.Parent = this.ResetBtn;
+            this.ResetBtn.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.ResetBtn.CustomImages.Parent = this.ResetBtn;
+            this.ResetBtn.FillColor = System.Drawing.Color.Red;
+            this.ResetBtn.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.ResetBtn.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ResetBtn.ForeColor = System.Drawing.Color.White;
+            this.ResetBtn.HoverState.Parent = this.ResetBtn;
+            this.ResetBtn.Location = new System.Drawing.Point(1207, 65);
+            this.ResetBtn.Name = "ResetBtn";
+            this.ResetBtn.ShadowDecoration.Parent = this.ResetBtn;
+            this.ResetBtn.Size = new System.Drawing.Size(186, 54);
+            this.ResetBtn.TabIndex = 13;
+            this.ResetBtn.Text = "RESET";
+            this.ResetBtn.Click += new System.EventHandler(this.ResetBtn_Click);
+            // 
             // MainWindows
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1411, 881);
+            this.Controls.Add(this.ResetBtn);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.Github);
@@ -361,6 +385,7 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
         private ToolTip toolTip1;
         private Label label2;
         private Label label3;
+        private Guna.UI2.WinForms.Guna2GradientTileButton ResetBtn;
     }
 }
 

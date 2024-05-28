@@ -241,5 +241,53 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
         {
             OpenUrl("https://www.tiktok.com/@tuyenoaminhnhan");
         }
+
+        private void ResetBtn_Click(object sender, EventArgs e)
+        {
+            CameraProfilesDir = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\Adobe\CameraRaw\CameraProfiles";
+            if (Directory.Exists(CameraProfilesDir))
+            {
+                DialogResult result = MessageBox.Show("All newly created camera profiles will be deleted permanently.\n- Yes: Delete all camera profiles\n- No: Select camera profiles and delete them manually", "Confirmation", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+
+                if (result == DialogResult.Yes)
+                {
+                    try
+                    {
+                        string[] files = Directory.GetFiles(CameraProfilesDir);
+                        if(files.Length > 0)
+                        {
+                            foreach (string file in files)
+                            {
+                                File.Delete(file);
+                            }
+                        }
+                        MessageBox.Show("All camera profiles have been deleted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                else if (result == DialogResult.No)
+                {
+                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    {
+                        Arguments = CameraProfilesDir,
+                        FileName = "explorer.exe"
+                    };
+
+                    Process process = new Process
+                    {
+                        StartInfo = startInfo
+                    };
+
+                    process.Start();
+                }
+                else
+                {
+                    MessageBox.Show("File deletion was cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+        }
     }
 }
