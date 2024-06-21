@@ -4,13 +4,13 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Adobe Camera Profiles Unlocker 2.0")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Adobe Camera Profiles Unlocker 2.1")]
+[assembly: AssemblyDescription("Unlock the hidden Camera Profiles in the Adobe Lightroom and Adobe Camera Raw")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Adobe Camera Profiles Unlocker 2.0")]
-[assembly: AssemblyCopyright("Copyright ©  2024")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCompany("github/phanxuanquang")]
+[assembly: AssemblyProduct("Adobe Camera Profiles Unlocker 2.1")]
+[assembly: AssemblyCopyright("Copyright © 2024 Phan Xuan Quang / Adobe Camera Profiles Unlocker")]
+[assembly: AssemblyTrademark("Phan Xuan Quang / Adobe Camera Profiles Unlocker")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible

@@ -46,7 +46,7 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.Instagram = new System.Windows.Forms.PictureBox();
             this.TikTok = new System.Windows.Forms.PictureBox();
             this.Github = new System.Windows.Forms.PictureBox();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.ResetBtn = new Guna.UI2.WinForms.Guna2GradientTileButton();
@@ -79,14 +79,14 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.InputSearchBox.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
             this.InputSearchBox.HoverState.Parent = this.InputSearchBox;
             this.InputSearchBox.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.InputSearchBox.Location = new System.Drawing.Point(16, 65);
-            this.InputSearchBox.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.InputSearchBox.Location = new System.Drawing.Point(14, 52);
+            this.InputSearchBox.Margin = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.InputSearchBox.Name = "InputSearchBox";
             this.InputSearchBox.PasswordChar = '\0';
             this.InputSearchBox.PlaceholderText = "Take the Camera Profiles from . . .  ";
             this.InputSearchBox.SelectedText = "";
             this.InputSearchBox.ShadowDecoration.Parent = this.InputSearchBox;
-            this.InputSearchBox.Size = new System.Drawing.Size(518, 54);
+            this.InputSearchBox.Size = new System.Drawing.Size(867, 43);
             this.InputSearchBox.TabIndex = 10;
             this.InputSearchBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.InputSearchBox_KeyDown);
             // 
@@ -111,14 +111,14 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.OutputSearchBox.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
             this.OutputSearchBox.HoverState.Parent = this.OutputSearchBox;
             this.OutputSearchBox.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.OutputSearchBox.Location = new System.Drawing.Point(546, 65);
-            this.OutputSearchBox.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.OutputSearchBox.Location = new System.Drawing.Point(891, 52);
+            this.OutputSearchBox.Margin = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.OutputSearchBox.Name = "OutputSearchBox";
             this.OutputSearchBox.PasswordChar = '\0';
             this.OutputSearchBox.PlaceholderText = "And import them into . . . ";
             this.OutputSearchBox.SelectedText = "";
             this.OutputSearchBox.ShadowDecoration.Parent = this.OutputSearchBox;
-            this.OutputSearchBox.Size = new System.Drawing.Size(455, 54);
+            this.OutputSearchBox.Size = new System.Drawing.Size(487, 43);
             this.OutputSearchBox.TabIndex = 2;
             this.OutputSearchBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OutputSearchBox_KeyDown);
             // 
@@ -159,14 +159,15 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.ProfileTable.DefaultCellStyle = dataGridViewCellStyle9;
             this.ProfileTable.EnableHeadersVisualStyles = false;
             this.ProfileTable.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(229)))), ((int)(((byte)(255)))));
-            this.ProfileTable.Location = new System.Drawing.Point(16, 134);
+            this.ProfileTable.Location = new System.Drawing.Point(14, 107);
+            this.ProfileTable.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ProfileTable.Name = "ProfileTable";
             this.ProfileTable.ReadOnly = true;
             this.ProfileTable.RowHeadersVisible = false;
             this.ProfileTable.RowHeadersWidth = 62;
             this.ProfileTable.RowTemplate.Height = 28;
             this.ProfileTable.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.ProfileTable.Size = new System.Drawing.Size(1379, 679);
+            this.ProfileTable.Size = new System.Drawing.Size(1718, 896);
             this.ProfileTable.TabIndex = 3;
             this.ProfileTable.Theme = Guna.UI2.WinForms.Enums.DataGridViewPresetThemes.Default;
             this.ProfileTable.ThemeStyle.AlternatingRowsStyle.BackColor = System.Drawing.Color.White;
@@ -215,25 +216,28 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.ExportBtn.CheckedState.Parent = this.ExportBtn;
             this.ExportBtn.Cursor = System.Windows.Forms.Cursors.Hand;
             this.ExportBtn.CustomImages.Parent = this.ExportBtn;
-            this.ExportBtn.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ExportBtn.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.ExportBtn.ForeColor = System.Drawing.Color.White;
             this.ExportBtn.HoverState.Parent = this.ExportBtn;
-            this.ExportBtn.Location = new System.Drawing.Point(1011, 65);
+            this.ExportBtn.Location = new System.Drawing.Point(1387, 52);
+            this.ExportBtn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ExportBtn.Name = "ExportBtn";
             this.ExportBtn.ShadowDecoration.Parent = this.ExportBtn;
-            this.ExportBtn.Size = new System.Drawing.Size(186, 54);
+            this.ExportBtn.Size = new System.Drawing.Size(167, 43);
             this.ExportBtn.TabIndex = 4;
             this.ExportBtn.Text = "EXECUTE";
+            this.ExportBtn.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+            this.ExportBtn.TextTransform = Guna.UI2.WinForms.Enums.TextTransform.UpperCase;
             this.ExportBtn.Click += new System.EventHandler(this.ExportBtn_Click);
             // 
             // label1
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Segoe UI", 13F);
-            this.label1.Location = new System.Drawing.Point(12, 825);
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.label1.Location = new System.Drawing.Point(13, 1014);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(157, 36);
+            this.label1.Size = new System.Drawing.Size(133, 30);
             this.label1.TabIndex = 5;
             this.label1.Text = "Find me on: ";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -244,12 +248,13 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.Flickr.BackgroundImage = global::Adobe_Camera_Profiles_Unlocker_2._0.Properties.Resources.Flickr;
             this.Flickr.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.Flickr.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.Flickr.Location = new System.Drawing.Point(171, 825);
+            this.Flickr.Location = new System.Drawing.Point(140, 1013);
+            this.Flickr.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Flickr.Name = "Flickr";
-            this.Flickr.Size = new System.Drawing.Size(42, 42);
+            this.Flickr.Size = new System.Drawing.Size(38, 34);
             this.Flickr.TabIndex = 6;
             this.Flickr.TabStop = false;
-            this.toolTip1.SetToolTip(this.Flickr, "Flickr");
+            this.toolTip.SetToolTip(this.Flickr, "Flickr");
             this.Flickr.Click += new System.EventHandler(this.Flickr_Click);
             // 
             // Instagram
@@ -258,12 +263,13 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.Instagram.BackgroundImage = global::Adobe_Camera_Profiles_Unlocker_2._0.Properties.Resources.Instagram;
             this.Instagram.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.Instagram.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.Instagram.Location = new System.Drawing.Point(216, 825);
+            this.Instagram.Location = new System.Drawing.Point(180, 1013);
+            this.Instagram.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Instagram.Name = "Instagram";
-            this.Instagram.Size = new System.Drawing.Size(42, 42);
+            this.Instagram.Size = new System.Drawing.Size(38, 34);
             this.Instagram.TabIndex = 7;
             this.Instagram.TabStop = false;
-            this.toolTip1.SetToolTip(this.Instagram, "Instagram");
+            this.toolTip.SetToolTip(this.Instagram, "Instagram");
             this.Instagram.Click += new System.EventHandler(this.Instagram_Click);
             // 
             // TikTok
@@ -272,12 +278,13 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.TikTok.BackgroundImage = global::Adobe_Camera_Profiles_Unlocker_2._0.Properties.Resources.TikTok;
             this.TikTok.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.TikTok.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.TikTok.Location = new System.Drawing.Point(261, 825);
+            this.TikTok.Location = new System.Drawing.Point(221, 1013);
+            this.TikTok.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.TikTok.Name = "TikTok";
-            this.TikTok.Size = new System.Drawing.Size(42, 42);
+            this.TikTok.Size = new System.Drawing.Size(38, 34);
             this.TikTok.TabIndex = 8;
             this.TikTok.TabStop = false;
-            this.toolTip1.SetToolTip(this.TikTok, "TikTok");
+            this.toolTip.SetToolTip(this.TikTok, "TikTok");
             this.TikTok.Click += new System.EventHandler(this.TikTok_Click);
             // 
             // Github
@@ -286,19 +293,25 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.Github.BackgroundImage = global::Adobe_Camera_Profiles_Unlocker_2._0.Properties.Resources.Github;
             this.Github.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.Github.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.Github.Location = new System.Drawing.Point(306, 825);
+            this.Github.Location = new System.Drawing.Point(261, 1013);
+            this.Github.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Github.Name = "Github";
-            this.Github.Size = new System.Drawing.Size(42, 42);
+            this.Github.Size = new System.Drawing.Size(38, 34);
             this.Github.TabIndex = 9;
             this.Github.TabStop = false;
-            this.toolTip1.SetToolTip(this.Github, "Github");
+            this.toolTip.SetToolTip(this.Github, "Github");
             this.Github.Click += new System.EventHandler(this.Github_Click);
+            // 
+            // toolTip
+            // 
+            this.toolTip.AutomaticDelay = 200;
+            this.toolTip.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.label2.Location = new System.Drawing.Point(17, 29);
+            this.label2.Location = new System.Drawing.Point(15, 21);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(187, 28);
             this.label2.TabIndex = 11;
@@ -310,7 +323,7 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.label3.Location = new System.Drawing.Point(547, 29);
+            this.label3.Location = new System.Drawing.Point(891, 21);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(180, 28);
             this.label3.TabIndex = 12;
@@ -327,22 +340,26 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.ResetBtn.CustomImages.Parent = this.ResetBtn;
             this.ResetBtn.FillColor = System.Drawing.Color.Red;
             this.ResetBtn.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.ResetBtn.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ResetBtn.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.ResetBtn.ForeColor = System.Drawing.Color.White;
             this.ResetBtn.HoverState.Parent = this.ResetBtn;
-            this.ResetBtn.Location = new System.Drawing.Point(1207, 65);
+            this.ResetBtn.Location = new System.Drawing.Point(1563, 52);
+            this.ResetBtn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ResetBtn.Name = "ResetBtn";
             this.ResetBtn.ShadowDecoration.Parent = this.ResetBtn;
-            this.ResetBtn.Size = new System.Drawing.Size(186, 54);
+            this.ResetBtn.Size = new System.Drawing.Size(167, 43);
             this.ResetBtn.TabIndex = 13;
             this.ResetBtn.Text = "RESET";
+            this.ResetBtn.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+            this.ResetBtn.TextTransform = Guna.UI2.WinForms.Enums.TextTransform.UpperCase;
             this.ResetBtn.Click += new System.EventHandler(this.ResetBtn_Click);
             // 
             // MainWindows
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1411, 881);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.AutoSize = true;
+            this.ClientSize = new System.Drawing.Size(1747, 1058);
             this.Controls.Add(this.ResetBtn);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -356,6 +373,7 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             this.Controls.Add(this.OutputSearchBox);
             this.Controls.Add(this.InputSearchBox);
             this.DoubleBuffered = true;
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "MainWindows";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Adobe Camera Profiles Unlocker";
@@ -382,7 +400,7 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
         private PictureBox Instagram;
         private PictureBox TikTok;
         private PictureBox Github;
-        private ToolTip toolTip1;
+        private ToolTip toolTip;
         private Label label2;
         private Label label3;
         private Guna.UI2.WinForms.Guna2GradientTileButton ResetBtn;

@@ -4,124 +4,56 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Principal;
 using System.Windows.Forms;
 
 namespace Adobe_Camera_Profiles_Unlocker_2._0
 {
     public partial class MainWindows : Form
     {
-        private readonly string ModelsDir = @"C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Camera";
+        private readonly string ModelsDir;
         private string[] ModelDirs;
         private string CameraProfilesDir;
-        private List<string> SelectedProfileDirs = new List<string>();
-        private AutoCompleteStringCollection DataSource = new AutoCompleteStringCollection();
+        private List<string> SelectedProfileDirs;
+        private AutoCompleteStringCollection DataSource;
         public MainWindows()
         {
             InitializeComponent();
             this.Icon = Properties.Resources.icon;
 
+            ModelsDir = @"C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Camera";
+            SelectedProfileDirs = new List<string>();
+            DataSource = new AutoCompleteStringCollection();
+
             InputSearchBox.AutoCompleteCustomSource = OutputSearchBox.AutoCompleteCustomSource = DataSource;
             InputSearchBox.AutoCompleteSource = OutputSearchBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
-        }
-        public bool IsUserAdministrator()
-        {
-            WindowsIdentity identity = WindowsIdentity.GetCurrent();
-            WindowsPrincipal principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
-        }
-        private string[] GetChilds(string folderPath)
-        {
-            return Directory.GetDirectories(folderPath);
-        }
-        private List<string> GetFiles(string folderPath)
-        {
-            return Directory.GetFiles(folderPath, "*.dcp").ToList();
-        }
-        private void OpenUrl(string url)
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = url,
-                UseShellExecute = true,
-                CreateNoWindow = true
-            });
-        }
-
-        private string AsXML(string dcpPath)
-        {
-            var xmlPath = $"{AppDomain.CurrentDomain.BaseDirectory}\\{Path.GetFileName(dcpPath).Replace(".dcp", ".xml")}";
-
-            var exeInfor = new ProcessStartInfo();
-            exeInfor.FileName = @"dcpTool.exe";
-            exeInfor.CreateNoWindow = true;
-            exeInfor.Arguments = $"-d \"{dcpPath}\" \"{xmlPath}\"";
-
-            var executer = Process.Start(exeInfor);
-            executer.WaitForExit();
-
-            return xmlPath;
-        }
-        private void AsDCP(string inputPath, string outputPath)
-        {
-            var exeInfor = new ProcessStartInfo();
-            exeInfor.FileName = @"dcpTool.exe";
-            exeInfor.Arguments = $"-c \"{inputPath}\" \"{outputPath}.dcp\"";
-            exeInfor.CreateNoWindow = true;
-
-            var executer = Process.Start(exeInfor);
-            executer.WaitForExit();
-        }
-        private void UpdateXMLContent(string filePath, string brand)
-        {
-            var lines = File.ReadAllLines(filePath);
-
-            for (int i = 0; i < lines.Length; i++)
-            {
-                if (lines[i].Contains("<ProfileName>"))
-                {
-                    lines[i] = lines[i].Replace("Camera", $"{brand}:");
-                }
-
-                if (lines[i].Contains("Copyright"))
-                {
-                    lines[i] = lines[i].Replace(lines[i], "<Copyright>© 2024 Phan Xuan Quang / Github: @phanxuanquang</Copyright>");
-                }
-
-                if (lines[i].Contains("<ProfileCalibrationSignature>"))
-                {
-                    lines[i] = lines[i].Replace("com.adobe", "Phan Xuan Quang");
-                }
-
-                if (lines[i].Contains("<UniqueCameraModelRestriction>"))
-                {
-                    lines[i] = lines[i].Replace(lines[i], $"<UniqueCameraModelRestriction>{OutputSearchBox.Text}</UniqueCameraModelRestriction>");
-                }
-            }
-
-            File.WriteAllLines(filePath, lines);
         }
         private void Form_Load(object sender, EventArgs e)
         {
             CameraProfilesDir = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\Adobe\CameraRaw\CameraProfiles";
 
-            if (!Directory.Exists(ModelsDir) || !Directory.Exists(CameraProfilesDir))
+            if (!Directory.Exists(CameraProfilesDir))
+            {
+                Directory.CreateDirectory(CameraProfilesDir);
+            }
+
+            if (!Directory.Exists(ModelsDir))
             {
                 MessageBox.Show("Cannot find Lightroom or Camera Raw on your device.\nPlease install the latest version of Adobe Camera Raw or Adobe Lightroom.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Application.Exit();
             }
 
-            if (!IsUserAdministrator())
+            if (!GeneralHelper.IsUserAdmin())
             {
                 MessageBox.Show("The application must be ran with the administrator right.\nPlease try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Application.Exit();
             }
 
-            ModelDirs = GetChilds(ModelsDir);
+            ModelDirs = DirectoryHelper.GetChilds(ModelsDir);
             var models = ModelDirs.Select(Path.GetFileName).ToArray();
             DataSource.AddRange(models);
         }
 
+        #region Search
         private void InputSearchBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode != Keys.Enter)
@@ -144,8 +76,8 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
                 return;
             }
 
-            SelectedProfileDirs = GetFiles(cameraDir);
-            var profileNames = GetFiles(cameraDir).Select(Path.GetFileName).ToArray();
+            SelectedProfileDirs = DirectoryHelper.GetDcpFiles(cameraDir);
+            var profileNames = DirectoryHelper.GetDcpFiles(cameraDir).Select(Path.GetFileName).ToArray();
             var cameraPrefix = $"{searchResult} Camera ";
             ProfileTable.Rows.Clear();
 
@@ -172,6 +104,28 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             }
             var cameraDir = ModelDirs.FirstOrDefault(dir => dir.Contains(searchResult));
         }
+        #endregion
+
+        #region Social Media
+        private void Flickr_Click(object sender, EventArgs e)
+        {
+            GeneralHelper.OpenUrl("https://www.flickr.com/photos/pxq2002");
+        }
+        private void Instagram_Click(object sender, EventArgs e)
+        {
+            GeneralHelper.OpenUrl("https://www.instagram.com/pxquang.2002");
+        }
+        private void Github_Click(object sender, EventArgs e)
+        {
+            GeneralHelper.OpenUrl("https://github.com/phanxuanquang");
+        }
+        private void TikTok_Click(object sender, EventArgs e)
+        {
+            GeneralHelper.OpenUrl("https://www.tiktok.com/@tuyenoaminhnhan");
+        }
+        #endregion
+
+        #region Main Features
         private void ExportBtn_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(InputSearchBox.Text.Trim()))
@@ -217,31 +171,15 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
                     continue;
                 }
 
-                var inputXml = AsXML(dcpPath);
-                UpdateXMLContent(inputXml, InputSearchBox.Text);
-                AsDCP(inputXml, Path.Combine(CameraProfilesDir, $"{InputSearchBox.Text} - {selectedProfileName}"));
-                File.Delete(inputXml);
+                var xmlPath = DcpHelper.AsXML(dcpPath);
+                DcpHelper.UpdateXMLContent(xmlPath, InputSearchBox.Text, OutputSearchBox.Text);
+                DcpHelper.AsDCP(xmlPath, Path.Combine(CameraProfilesDir, $"{InputSearchBox.Text} - {selectedProfileName}"));
+
+                File.Delete(xmlPath);
             }
 
-            MessageBox.Show("Please restart the Lightroom and the Photoshop applications if they are currently opened to apply changes.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Please restart the Lightroom and the Photoshop applications to apply changes.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-        private void Flickr_Click(object sender, EventArgs e)
-        {
-            OpenUrl("https://www.flickr.com/photos/pxq2002");
-        }
-        private void Instagram_Click(object sender, EventArgs e)
-        {
-            OpenUrl("https://www.instagram.com/pxquang.2002");
-        }
-        private void Github_Click(object sender, EventArgs e)
-        {
-            OpenUrl("https://github.com/phanxuanquang");
-        }
-        private void TikTok_Click(object sender, EventArgs e)
-        {
-            OpenUrl("https://www.tiktok.com/@tuyenoaminhnhan");
-        }
-
         private void ResetBtn_Click(object sender, EventArgs e)
         {
             CameraProfilesDir = @"C:\Users\" + Environment.UserName + @"\AppData\Roaming\Adobe\CameraRaw\CameraProfiles";
@@ -254,7 +192,7 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
                     try
                     {
                         string[] files = Directory.GetFiles(CameraProfilesDir);
-                        if(files.Length > 0)
+                        if (files.Length > 0)
                         {
                             foreach (string file in files)
                             {
@@ -289,5 +227,6 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
                 }
             }
         }
+        #endregion
     }
 }
