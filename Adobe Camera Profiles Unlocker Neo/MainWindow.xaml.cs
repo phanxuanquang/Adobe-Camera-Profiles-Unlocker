@@ -44,7 +44,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 
         private async void InputSearchBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
         {
-            var cameraDir = ModelDirs.FirstOrDefault(dir => dir.ToLower().Contains(sender.Text.ToLower().Trim()));
+            var cameraDir = ModelDirs.FirstOrDefault(dir => dir.Contains(args.SelectedItem.ToString()));
 
             if (!Directory.Exists(cameraDir))
             {
