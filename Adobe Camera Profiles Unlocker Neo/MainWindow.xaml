@@ -16,7 +16,7 @@
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             BorderThickness="0"
-            Background="{StaticResource AcrylicBackgroundFillColorDefaultBrush}"
+            Background="{StaticResource LayerOnMicaBaseAltFillColorDefault}"
             CornerRadius="15"
             Padding="40"
             MinHeight="300"
