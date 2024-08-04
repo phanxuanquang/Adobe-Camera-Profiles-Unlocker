@@ -1,8 +1,6 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 
-namespace Adobe_Camera_Profiles_Unlocker_2._0
+namespace Engineer
 {
     public static class DcpHelper
     {

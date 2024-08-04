@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Adobe Camera Profiles Unlocker Neo (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Adobe Camera Profiles Unlocker Neo (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

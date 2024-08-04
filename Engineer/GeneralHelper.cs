@@ -1,7 +1,12 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Security.Principal;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Adobe_Camera_Profiles_Unlocker_2._0
+namespace Engineer
 {
     public static class GeneralHelper
     {
