@@ -59,10 +59,5 @@ namespace Engineer
 
             File.WriteAllLines(xmlPath, lines);
         }
-
-        public static void ModifyDcp()
-        {
-
-        }
     }
 }

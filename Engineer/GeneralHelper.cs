@@ -17,14 +17,17 @@ namespace Engineer
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
-        public static void OpenUrl(string url)
+        public static void OpenFolderInExplorer(string folderPath)
         {
-            Process.Start(new ProcessStartInfo
+            var process = new Process
             {
-                FileName = url,
-                UseShellExecute = true,
-                CreateNoWindow = true
-            });
+                StartInfo = new ProcessStartInfo
+                {
+                    Arguments = folderPath,
+                    FileName = "explorer.exe"
+                }
+            };
+            process.Start();
         }
     }
 }

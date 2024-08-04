@@ -20,7 +20,7 @@
             CornerRadius="15"
             Padding="40"
             MinHeight="300"
-            MinWidth="500"
+            MinWidth="600"
             MaxWidth="1000">
             
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
@@ -28,7 +28,7 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <AutoSuggestBox QueryIcon="Find" x:Name="InputSearchBox" Width="345" PlaceholderText="Input Camera Model" Margin="0,0,10,0"/>
                     <AutoSuggestBox QueryIcon="Find" x:Name="OutputSearchBox" Width="345" PlaceholderText="Your Camera Model" Margin="0,0,10,0"/>
-                    <Button x:Name="ExportButton" Content="Export" Style="{StaticResource AccentButtonStyle}" Width="100" Margin="0,0,10,0" Click="ExportButton_Click"/>
+                    <Button x:Name="ExportButton" Content="Install" Style="{StaticResource AccentButtonStyle}" Width="100" Margin="0,0,10,0" Click="ExportButton_Click"/>
                     <Button x:Name="ResetButton" Content="Reset" Background="{StaticResource AcrylicInAppFillColorBaseBrush}" Width="100" Click="ResetButton_Click"/>
                 </StackPanel>
 
@@ -38,7 +38,10 @@
                         <controls:DataGridTextColumn Header="Camera Model" Binding="{Binding ProfileName}" Width="*" />
                     </controls:DataGrid.Columns>
                 </controls:DataGrid>
-                <HyperlinkButton Background="{StaticResource AcrylicInAppFillColorBaseBrush}" Content="Find the author on GitHub" NavigateUri="https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <HyperlinkButton Background="{StaticResource AcrylicInAppFillColorBaseBrush}" Content="Find the project on GitHub" NavigateUri="https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker" Margin="0,0,10,0"/>
+                    <HyperlinkButton Background="{StaticResource AcrylicInAppFillColorBaseBrush}" Content="Buy me a coffee" NavigateUri="https://i.imgur.com/XYXfisQ.jpeg" />
+                </StackPanel>
             </StackPanel>
         </Border>
     </Grid>
