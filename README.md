@@ -10,7 +10,8 @@ In order to ensure that the application run properly, you should turn off the **
 - Step 1: Download the **Adobe.Camera.Profiles.Unlocker.zip** from [THIS](https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/releases/latest) page.
 - Step 2: Follow the guidance video as below.
 
-[![Guidance video](https://i.imgur.com/l7p86X3.jpeg)](https://vt.tiktok.com/ZSY2vmhyH)
+[![Guidance video](https://github.com/user-attachments/assets/32115441-4a95-4933-84e1-b07e60e0f263)](https://vt.tiktok.com/ZSY2vmhyH)
+
 - Step3: Restart your Adobe applications after the installation to make sure that all changes have been applied.
 
 ### macOS
