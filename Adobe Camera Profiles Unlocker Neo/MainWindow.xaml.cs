@@ -1,5 +1,4 @@
 ﻿using Engineer;
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -9,11 +8,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using Windows.Storage.Pickers;
-using Windows.System;
-using WinRT.Interop;
 
 namespace Adobe_Camera_Profiles_Unlocker_Neo
 {
@@ -31,18 +26,6 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
         {
             this.InitializeComponent();
 
-            Microsoft.UI.Windowing.DisplayArea displayArea = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(
-                Win32Interop.GetWindowIdFromWindow(WindowNative.GetWindowHandle(this)), 
-                Microsoft.UI.Windowing.DisplayAreaFallback.Nearest);
-
-            this.AppWindow.Move(new Windows.Graphics.PointInt32(
-                (displayArea.WorkArea.Width - this.AppWindow.Size.Width) / 2, 
-                (displayArea.WorkArea.Height - this.AppWindow.Size.Height) / 2));
-
-            this.AppWindow.Resize(new Windows.Graphics.SizeInt32(
-                (int)this.Bounds.Width, 
-                (int)(this.Bounds.Height * 1.2)));
-
             this.AppWindow.TitleBar.IconShowOptions = Microsoft.UI.Windowing.IconShowOptions.HideIconAndSystemMenu;
             this.AppWindow.Title = "Adobe Camera Profiles Unlocker Neo - by Phan Xuan Quang";
 
@@ -59,7 +42,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             this.OutputSearchBox.TextChanged += OutputSearchBox_TextChanged;
         }
 
-        private void InputSearchBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        private async void InputSearchBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
         {
             var cameraDir = ModelDirs.FirstOrDefault(dir => dir.ToLower().Contains(sender.Text.ToLower().Trim()));
 
@@ -68,48 +51,76 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 return;
             }
 
-            SelectedProfileDirs = DirectoryHelper.GetDcpFiles(cameraDir);
-            var profileNames = SelectedProfileDirs.Select(Path.GetFileName).ToArray();
-            var cameraPrefix = $"{sender.Text} Camera ";
-            CameraProfiles.Clear();
-
-            for (int i = 0; i < profileNames.Length; i++)
+            try
             {
-                CameraProfiles.Add(new CameraProfile { No = i + 1, ProfileName = profileNames[i].Replace(".dcp", "").Replace(cameraPrefix, "") });
+                SelectedProfileDirs = DirectoryHelper.GetDcpFiles(cameraDir);
+                var profileNames = SelectedProfileDirs.Select(Path.GetFileName).ToArray();
+                var cameraPrefix = $"{sender.Text} Camera ";
+                CameraProfiles.Clear();
+
+                for (int i = 0; i < profileNames.Length; i++)
+                {
+                    CameraProfiles.Add(new CameraProfile { No = i + 1, ProfileName = profileNames[i].Replace(".dcp", "").Replace(cameraPrefix, "") });
+                }
+            }
+            catch (Exception ex)
+            {
+                ContentDialog errorDialog = new ContentDialog
+                {
+                    XamlRoot = this.Content.XamlRoot,
+                    Title = "Error",
+                    Content = ex.Message,
+                    PrimaryButtonText = "OK",
+                };
+                await errorDialog.ShowAsync();
             }
         }
 
-        private void InputSearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private async void InputSearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                FilterResult(sender);
+                await FilterResult(sender);
             }
         }
 
-        private void FilterResult(AutoSuggestBox sender)
+        private async Task FilterResult(AutoSuggestBox sender)
         {
             var matchedItems = new List<string>();
             var keyword = sender.Text.ToLower().Trim();
 
-            var matchedDirs = ModelDirs.AsParallel()
+            try
+            {
+                var matchedDirs = ModelDirs.AsParallel()
                 .Where(dir => dir.Replace($"{ModelsDir}\\", string.Empty).ToLower().Contains(keyword))
                 .Select(dir => dir.Replace($"{ModelsDir}\\", string.Empty))
                 .ToList();
 
-            if (matchedDirs.Count == 0)
-            {
-                matchedDirs.Add("No camera found");
-            }
+                if (matchedDirs.Count == 0)
+                {
+                    matchedDirs.Add("No camera found");
+                }
 
-            sender.ItemsSource = matchedDirs;
+                sender.ItemsSource = matchedDirs;
+            }
+            catch (Exception ex)
+            {
+                ContentDialog errorDialog = new ContentDialog
+                {
+                    XamlRoot = this.Content.XamlRoot,
+                    Title = "Error",
+                    Content = ex.Message,
+                    PrimaryButtonText = "OK",
+                };
+                await errorDialog.ShowAsync();
+            }
         }
 
-        private void OutputSearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private async void OutputSearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                FilterResult(sender);
+                await FilterResult(sender);
             }
         }
 
@@ -250,21 +261,35 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 
             foreach (var item in selectedItems)
             {
-                var selectedProfile = item as CameraProfile;
-                var selectedProfileName = selectedProfile.ProfileName;
-
-                var dcpPath = SelectedProfileDirs.FirstOrDefault(dir => dir.Contains(selectedProfileName));
-
-                if (string.IsNullOrEmpty(dcpPath))
+                try
                 {
-                    continue;
+                    var selectedProfile = item as CameraProfile;
+                    var selectedProfileName = selectedProfile.ProfileName;
+
+                    var dcpPath = SelectedProfileDirs.FirstOrDefault(dir => dir.Contains(selectedProfileName));
+
+                    if (string.IsNullOrEmpty(dcpPath))
+                    {
+                        continue;
+                    }
+
+                    var xmlPath = DcpHelper.AsXML(dcpPath);
+                    DcpHelper.UpdateXMLContent(xmlPath, InputSearchBox.Text, OutputSearchBox.Text);
+                    DcpHelper.AsDCP(xmlPath, Path.Combine(CameraProfilesDir, $"{InputSearchBox.Text} - {selectedProfileName}"));
+
+                    File.Delete(xmlPath);
                 }
-
-                var xmlPath = DcpHelper.AsXML(dcpPath);
-                DcpHelper.UpdateXMLContent(xmlPath, InputSearchBox.Text, OutputSearchBox.Text);
-                DcpHelper.AsDCP(xmlPath, Path.Combine(CameraProfilesDir, $"{InputSearchBox.Text} - {selectedProfileName}"));
-
-                File.Delete(xmlPath);
+                catch (Exception ex)
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        XamlRoot = this.Content.XamlRoot,
+                        Title = "Error",
+                        Content = $"Failed with the profile '{(item as CameraProfile)?.ProfileName}'.\n{ex.Message}",
+                        PrimaryButtonText = "OK"
+                    };
+                    await errorDialog.ShowAsync();
+                }
             }
 
             ContentDialog successDialog2 = new ContentDialog

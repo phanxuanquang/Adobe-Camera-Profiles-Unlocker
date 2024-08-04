@@ -9,7 +9,7 @@ namespace Engineer
             var xmlPath = $"{AppDomain.CurrentDomain.BaseDirectory}\\{Path.GetFileName(dcpPath).Replace(".dcp", ".xml")}";
 
             var exeInfor = new ProcessStartInfo();
-            exeInfor.FileName = @"dcpTool.exe";
+            exeInfor.FileName = @"Assets\dcpTool.exe";
             exeInfor.CreateNoWindow = true;
             exeInfor.Arguments = $"-d \"{dcpPath}\" \"{xmlPath}\"";
 
@@ -22,7 +22,7 @@ namespace Engineer
         public static void AsDCP(string xmlPath, string dcpPath)
         {
             var exeInfor = new ProcessStartInfo();
-            exeInfor.FileName = @"dcpTool.exe";
+            exeInfor.FileName = @"Assets\dcpTool.exe";
             exeInfor.Arguments = $"-c \"{xmlPath}\" \"{dcpPath}.dcp\"";
             exeInfor.CreateNoWindow = true;
 
