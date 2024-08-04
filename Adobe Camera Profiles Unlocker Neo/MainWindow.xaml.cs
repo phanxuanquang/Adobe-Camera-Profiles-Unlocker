@@ -76,51 +76,65 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 
         private async void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
         {
-            await Task.Delay(150);
-
-            if (!GeneralHelper.IsUserAdmin())
+            try
             {
-                ContentDialog adminDialog = new ContentDialog
+                await Task.Delay(300);
+
+                if (!GeneralHelper.IsUserAdmin())
+                {
+                    ContentDialog adminDialog = new ContentDialog
+                    {
+                        XamlRoot = this.Content.XamlRoot,
+                        Title = "Error",
+                        Content = "The application must be ran with the administrator right.\nPlease try again.",
+                        PrimaryButtonText = "OK"
+                    };
+                    await adminDialog.ShowAsync();
+                    Application.Current.Exit();
+                }
+
+                if (!Directory.Exists(CameraProfilesDir_ACR))
+                {
+                    Directory.CreateDirectory(CameraProfilesDir_ACR);
+                }
+
+                if (!Directory.Exists(CameraProfilesDir_LR))
+                {
+                    Directory.CreateDirectory(CameraProfilesDir_LR);
+                }
+
+                if (!Directory.Exists(ModelsDir))
+                {
+                    ContentDialog noAdobeDialog = new ContentDialog
+                    {
+                        Title = "Error",
+                        Content = "Cannot find Lightroom or Camera Raw on your device.\nPlease install the latest version of Adobe Camera Raw or Adobe Lightroom.",
+                        PrimaryButtonText = "OK"
+                    };
+                    await noAdobeDialog.ShowAsync();
+                    Application.Current.Exit();
+                }
+
+                ModelDirs = DirectoryHelper.GetChilds(ModelsDir);
+                var models = ModelDirs.Select(Path.GetFileName).ToArray();
+                foreach (var model in models)
+                {
+                    DataSource.Add(model);
+                }
+
+                InputSearchBox.ItemsSource = OutputSearchBox.ItemsSource = DataSource;
+            }
+            catch (Exception ex)
+            {
+                ContentDialog errorDialog = new ContentDialog
                 {
                     XamlRoot = this.Content.XamlRoot,
                     Title = "Error",
-                    Content = "The application must be ran with the administrator right.\nPlease try again.",
-                    PrimaryButtonText = "OK"
+                    Content = ex.Message,
+                    PrimaryButtonText = "OK",
                 };
-                await adminDialog.ShowAsync();
-                Application.Current.Exit();
+                await errorDialog.ShowAsync();
             }
-
-            if (!Directory.Exists(CameraProfilesDir_ACR))
-            {
-                Directory.CreateDirectory(CameraProfilesDir_ACR);
-            }
-
-            if (!Directory.Exists(CameraProfilesDir_LR))
-            {
-                Directory.CreateDirectory(CameraProfilesDir_LR);
-            }
-
-            if (!Directory.Exists(ModelsDir))
-            {
-                ContentDialog noAdobeDialog = new ContentDialog
-                {
-                    Title = "Error",
-                    Content = "Cannot find Lightroom or Camera Raw on your device.\nPlease install the latest version of Adobe Camera Raw or Adobe Lightroom.",
-                    PrimaryButtonText = "OK"
-                };
-                await noAdobeDialog.ShowAsync();
-                Application.Current.Exit();
-            }
-
-            ModelDirs = DirectoryHelper.GetChilds(ModelsDir);
-            var models = ModelDirs.Select(Path.GetFileName).ToArray();
-            foreach (var model in models)
-            {
-                DataSource.Add(model);
-            }
-
-            InputSearchBox.ItemsSource = OutputSearchBox.ItemsSource = DataSource;
         }
 
         private async void InputSearchBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
