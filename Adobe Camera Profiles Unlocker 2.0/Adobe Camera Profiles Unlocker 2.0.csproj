@@ -73,9 +73,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DcpHelper.cs" />
-    <Compile Include="DirectoryHelper.cs" />
-    <Compile Include="GeneralHelper.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -132,6 +129,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Engineer\Engineer.csproj">
+      <Project>{bbc93bf6-c5e4-4f7f-81d8-675fe3e3c2cf}</Project>
+      <Name>Engineer</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

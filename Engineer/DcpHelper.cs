@@ -1,8 +1,6 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 
-namespace Adobe_Camera_Profiles_Unlocker_2._0
+namespace Engineer
 {
     public static class DcpHelper
     {
@@ -11,7 +9,7 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
             var xmlPath = $"{AppDomain.CurrentDomain.BaseDirectory}\\{Path.GetFileName(dcpPath).Replace(".dcp", ".xml")}";
 
             var exeInfor = new ProcessStartInfo();
-            exeInfor.FileName = @"dcpTool.exe";
+            exeInfor.FileName = @"Assets\dcpTool.exe";
             exeInfor.CreateNoWindow = true;
             exeInfor.Arguments = $"-d \"{dcpPath}\" \"{xmlPath}\"";
 
@@ -24,7 +22,7 @@ namespace Adobe_Camera_Profiles_Unlocker_2._0
         public static void AsDCP(string xmlPath, string dcpPath)
         {
             var exeInfor = new ProcessStartInfo();
-            exeInfor.FileName = @"dcpTool.exe";
+            exeInfor.FileName = @"Assets\dcpTool.exe";
             exeInfor.Arguments = $"-c \"{xmlPath}\" \"{dcpPath}.dcp\"";
             exeInfor.CreateNoWindow = true;
 

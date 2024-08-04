@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Adobe_Camera_Profiles_Unlocker_2._0
+namespace Engineer
 {
     public static class DirectoryHelper
     {
