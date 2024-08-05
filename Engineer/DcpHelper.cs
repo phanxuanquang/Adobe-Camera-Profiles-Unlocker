@@ -34,7 +34,7 @@ namespace Engineer
         {
             var lines = File.ReadAllLines(xmlPath);
 
-            for (int i = 0; i < lines.Length; i++)
+            Parallel.For(0, lines.Length, i =>
             {
                 if (lines[i].Contains("<ProfileName>"))
                 {
@@ -55,7 +55,7 @@ namespace Engineer
                 {
                     lines[i] = lines[i].Replace(lines[i], $"<UniqueCameraModelRestriction>{outputCameraModel}</UniqueCameraModelRestriction>");
                 }
-            }
+            });
 
             File.WriteAllLines(xmlPath, lines);
         }

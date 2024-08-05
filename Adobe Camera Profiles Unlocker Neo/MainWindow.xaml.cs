@@ -12,11 +12,14 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 {
     public sealed partial class MainWindow : Window
     {
-        private readonly string ModelsDir;
-        private string[] ModelDirs;
+        private const string ModelsDir = @"C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Camera";
+        private const string ModelsDirAlt = @"C:\ProgramData\Adobe\CameraRaw\Settings\Adobe\Profiles\Camera";
+        private const string CameraProfilesDir_LR = @"C:\ProgramData\Adobe\CameraRaw\CameraProfiles";
         private readonly string CameraProfilesDir_ACR;
-        private readonly string CameraProfilesDir_LR;
+
+        private List<string> ModelDirs;
         private List<string> SelectedProfileDirs;
+
         private ObservableCollection<string> DataSource;
 
         public ObservableCollection<CameraProfile> CameraProfiles { get; set; }
@@ -29,9 +32,8 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             this.AppWindow.Title = "Adobe Camera Profiles Unlocker Neo - by Phan Xuan Quang";
 
             CameraProfilesDir_ACR = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Adobe\CameraRaw\CameraProfiles");
-            CameraProfilesDir_LR = @"C:\ProgramData\Adobe\CameraRaw\CameraProfiles";
-            ModelsDir = @"C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Camera";
 
+            ModelDirs = new List<string>();
             SelectedProfileDirs = new List<string>();
             DataSource = new ObservableCollection<string>();
             ProfileTable.ItemsSource = CameraProfiles = new ObservableCollection<CameraProfile>();
@@ -45,14 +47,23 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
         private async Task FilterResult(AutoSuggestBox sender)
         {
             var matchedItems = new List<string>();
-            var keyword = sender.Text.ToLower().Trim();
+            var keyword = sender.Text.Replace(" ", string.Empty).ToLower().Trim();
+
+            if (string.IsNullOrEmpty(keyword))
+            {
+                sender.ItemsSource = new List<string>() { "No camera found" };
+                return;
+            }
 
             try
             {
-                var matchedDirs = ModelDirs.AsParallel()
-                .Where(dir => dir.Replace($"{ModelsDir}\\", string.Empty).ToLower().Contains(keyword))
-                .Select(dir => dir.Replace($"{ModelsDir}\\", string.Empty))
-                .ToList();
+                var matchedDirs = ModelDirs
+                    .AsParallel()
+                    .Where(dir => dir.Replace(" ", string.Empty).ToLower().Contains(keyword))
+                    .Select(Path.GetFileName)
+                    .Distinct()
+                    .OrderBy(name => name)
+                    .ToList();
 
                 if (matchedDirs.Count == 0)
                 {
@@ -115,9 +126,20 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     Application.Current.Exit();
                 }
 
-                ModelDirs = DirectoryHelper.GetChilds(ModelsDir);
-                var models = ModelDirs.Select(Path.GetFileName).ToArray();
-                foreach (var model in models)
+                var modelDirs = await DirectoryHelper.GetFolders(ModelsDir);
+                var modelDirsAlt = await DirectoryHelper.GetFolders(ModelsDirAlt, false);
+
+                ModelDirs.AddRange(modelDirs);
+                ModelDirs.AddRange(modelDirsAlt);
+
+                var models = ModelDirs
+                    .AsParallel()
+                    .Select(Path.GetFileName)
+                    .Distinct()
+                    .OrderBy(name => name)
+                    .ToList();
+
+                foreach(var model in models)
                 {
                     DataSource.Add(model);
                 }
@@ -148,14 +170,19 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 
             try
             {
-                SelectedProfileDirs = DirectoryHelper.GetDcpFiles(cameraDir);
+                SelectedProfileDirs = DirectoryHelper.GetProfileFiles(cameraDir);
                 var profileNames = SelectedProfileDirs.Select(Path.GetFileName).ToArray();
-                var cameraPrefix = $"{sender.Text} Camera ";
                 CameraProfiles.Clear();
 
                 for (int i = 0; i < profileNames.Length; i++)
                 {
-                    CameraProfiles.Add(new CameraProfile { No = i + 1, ProfileName = profileNames[i].Replace(".dcp", "").Replace(cameraPrefix, "") });
+                    CameraProfiles.Add(new CameraProfile 
+                    { 
+                        No = i + 1, 
+                        ProfileName = profileNames[i]
+                        .Replace(".dcp", string.Empty)
+                        .Replace(".xmp", string.Empty)
+                    });
                 }
             }
             catch (Exception ex)
@@ -188,7 +215,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 
         private async void ExportButton_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(InputSearchBox.Text.Trim()))
+            if (string.IsNullOrEmpty(InputSearchBox.Text))
             {
                 ContentDialog errorDialog = new ContentDialog
                 {
@@ -201,7 +228,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 return;
             }
 
-            if (string.IsNullOrEmpty(OutputSearchBox.Text.Trim()))
+            if (string.IsNullOrEmpty(OutputSearchBox.Text))
             {
                 ContentDialog errorDialog = new ContentDialog
                 {
@@ -214,7 +241,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 return;
             }
 
-            if (!ModelDirs.Any(dir => dir.Contains(OutputSearchBox.Text.Trim())) || !ModelDirs.Any(dir => dir.Contains(InputSearchBox.Text.Trim())))
+            if (!ModelDirs.Any(dir => dir.Contains(OutputSearchBox.Text.Trim()) || dir.Contains(InputSearchBox.Text.Trim())))
             {
                 ContentDialog errorDialog = new ContentDialog
                 {
@@ -227,7 +254,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 return;
             }
 
-            if (InputSearchBox.Text == OutputSearchBox.Text)
+            if (InputSearchBox.Text.Equals(OutputSearchBox.Text))
             {
                 ContentDialog successDialog = new ContentDialog
                 {
@@ -254,23 +281,30 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             }
 
             var selectedProfiles = ProfileTable.SelectedItems
-                .AsParallel()
-                .Cast<CameraProfile>()
-                .Select(p => p.ProfileName)
-                .ToList();
+                  .AsParallel()
+                  .Cast<CameraProfile>()
+                  .Select(p => p.ProfileName)
+                  .ToList();
 
-            foreach(var profile in selectedProfiles)
+            foreach (var profile in selectedProfiles)
             {
-                var dcpPath = SelectedProfileDirs.FirstOrDefault(dir => dir.Contains(profile));
+                var newProfile = SelectedProfileDirs.FirstOrDefault(dir => dir.Contains(profile));
 
-                if (!string.IsNullOrEmpty(dcpPath))
+                if (!string.IsNullOrEmpty(newProfile))
                 {
-                    var xmlPath = DcpHelper.AsXML(dcpPath);
-                    DcpHelper.UpdateXMLContent(xmlPath, InputSearchBox.Text, OutputSearchBox.Text);
-                    DcpHelper.AsDCP(xmlPath, Path.Combine(CameraProfilesDir_ACR, profile));
-                    DcpHelper.AsDCP(xmlPath, Path.Combine(CameraProfilesDir_LR, profile));
+                    if (newProfile.EndsWith(".dcp"))
+                    {
+                        var xmlPath = DcpHelper.AsXML(newProfile);
+                        DcpHelper.UpdateXMLContent(xmlPath, InputSearchBox.Text, OutputSearchBox.Text);
+                        DcpHelper.AsDCP(xmlPath, Path.Combine(CameraProfilesDir_ACR, profile));
+                        DcpHelper.AsDCP(xmlPath, Path.Combine(CameraProfilesDir_LR, profile));
 
-                    File.Delete(xmlPath);
+                        File.Delete(xmlPath);
+                    }
+                    else
+                    {
+                        XmpHelper.UpdateXMPContent(newProfile, InputSearchBox.Text, OutputSearchBox.Text);
+                    }
                 }
             }
 
