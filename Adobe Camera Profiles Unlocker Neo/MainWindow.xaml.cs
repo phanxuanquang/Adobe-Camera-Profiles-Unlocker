@@ -296,8 +296,8 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     {
                         var xmlPath = DcpHelper.AsXML(newProfile);
                         DcpHelper.UpdateXMLContent(xmlPath, InputSearchBox.Text, OutputSearchBox.Text);
-                        DcpHelper.AsDCP(xmlPath, Path.Combine(CameraProfilesDir_ACR, profile));
-                        DcpHelper.AsDCP(xmlPath, Path.Combine(CameraProfilesDir_LR, profile));
+                        DcpHelper.AsDCP(xmlPath, Path.Combine(CameraProfilesDir_ACR, $"{profile} (for {OutputSearchBox.Text})"));
+                        DcpHelper.AsDCP(xmlPath, Path.Combine(CameraProfilesDir_LR, $"{profile} (for {OutputSearchBox.Text})"));
 
                         File.Delete(xmlPath);
                     }
