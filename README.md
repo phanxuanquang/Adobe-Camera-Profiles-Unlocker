@@ -3,7 +3,7 @@ A tool to unlock the hidden Camera Profiles in the Adobe Lightroom and Adobe Cam
 ## 1. Prerequisites
 - Adobe Lightroom or Adobe Photoshop version 2021 or later
 - Adobe Camera Raw 16 or later ([the latest version](https://helpx.adobe.com/vn_vi/camera-raw/kb/camera-raw-plug-in-installer.html) is the most recommended)
-- A Windows 11 device
+- A Windows 10 or Windows 11 (the most recommended) device
 ## 2. Usage Guidance
 ### Windows
 In order to ensure that the application run properly, you should turn off the **Windows Defender** before downloading.
