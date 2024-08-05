@@ -97,6 +97,19 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     Application.Current.Exit();
                 }
 
+                if (!Directory.Exists(ModelsDir) && !Directory.Exists(ModelsDirAlt))
+                {
+                    ContentDialog noAdobeDialog = new ContentDialog
+                    {
+                        XamlRoot = RootGrid.XamlRoot,
+                        Title = "Error",
+                        Content = "Cannot find Lightroom or Camera Raw on your device.\nPlease install the latest version of Adobe Camera Raw or Adobe Lightroom.",
+                        PrimaryButtonText = "OK"
+                    };
+                    await noAdobeDialog.ShowAsync();
+                    Application.Current.Exit();
+                }
+
                 if (!Directory.Exists(CameraProfilesDir_ACR))
                 {
                     Directory.CreateDirectory(CameraProfilesDir_ACR);
@@ -105,18 +118,6 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 if (!Directory.Exists(CameraProfilesDir_LR))
                 {
                     Directory.CreateDirectory(CameraProfilesDir_LR);
-                }
-
-                if (!Directory.Exists(ModelsDir))
-                {
-                    ContentDialog noAdobeDialog = new ContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Cannot find Lightroom or Camera Raw on your device.\nPlease install the latest version of Adobe Camera Raw or Adobe Lightroom.",
-                        PrimaryButtonText = "OK"
-                    };
-                    await noAdobeDialog.ShowAsync();
-                    Application.Current.Exit();
                 }
 
                 var modelDirs = await DirectoryHelper.GetFolders(ModelsDir);
