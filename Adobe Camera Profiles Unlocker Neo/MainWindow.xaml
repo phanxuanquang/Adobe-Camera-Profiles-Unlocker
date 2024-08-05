@@ -11,7 +11,7 @@
         <MicaBackdrop Kind="Base"/>
     </Window.SystemBackdrop>
 
-    <Grid Padding="40">
+    <Grid x:Name="RootGrid" Padding="40">
         <Border
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
@@ -38,6 +38,7 @@
                         <controls:DataGridTextColumn Header="Camera Model" Binding="{Binding ProfileName}" Width="*" />
                     </controls:DataGrid.Columns>
                 </controls:DataGrid>
+
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <HyperlinkButton Background="{StaticResource AcrylicInAppFillColorBaseBrush}" Content="Find the project on GitHub" NavigateUri="https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker" Margin="0,0,10,0"/>
                     <HyperlinkButton Background="{StaticResource AcrylicInAppFillColorBaseBrush}" Content="Buy me a coffee" NavigateUri="https://i.imgur.com/XYXfisQ.jpeg" />

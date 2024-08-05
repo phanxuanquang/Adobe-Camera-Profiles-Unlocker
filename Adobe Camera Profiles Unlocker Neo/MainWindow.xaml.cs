@@ -72,16 +72,9 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 
                 sender.ItemsSource = matchedDirs;
             }
-            catch (Exception ex)
+            catch
             {
-                ContentDialog errorDialog = new ContentDialog
-                {
-                    XamlRoot = this.Content.XamlRoot,
-                    Title = "Error",
-                    Content = ex.Message,
-                    PrimaryButtonText = "OK",
-                };
-                await errorDialog.ShowAsync();
+                sender.ItemsSource = new List<string>() { "Error while finding the camera" };
             }
         }
 
@@ -95,7 +88,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 {
                     ContentDialog adminDialog = new ContentDialog
                     {
-                        XamlRoot = this.Content.XamlRoot,
+                        XamlRoot = RootGrid.XamlRoot,
                         Title = "Error",
                         Content = "The application must be ran with the administrator right.\nPlease try again.",
                         PrimaryButtonText = "OK"
@@ -150,9 +143,9 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             {
                 ContentDialog errorDialog = new ContentDialog
                 {
-                    XamlRoot = this.Content.XamlRoot,
+                    XamlRoot = RootGrid.XamlRoot,
                     Title = "Error",
-                    Content = ex.Message,
+                    Content = $"Cannot start the application. {ex.Message}",
                     PrimaryButtonText = "OK",
                 };
                 await errorDialog.ShowAsync();
@@ -189,9 +182,9 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             {
                 ContentDialog errorDialog = new ContentDialog
                 {
-                    XamlRoot = this.Content.XamlRoot,
+                    XamlRoot = RootGrid.XamlRoot,
                     Title = "Error",
-                    Content = ex.Message,
+                    Content = $"Cannot find the profiles. {ex.Message}",
                     PrimaryButtonText = "OK",
                 };
                 await errorDialog.ShowAsync();
@@ -219,7 +212,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             {
                 ContentDialog errorDialog = new ContentDialog
                 {
-                    XamlRoot = this.Content.XamlRoot,
+                    XamlRoot = RootGrid.XamlRoot,
                     Title = "Error",
                     Content = "Please input the code name of the camera model you want to take camera profiles.",
                     PrimaryButtonText = "OK"
@@ -232,7 +225,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             {
                 ContentDialog errorDialog = new ContentDialog
                 {
-                    XamlRoot = this.Content.XamlRoot,
+                    XamlRoot = RootGrid.XamlRoot,
                     Title = "Error",
                     Content = "Please input the code name of your camera model.",
                     PrimaryButtonText = "OK"
@@ -245,7 +238,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             {
                 ContentDialog errorDialog = new ContentDialog
                 {
-                    XamlRoot = this.Content.XamlRoot,
+                    XamlRoot = RootGrid.XamlRoot,
                     Title = "Error",
                     Content = "Please input the correct code name of the camera models",
                     PrimaryButtonText = "OK"
@@ -258,7 +251,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             {
                 ContentDialog successDialog = new ContentDialog
                 {
-                    XamlRoot = this.Content.XamlRoot,
+                    XamlRoot = RootGrid.XamlRoot,
                     Title = "Success",
                     Content = "Please restart the Lightroom and the Photoshop applications to apply changes.",
                     PrimaryButtonText = "OK"
@@ -271,7 +264,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             {
                 ContentDialog errorDialog = new ContentDialog
                 {
-                    XamlRoot = this.Content.XamlRoot,
+                    XamlRoot = RootGrid.XamlRoot,
                     Title = "Error",
                     Content = "Please select at least one Camera Profile to export.",
                     PrimaryButtonText = "OK"
@@ -312,7 +305,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 
             ContentDialog successDialog2 = new ContentDialog
             {
-                XamlRoot = this.Content.XamlRoot,
+                XamlRoot = RootGrid.XamlRoot,
                 Title = "Success",
                 Content = "Please restart the Lightroom and the Photoshop applications to apply changes.",
                 PrimaryButtonText = "OK"
@@ -332,7 +325,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 {
                     ContentDialog doneDialog = new ContentDialog
                     {
-                        XamlRoot = this.Content.XamlRoot,
+                        XamlRoot = RootGrid.XamlRoot,
                         Title = "Success",
                         Content = "You have not installed any profiles yet.",
                         PrimaryButtonText = "OK"
@@ -344,7 +337,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 
                 ContentDialog confirmationDialog = new ContentDialog
                 {
-                    XamlRoot = this.Content.XamlRoot,
+                    XamlRoot = RootGrid.XamlRoot,
                     Title = "Confirmation",
                     Content = "All newly created camera profiles will be deleted permanently.\n · Yes: Delete all camera profiles\n · No: Select camera profiles and delete them manually",
                     PrimaryButtonText = "Yes",
@@ -376,7 +369,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 
                         ContentDialog successDialog = new ContentDialog
                         {
-                            XamlRoot = this.Content.XamlRoot,
+                            XamlRoot = RootGrid.XamlRoot,
                             Title = "Success",
                             Content = $"Deleted camera profiles:\n · {string.Join("\n · ", deletedFileNames)}",
                             PrimaryButtonText = "OK"
@@ -394,7 +387,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             {
                 ContentDialog errorDialog = new ContentDialog
                 {
-                    XamlRoot = this.Content.XamlRoot,
+                    XamlRoot = RootGrid.XamlRoot,
                     Title = "Error",
                     Content = ex.Message,
                     PrimaryButtonText = "OK",
