@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.System.Profile;
 
 namespace Adobe_Camera_Profiles_Unlocker_Neo
 {
@@ -21,8 +22,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
         private List<string> SelectedProfileDirs;
 
         private ObservableCollection<string> DataSource;
-
-        public ObservableCollection<CameraProfile> CameraProfiles { get; set; }
+        private ObservableCollection<CameraProfile> CameraProfiles;
 
         public MainWindow()
         {
@@ -44,45 +44,24 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             this.InputSearchBox.SuggestionChosen += InputSearchBox_SuggestionChosen;
         }
 
-        private async Task FilterResult(AutoSuggestBox sender)
-        {
-            var matchedItems = new List<string>();
-            var keyword = sender.Text.Replace(" ", string.Empty).ToLower().Trim();
-
-            if (string.IsNullOrEmpty(keyword))
-            {
-                sender.ItemsSource = new List<string>() { "No camera found" };
-                return;
-            }
-
-            try
-            {
-                var matchedDirs = ModelDirs
-                    .AsParallel()
-                    .Where(dir => dir.Replace(" ", string.Empty).ToLower().Contains(keyword))
-                    .Select(Path.GetFileName)
-                    .Distinct()
-                    .OrderBy(name => name)
-                    .ToList();
-
-                if (matchedDirs.Count == 0)
-                {
-                    matchedDirs.Add("No camera found");
-                }
-
-                sender.ItemsSource = matchedDirs;
-            }
-            catch
-            {
-                sender.ItemsSource = new List<string>() { "Error while finding the camera" };
-            }
-        }
-
         private async void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
         {
             try
             {
                 await Task.Delay(300);
+
+                if (!IsSupportedOS())
+                {
+                    ContentDialog adminDialog = new ContentDialog
+                    {
+                        XamlRoot = RootGrid.XamlRoot,
+                        Title = "Error",
+                        Content = "The current version of your Windows is not supported by this application.",
+                        PrimaryButtonText = "OK"
+                    };
+                    await adminDialog.ShowAsync();
+                    Application.Current.Exit();
+                }
 
                 if (!GeneralHelper.IsUserAdmin())
                 {
@@ -90,7 +69,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     {
                         XamlRoot = RootGrid.XamlRoot,
                         Title = "Error",
-                        Content = "The application must be ran with the administrator right.\nPlease try again.",
+                        Content = "The application must be ran with the administrator right.",
                         PrimaryButtonText = "OK"
                     };
                     await adminDialog.ShowAsync();
@@ -103,7 +82,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     {
                         XamlRoot = RootGrid.XamlRoot,
                         Title = "Error",
-                        Content = "Cannot find Lightroom or Camera Raw on your device.\nPlease install the latest version of Adobe Camera Raw or Adobe Lightroom.",
+                        Content = "Cannot find Lightroom or Camera Raw on your device.",
                         PrimaryButtonText = "OK"
                     };
                     await noAdobeDialog.ShowAsync();
@@ -153,6 +132,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             }
         }
 
+        #region SearchBox Events
         private async void InputSearchBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
         {
             var cameraDir = ModelDirs.FirstOrDefault(dir => dir.Contains(args.SelectedItem.ToString()));
@@ -191,23 +171,24 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 await errorDialog.ShowAsync();
             }
         }
-
-        private async void InputSearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private void InputSearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                await FilterResult(sender);
+                FilterResult(sender);
             }
         }
-        private async void OutputSearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private void OutputSearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                await FilterResult(sender);
+                FilterResult(sender);
             }
         }
+        #endregion
 
-        private async void ExportButton_Click(object sender, RoutedEventArgs e)
+        #region Button Events
+        private async void InstallButton_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(InputSearchBox.Text))
             {
@@ -396,6 +377,56 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 await errorDialog.ShowAsync();
             }
         }
+        #endregion
+
+        #region Helpers
+        private void FilterResult(AutoSuggestBox sender)
+        {
+            var keyword = sender.Text.Replace(" ", string.Empty).ToLower().Trim();
+
+            if (string.IsNullOrEmpty(keyword))
+            {
+                sender.ItemsSource = new List<string>() { "No camera found" };
+                return;
+            }
+
+            try
+            {
+                var matchedDirs = ModelDirs
+                    .AsParallel()
+                    .Where(dir => dir.Replace(" ", string.Empty).ToLower().Contains(keyword))
+                    .Select(Path.GetFileName)
+                    .Distinct()
+                    .OrderBy(name => name)
+                    .ToList();
+
+                if (matchedDirs.Count == 0)
+                {
+                    matchedDirs.Add("No camera found");
+                }
+
+                sender.ItemsSource = matchedDirs;
+            }
+            catch
+            {
+                sender.ItemsSource = new List<string>() { "Error while finding the camera" };
+            }
+        }
+        public bool IsSupportedOS()
+        {
+            var minOsVersion = new Version(10, 0, 17763, 0);
+
+            var version = AnalyticsInfo.VersionInfo.DeviceFamilyVersion;
+            ulong versionAsLong = ulong.Parse(version);
+            ulong major = (versionAsLong & 0xFFFF000000000000L) >> 48;
+            ulong minor = (versionAsLong & 0x0000FFFF00000000L) >> 32;
+            ulong build = (versionAsLong & 0x00000000FFFF0000L) >> 16;
+            ulong revision = (versionAsLong & 0x000000000000FFFFL);
+
+            Version currentOsVersion = new Version((int)major, (int)minor, (int)build, (int)revision);
+            return currentOsVersion.CompareTo(minOsVersion) >= 0;
+        }
+        #endregion
     }
 
     public class CameraProfile

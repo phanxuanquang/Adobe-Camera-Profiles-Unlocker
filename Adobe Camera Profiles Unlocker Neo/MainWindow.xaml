@@ -28,7 +28,7 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <AutoSuggestBox QueryIcon="Find" x:Name="InputSearchBox" Width="345" PlaceholderText="Input Camera Model" Margin="0,0,10,0"/>
                     <AutoSuggestBox QueryIcon="Find" x:Name="OutputSearchBox" Width="345" PlaceholderText="Your Camera Model" Margin="0,0,10,0"/>
-                    <Button x:Name="ExportButton" Content="Install" Style="{StaticResource AccentButtonStyle}" Width="100" Margin="0,0,10,0" Click="ExportButton_Click"/>
+                    <Button x:Name="ExportButton" Content="Install" Style="{StaticResource AccentButtonStyle}" Width="100" Margin="0,0,10,0" Click="InstallButton_Click"/>
                     <Button x:Name="ResetButton" Content="Reset" Width="100" Click="ResetButton_Click"/>
                 </StackPanel>
 
