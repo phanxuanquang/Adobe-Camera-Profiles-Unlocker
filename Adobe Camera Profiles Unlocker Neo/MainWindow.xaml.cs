@@ -161,6 +161,9 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
         #region SearchBox Events
         private async void InputSearchBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
         {
+            CameraProfiles.Clear();
+            SelectedProfileDirs.Clear();
+
             var cameraDirs = ModelDirs
                 .Where(dir => dir.EndsWith(args.SelectedItem.ToString()))
                 .ToList();
@@ -169,8 +172,6 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             {
                 return;
             }
-
-            CameraProfiles.Clear();
 
             foreach (var cameraDir in cameraDirs)
             {
