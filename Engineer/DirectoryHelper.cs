@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 
 namespace Engineer
 {
     public static class DirectoryHelper
     {
-        public static string[] GetChilds(string folderPath)
-        {
-            return Directory.GetDirectories(folderPath);
-        }
         public static List<string> GetProfileFiles(string folderPath)
         {
             var dcpFiles = Directory.GetFiles(folderPath, "*.dcp").ToList();
@@ -24,7 +15,7 @@ namespace Engineer
         {
             if (getDirectChildrenOnly)
             {
-                return await Task.Run(() => GetChilds(path).ToList());
+                return await Task.Run(() => Directory.GetDirectories(path).ToList());
             }
 
             var folders = new ConcurrentBag<string>();

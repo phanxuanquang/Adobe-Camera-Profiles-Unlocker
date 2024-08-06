@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,9 +14,6 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 {
     public sealed partial class MainWindow : Window
     {
-        private const string ModelsDir = @"C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Camera";
-        private const string ModelsDirAlt = @"C:\ProgramData\Adobe\CameraRaw\Settings\Adobe\Profiles\Camera";
-        private const string CameraProfilesDir_LR = @"C:\ProgramData\Adobe\CameraRaw\CameraProfiles";
         private readonly string CameraProfilesDir_ACR;
 
         private List<string> ModelDirs;
@@ -70,20 +68,48 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                         XamlRoot = RootGrid.XamlRoot,
                         Title = "Error",
                         Content = "The application must be ran with the administrator right.",
-                        PrimaryButtonText = "OK"
+                        PrimaryButtonText = "OK",
+                        DefaultButton = ContentDialogButton.Primary
                     };
                     await adminDialog.ShowAsync();
                     Application.Current.Exit();
                 }
 
-                if (!Directory.Exists(ModelsDir) && !Directory.Exists(ModelsDirAlt))
+                if (!Directory.Exists(CameraRaw.BaseDir))
+                {
+                    ContentDialog confirmationDialog = new ContentDialog
+                    {
+                        XamlRoot = RootGrid.XamlRoot,
+                        Title = "Confirmation",
+                        Content = "The Camera Raw has not been installed on your device.",
+                        PrimaryButtonText = "Download Camera Raw",
+                        CloseButtonText = "Cancel",
+                        DefaultButton = ContentDialogButton.Primary
+                    };
+
+                    var result = await confirmationDialog.ShowAsync();
+
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = "https://www.adobe.com/go/acr_installer_win",
+                            UseShellExecute = true
+                        });
+                    }
+
+                    Application.Current.Exit();
+                }
+
+                if (!Directory.Exists(CameraRaw.InputModelsDir) && !Directory.Exists(CameraRaw.InputModelsDirAlt))
                 {
                     ContentDialog noAdobeDialog = new ContentDialog
                     {
                         XamlRoot = RootGrid.XamlRoot,
                         Title = "Error",
-                        Content = "Cannot find Lightroom or Camera Raw on your device.",
-                        PrimaryButtonText = "OK"
+                        Content = "Cannot load camera profiles from Adobe.",
+                        PrimaryButtonText = "OK",
+                        DefaultButton = ContentDialogButton.Primary
                     };
                     await noAdobeDialog.ShowAsync();
                     Application.Current.Exit();
@@ -94,13 +120,13 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     Directory.CreateDirectory(CameraProfilesDir_ACR);
                 }
 
-                if (!Directory.Exists(CameraProfilesDir_LR))
+                if (!Directory.Exists(CameraRaw.CameraProfilesDir_LR))
                 {
-                    Directory.CreateDirectory(CameraProfilesDir_LR);
+                    Directory.CreateDirectory(CameraRaw.CameraProfilesDir_LR);
                 }
 
-                var modelDirs = await DirectoryHelper.GetFolders(ModelsDir);
-                var modelDirsAlt = await DirectoryHelper.GetFolders(ModelsDirAlt, false);
+                var modelDirs = await DirectoryHelper.GetFolders(CameraRaw.InputModelsDir);
+                var modelDirsAlt = await DirectoryHelper.GetFolders(CameraRaw.InputModelsDirAlt, false);
 
                 ModelDirs.AddRange(modelDirs);
                 ModelDirs.AddRange(modelDirsAlt);
@@ -112,7 +138,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     .OrderBy(name => name)
                     .ToList();
 
-                foreach(var model in models)
+                foreach (var model in models)
                 {
                     DataSource.Add(model);
                 }
@@ -139,7 +165,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 .Where(dir => dir.EndsWith(args.SelectedItem.ToString()))
                 .ToList();
 
-            if(cameraDirs.Count == 0 )
+            if (cameraDirs.Count == 0)
             {
                 return;
             }
@@ -172,6 +198,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                         .Replace(".xmp", string.Empty)
                     });
                 }
+
             }
             catch (Exception ex)
             {
@@ -285,15 +312,15 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     if (newProfile.EndsWith(".dcp"))
                     {
                         var xmlPath = DcpHelper.AsXML(newProfile);
-                        DcpHelper.UpdateXMLContent(xmlPath, InputSearchBox.Text, OutputSearchBox.Text);
+                        FileUpdater.ModifyXMLContent(xmlPath, InputSearchBox.Text, OutputSearchBox.Text);
                         DcpHelper.AsDCP(xmlPath, Path.Combine(CameraProfilesDir_ACR, $"{profile} (for {OutputSearchBox.Text})"));
-                        DcpHelper.AsDCP(xmlPath, Path.Combine(CameraProfilesDir_LR, $"{profile} (for {OutputSearchBox.Text})"));
+                        DcpHelper.AsDCP(xmlPath, Path.Combine(CameraRaw.CameraProfilesDir_LR, $"{profile} (for {OutputSearchBox.Text})"));
 
                         File.Delete(xmlPath);
                     }
                     else
                     {
-                        XmpHelper.UpdateXMPContent(newProfile, InputSearchBox.Text, OutputSearchBox.Text);
+                        FileUpdater.ModifyXMPContent(newProfile, InputSearchBox.Text, OutputSearchBox.Text);
                     }
                 }
             }
@@ -314,7 +341,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             try
             {
                 var files = Directory.GetFiles(CameraProfilesDir_ACR)
-                            .Concat(Directory.GetFiles(CameraProfilesDir_LR))
+                            .Concat(Directory.GetFiles(CameraRaw.CameraProfilesDir_LR))
                             .Where(f => f.EndsWith(".dcp"))
                             .ToArray();
 
@@ -325,7 +352,8 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                         XamlRoot = RootGrid.XamlRoot,
                         Title = "Success",
                         Content = "You have not installed any profiles yet.",
-                        PrimaryButtonText = "OK"
+                        PrimaryButtonText = "OK",
+                        DefaultButton = ContentDialogButton.Primary
                     };
                     await doneDialog.ShowAsync();
 
@@ -340,6 +368,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     PrimaryButtonText = "Yes",
                     SecondaryButtonText = "No",
                     CloseButtonText = "Cancel",
+                    DefaultButton = ContentDialogButton.Close
                 };
 
                 var result = await confirmationDialog.ShowAsync();
@@ -356,7 +385,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                             .AsParallel()
                             .Select(f => f
                                 .Replace(CameraProfilesDir_ACR, string.Empty)
-                                .Replace(CameraProfilesDir_LR, string.Empty)
+                                .Replace(CameraRaw.CameraProfilesDir_LR, string.Empty)
                                 .Replace("\\", string.Empty)
                                 .Replace(".dcp", string.Empty)
                                 .Trim())
@@ -369,14 +398,15 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                             XamlRoot = RootGrid.XamlRoot,
                             Title = "Success",
                             Content = $"Deleted camera profiles:\n · {string.Join("\n · ", deletedFileNames)}",
-                            PrimaryButtonText = "OK"
+                            PrimaryButtonText = "OK",
+                            DefaultButton = ContentDialogButton.Primary
                         };
                         await successDialog.ShowAsync();
                         break;
 
                     case ContentDialogResult.Secondary:
                         GeneralHelper.OpenFolderInExplorer(CameraProfilesDir_ACR);
-                        GeneralHelper.OpenFolderInExplorer(CameraProfilesDir_LR);
+                        GeneralHelper.OpenFolderInExplorer(CameraRaw.CameraProfilesDir_LR);
                         break;
                 }
             }
@@ -388,6 +418,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     Title = "Error",
                     Content = ex.Message,
                     PrimaryButtonText = "OK",
+                    DefaultButton = ContentDialogButton.Primary
                 };
                 await errorDialog.ShowAsync();
             }
@@ -444,9 +475,5 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
         #endregion
     }
 
-    public class CameraProfile
-    {
-        public int No { get; set; }
-        public string ProfileName { get; set; }
-    }
+
 }
