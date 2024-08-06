@@ -2,6 +2,8 @@
 A tool to unlock the hidden Camera Profiles in the Adobe Lightroom and Adobe Camera Raw.
 
 ## :pushpin: Supported Camera Brands
+- The list of supported camera models can be found [**HERE**](https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/blob/master/Supported%20Camera%20Models.md).
+
 | No. | Brand Name       |
 |-----|-------------------------|
 | 01   | Olympus                 |
@@ -16,14 +18,13 @@ A tool to unlock the hidden Camera Profiles in the Adobe Lightroom and Adobe Cam
 | 10  | Nikon                   |
 
 ## :computer: System Requirements
-|                     | Minimum                      | Recommended                                     |
+|                     | Minimum Version                      | Recommended Version                                     |
 |---------------------|------------------------------|-------------------------------------------------|
-| **Operating System** | Windows 10 version 1809      | Windows 10 version 2004                         |
+| **Windows OS** | Windows 10 version 1809      | Windows 10 version 2004                         |
 | **Adobe Camera Raw** | Version 14.5                 | [The latest version](https://www.adobe.com/go/acr_installer_win) |
 
 ## :blue_book: Usage Guidance
 ### Windows
-In order to ensure that the application run properly, you should turn off the **Windows Defender** before downloading.
 - Step 1: Download the **Adobe.Camera.Profiles.Unlocker.Neo.zip** from [THIS](https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/releases/latest) page.
 - Step 2: Follow the guidance video as below.
 
