@@ -26,7 +26,7 @@ namespace Engineer
 
                 if (lines[i].Contains("crs:CameraProfile="))
                 {
-                    lines[i] = $"crs:CameraProfile=\"Adobe Standard\"";
+                    lines[i] = $"crs:CameraProfile=\"Camera Standard\"";
                 }
             });
 

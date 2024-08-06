@@ -135,24 +135,38 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
         #region SearchBox Events
         private async void InputSearchBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
         {
-            var cameraDir = ModelDirs.FirstOrDefault(dir => dir.Contains(args.SelectedItem.ToString()));
+            var cameraDirs = ModelDirs
+                .Where(dir => dir.EndsWith(args.SelectedItem.ToString()))
+                .ToList();
 
-            if (!Directory.Exists(cameraDir))
+            if(cameraDirs.Count == 0 )
             {
                 return;
             }
 
+            CameraProfiles.Clear();
+
+            foreach (var cameraDir in cameraDirs)
+            {
+                if (!Directory.Exists(cameraDir))
+                {
+                    continue;
+                }
+
+                SelectedProfileDirs.AddRange(DirectoryHelper.GetProfileFiles(cameraDir));
+            }
+
             try
             {
-                SelectedProfileDirs = DirectoryHelper.GetProfileFiles(cameraDir);
-                var profileNames = SelectedProfileDirs.Select(Path.GetFileName).ToArray();
-                CameraProfiles.Clear();
+                var profileNames = SelectedProfileDirs
+                    .Select(Path.GetFileName)
+                    .ToArray();
 
                 for (int i = 0; i < profileNames.Length; i++)
                 {
-                    CameraProfiles.Add(new CameraProfile 
-                    { 
-                        No = i + 1, 
+                    CameraProfiles.Add(new CameraProfile
+                    {
+                        No = i + 1,
                         ProfileName = profileNames[i]
                         .Replace(".dcp", string.Empty)
                         .Replace(".xmp", string.Empty)
@@ -170,6 +184,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 };
                 await errorDialog.ShowAsync();
             }
+
         }
         private void InputSearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
