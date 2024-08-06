@@ -1,11 +1,27 @@
 # © 2024 Phan Xuan Quang / Adobe Camera Profiles Unlocker
 A tool to unlock the hidden Camera Profiles in the Adobe Lightroom and Adobe Camera Raw.
 
-## 1. Prerequisites
-- A **Windows 10** or **Windows 11** device
-- **Adobe Camera Raw** v14.5 or later ([the latest version](https://www.adobe.com/go/acr_installer_win) is the most recommended)
+## :pushpin: Supported Camera Brands
+| No. | Brand Name       |
+|-----|-------------------------|
+| 01   | Olympus                 |
+| 02   | OM Digital Solutions    |
+| 03   | Panasonic LUMIX         |
+| 04   | Pentax                  |
+| 05   | Ricoh GR                |
+| 06   | Sigma fp                |
+| 07   | Sony                    |
+| 08   | Canon                   |
+| 09   | Leica                   |
+| 10  | Nikon                   |
 
-## 2. Usage Guidance
+## :computer: System Requirements
+|                     | Minimum                      | Recommended                                     |
+|---------------------|------------------------------|-------------------------------------------------|
+| **Operating System** | Windows 10 version 1809      | Windows 10 version 2004                         |
+| **Adobe Camera Raw** | Version 14.5                 | [The latest version](https://www.adobe.com/go/acr_installer_win) |
+
+## :blue_book: Usage Guidance
 ### Windows
 In order to ensure that the application run properly, you should turn off the **Windows Defender** before downloading.
 - Step 1: Download the **Adobe.Camera.Profiles.Unlocker.Neo.zip** from [THIS](https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/releases/latest) page.
