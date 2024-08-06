@@ -16,5 +16,5 @@ In order to ensure that the application run properly, you should turn off the **
 
 ### macOS 
 - Step 1: Use a Windows device and follow above guidance
-- Step 2: Copy the **.dcp** files in the *C:\Users\%username%\AppData\Roaming\Adobe\CameraRaw\CameraProfiles ** folder into the **/Library/Application Support/Adobe/CameraRaw/Settings/Adobe/Profiles** in your Mac device.
+- Step 2: Copy the **.dcp** files in the **C:\Users\%username%\AppData\Roaming\Adobe\CameraRaw\CameraProfiles** folder into the **/Library/Application Support/Adobe/CameraRaw/Settings/Adobe/Profiles** in your Mac device.
 - Step3: Restart your Adobe applications after the installation to make sure that all changes have been applied.
