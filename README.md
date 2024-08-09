@@ -20,7 +20,7 @@ A tool to unlock the hidden Camera Profiles in the Adobe Lightroom and Adobe Cam
 ## :computer: System Requirements
 |                     | Minimum Version                      | Recommended Version                                     |
 |---------------------|------------------------------|-------------------------------------------------|
-| **Windows OS** | Windows 10 version 1809      | Windows 10 version 2004                         |
+| **Windows OS** | Windows 10 version 1809      | Windows 10 version 2004 or Windows 11                         |
 | **Adobe Camera Raw** | Version 14.5                 | [The latest version](https://www.adobe.com/go/acr_installer_win) |
 
 ## :blue_book: Usage Guidance
