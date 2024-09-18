@@ -4,8 +4,8 @@ A tool to unlock the hidden Camera Profiles in the Adobe Lightroom and Adobe Cam
 ## :pushpin: Supported Camera Brands
 - The list of supported camera models can be found [**HERE**](https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/blob/master/Supported%20Camera%20Models.md).
 
-| No. | Brand Name       |
-|-----|-------------------------|
+| No.  | Brand Name              |
+|------|-------------------------|
 | 01   | Olympus                 |
 | 02   | OM Digital Solutions    |
 | 03   | Panasonic LUMIX         |
@@ -15,8 +15,8 @@ A tool to unlock the hidden Camera Profiles in the Adobe Lightroom and Adobe Cam
 | 07   | Sony                    |
 | 08   | Canon                   |
 | 09   | Leica                   |
-| 10  | Nikon                   |
-| 11  | Fujifilm X                   |
+| 10   | Nikon                   |
+| 11   | Fujifilm                |
 
 ## :computer: System Requirements
 |                     | Minimum Version                      | Recommended Version                                     |
