@@ -16,6 +16,7 @@ A tool to unlock the hidden Camera Profiles in the Adobe Lightroom and Adobe Cam
 | 08   | Canon                   |
 | 09   | Leica                   |
 | 10  | Nikon                   |
+| 11  | Fujifilm X                   |
 
 ## :computer: System Requirements
 |                     | Minimum Version                      | Recommended Version                                     |
