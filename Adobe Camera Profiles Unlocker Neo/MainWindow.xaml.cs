@@ -7,7 +7,10 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
+using Windows.System;
 using Windows.System.Profile;
 
 namespace Adobe_Camera_Profiles_Unlocker_Neo
@@ -61,19 +64,19 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     Application.Current.Exit();
                 }
 
-                if (!GeneralHelper.IsUserAdmin())
-                {
-                    ContentDialog adminDialog = new ContentDialog
-                    {
-                        XamlRoot = RootGrid.XamlRoot,
-                        Title = "Error",
-                        Content = "The application must be ran with the administrator right.",
-                        PrimaryButtonText = "OK",
-                        DefaultButton = ContentDialogButton.Primary
-                    };
-                    await adminDialog.ShowAsync();
-                    Application.Current.Exit();
-                }
+                //if (!GeneralHelper.IsUserAdmin())
+                //{
+                //    ContentDialog adminDialog = new ContentDialog
+                //    {
+                //        XamlRoot = RootGrid.XamlRoot,
+                //        Title = "Error",
+                //        Content = "The application must be ran with the administrator right.",
+                //        PrimaryButtonText = "OK",
+                //        DefaultButton = ContentDialogButton.Primary
+                //    };
+                //    await adminDialog.ShowAsync();
+                //    Application.Current.Exit();
+                //}
 
                 if (!Directory.Exists(CameraRaw.BaseDir))
                 {
@@ -144,6 +147,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 }
 
                 InputSearchBox.ItemsSource = OutputSearchBox.ItemsSource = DataSource;
+                await CheckUpdate("Neo 2.0");
             }
             catch (Exception ex)
             {
@@ -473,8 +477,37 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             Version currentOsVersion = new Version((int)major, (int)minor, (int)build, (int)revision);
             return currentOsVersion.CompareTo(minOsVersion) >= 0;
         }
+        private async Task CheckUpdate(string currentVersion)
+        {
+            var latestRelease = await Updater.GetGithubLatestReleaseInfo();
+
+            if (latestRelease != null && !currentVersion.Equals(latestRelease.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine($"The latest version '{latestRelease.Name}' was released on {latestRelease.CreatedAt.ToString("MMMM dd, yyyy")}.");
+                sb.AppendLine();
+                sb.AppendLine("Please check the description of the latest version as below:");
+                sb.AppendLine(latestRelease.Body);
+                sb.AppendLine();
+                sb.AppendLine($"It is recommended to download and use the latest version for smoothest experience.");
+
+                var noti = new ContentDialog
+                {
+                    XamlRoot = RootGrid.XamlRoot,
+                    Title = "New Version!",
+                    Content = sb.ToString().Trim(),
+                    PrimaryButtonText = "Download Now",
+                    CloseButtonText = "Skip",
+                    DefaultButton = ContentDialogButton.Primary
+                };
+
+                if (await noti.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    await Launcher.LaunchUriAsync(new Uri(latestRelease.Assets[0].BrowserDownloadUrl));
+                    Application.Current.Exit();
+                }
+            }
+        }
         #endregion
     }
-
-
 }

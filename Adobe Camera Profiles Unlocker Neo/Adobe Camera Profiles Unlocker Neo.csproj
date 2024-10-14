@@ -28,6 +28,7 @@
 	  <SelfContained>true</SelfContained>
 	  <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 	  <PackageId>AdobeCameraProfilesUnlocker_Neo</PackageId>
+	  <PackageTags>Neo 2.0.0</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
