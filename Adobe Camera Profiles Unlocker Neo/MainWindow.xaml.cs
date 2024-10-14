@@ -63,19 +63,19 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     Application.Current.Exit();
                 }
 
-                //if (!GeneralHelper.IsUserAdmin())
-                //{
-                //    ContentDialog adminDialog = new ContentDialog
-                //    {
-                //        XamlRoot = RootGrid.XamlRoot,
-                //        Title = "Error",
-                //        Content = "The application must be ran with the administrator right.",
-                //        PrimaryButtonText = "OK",
-                //        DefaultButton = ContentDialogButton.Primary
-                //    };
-                //    await adminDialog.ShowAsync();
-                //    Application.Current.Exit();
-                //}
+                if (!GeneralHelper.IsUserAdmin())
+                {
+                    ContentDialog adminDialog = new ContentDialog
+                    {
+                        XamlRoot = RootGrid.XamlRoot,
+                        Title = "Error",
+                        Content = "The application must be ran with the administrator right.",
+                        PrimaryButtonText = "OK",
+                        DefaultButton = ContentDialogButton.Primary
+                    };
+                    await adminDialog.ShowAsync();
+                    Application.Current.Exit();
+                }
 
                 if (!Directory.Exists(CameraRaw.BaseDir))
                 {
