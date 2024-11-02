@@ -62,7 +62,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     Application.Current.Exit();
                 }
 
-                if (GeneralHelper.IsUserAdmin())
+                if (!GeneralHelper.IsUserAdmin())
                 {
                     ContentDialog adminDialog = new ContentDialog
                     {
