@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -48,7 +47,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
         {
             try
             {
-                await Task.Delay(300);
+                await CheckUpdate("Neo 2.1");
 
                 if (!IsSupportedOS())
                 {
@@ -82,7 +81,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     ContentDialog confirmationDialog = new ContentDialog
                     {
                         XamlRoot = RootGrid.XamlRoot,
-                        Title = "Confirmation",
+                        Title = "Error",
                         Content = "The Camera Raw has not been installed on your device.",
                         PrimaryButtonText = "Download Camera Raw",
                         CloseButtonText = "Cancel",
@@ -93,11 +92,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 
                     if (result == ContentDialogResult.Primary)
                     {
-                        Process.Start(new ProcessStartInfo
-                        {
-                            FileName = "https://www.adobe.com/go/acr_installer_win",
-                            UseShellExecute = true
-                        });
+                        await Launcher.LaunchUriAsync(new Uri("https://www.adobe.com/go/acr_installer_win"));
                     }
 
                     Application.Current.Exit();
@@ -127,11 +122,71 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     Directory.CreateDirectory(CameraRaw.CameraProfilesDir_LR);
                 }
 
-                var modelDirs = await DirectoryHelper.GetFolders(CameraRaw.InputModelsDir);
-                var modelDirsAlt = await DirectoryHelper.GetFolders(CameraRaw.InputModelsDirAlt, false);
+                var modelDirsTask = DirectoryHelper.GetFolders(CameraRaw.InputModelsDir);
+                var modelDirsAltTask = DirectoryHelper.GetFolders(CameraRaw.InputModelsDirAlt, false);
 
-                ModelDirs.AddRange(modelDirs);
-                ModelDirs.AddRange(modelDirsAlt);
+                await Task.WhenAll(modelDirsTask, modelDirsAltTask);
+
+                var modelDirs = modelDirsTask.Result;
+                var modelDirsAlt = modelDirsAltTask.Result;
+
+                if (modelDirs.Count == 0)
+                {
+                    ContentDialog noDcpDialog = new ContentDialog
+                    {
+                        XamlRoot = RootGrid.XamlRoot,
+                        Title = "Error",
+                        Content = "Cannot load default profiles of Camera Raw. Try reinstalling Camera Raw, and Adobe Lightroom or Adobe Photoshop.",
+                        PrimaryButtonText = "Download Camera Raw",
+                        CloseButtonText = "Skip",
+                        DefaultButton = ContentDialogButton.Primary
+                    };
+
+                    if (await noDcpDialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        await Launcher.LaunchUriAsync(new Uri("https://www.adobe.com/go/acr_installer_win"));
+                    }
+                }
+                else
+                {
+                    ModelDirs.AddRange(modelDirs);
+                }
+
+                if (modelDirsAlt.Count == 0)
+                {
+                    ContentDialog noXmlDialog = new ContentDialog
+                    {
+                        XamlRoot = RootGrid.XamlRoot,
+                        Title = "Error",
+                        Content = "Cannot load camera profiles of Adobe, Sigma, Nikon, Panasonic, and Fujifilm. Try reinstalling Camera Raw, and Adobe Lightroom or Adobe Photoshop.",
+                        PrimaryButtonText = "Download Camera Raw",
+                        CloseButtonText = "Skip",
+                        DefaultButton = ContentDialogButton.Primary
+                    };
+
+                    if (await noXmlDialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        await Launcher.LaunchUriAsync(new Uri("https://www.adobe.com/go/acr_installer_win"));
+                    }
+                }
+                else
+                {
+                    ModelDirs.AddRange(modelDirsAlt);
+                }
+
+                if (ModelDirs.Count == 0)
+                {
+                    ContentDialog noAdobeDialog = new ContentDialog
+                    {
+                        XamlRoot = RootGrid.XamlRoot,
+                        Title = "Error",
+                        Content = "Cannot load camera profiles from Adobe. Try reinstalling Camera Raw, and Adobe Lightroom or Adobe Photoshop.",
+                        PrimaryButtonText = "OK",
+                        DefaultButton = ContentDialogButton.Primary
+                    };
+                    await noAdobeDialog.ShowAsync();
+                    Application.Current.Exit();
+                }
 
                 var models = ModelDirs
                     .AsParallel()
@@ -146,7 +201,6 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 }
 
                 InputSearchBox.ItemsSource = OutputSearchBox.ItemsSource = DataSource;
-                await CheckUpdate("Neo 2.0");
             }
             catch (Exception ex)
             {
@@ -262,7 +316,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 return;
             }
 
-            if (!ModelDirs.Any(dir => dir.Contains(OutputSearchBox.Text.Trim()) || dir.Contains(InputSearchBox.Text.Trim())))
+            if (!ModelDirs.Exists(dir => dir.Contains(OutputSearchBox.Text.Trim()) || dir.Contains(InputSearchBox.Text.Trim())))
             {
                 ContentDialog errorDialog = new ContentDialog
                 {
@@ -336,9 +390,15 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 XamlRoot = RootGrid.XamlRoot,
                 Title = "Success",
                 Content = "Please restart the Lightroom and the Photoshop applications to apply changes.",
-                PrimaryButtonText = "OK"
+                PrimaryButtonText = VietcombankBtn.Content.ToString(),
+                SecondaryButtonText = "OK",
+                DefaultButton = ContentDialogButton.Primary
             };
-            await successDialog2.ShowAsync();
+
+            if (await successDialog2.ShowAsync() == ContentDialogResult.Primary)
+            {
+                await Launcher.LaunchUriAsync(new Uri(VietcombankBtn.NavigateUri.AbsoluteUri));
+            }
         }
         private async void ResetButton_Click(object sender, RoutedEventArgs e)
         {
@@ -462,7 +522,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                 sender.ItemsSource = new List<string>() { "Error while finding the camera" };
             }
         }
-        public bool IsSupportedOS()
+        public static bool IsSupportedOS()
         {
             var minOsVersion = new Version(10, 0, 17763, 0);
 

@@ -10,9 +10,13 @@ namespace Engineer
             var xmpFiles = Directory.GetFiles(folderPath, "*.xmp").ToList();
             return dcpFiles.Concat(xmpFiles).ToList();
         }
-
         public static async Task<List<string>> GetFolders(string path, bool getDirectChildrenOnly = true)
         {
+            if (!Directory.EnumerateFileSystemEntries(path).GetEnumerator().MoveNext())
+            {
+                return new List<string>();
+            }
+
             if (getDirectChildrenOnly)
             {
                 return await Task.Run(() => Directory.GetDirectories(path).ToList());

@@ -41,7 +41,7 @@
                 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <HyperlinkButton Background="{StaticResource AcrylicInAppFillColorBaseBrush}" Content="Find the project on GitHub" NavigateUri="https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker" Margin="0,0,10,0"/>
-                    <HyperlinkButton Background="{StaticResource AcrylicInAppFillColorBaseBrush}" Content="Buy me a coffee" NavigateUri="https://i.imgur.com/XYXfisQ.jpeg" />
+                    <HyperlinkButton x:Name="VietcombankBtn" Background="{StaticResource AcrylicInAppFillColorBaseBrush}" Content="Support me via banking" NavigateUri="https://i.imgur.com/XYXfisQ.jpeg" />
                 </StackPanel>
             </StackPanel>
         </Border>
