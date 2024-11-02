@@ -62,7 +62,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     Application.Current.Exit();
                 }
 
-                if (!GeneralHelper.IsUserAdmin())
+                if (GeneralHelper.IsUserAdmin())
                 {
                     ContentDialog adminDialog = new ContentDialog
                     {
@@ -223,6 +223,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 
             var cameraDirs = ModelDirs
                 .Where(dir => dir.EndsWith(args.SelectedItem.ToString()))
+                .Distinct()
                 .ToList();
 
             if (cameraDirs.Count == 0)
