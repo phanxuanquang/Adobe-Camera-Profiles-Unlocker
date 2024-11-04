@@ -36,11 +36,12 @@ A tool to unlock the hidden Camera Profiles in the Adobe Lightroom and Adobe Cam
 
 ### macOS 
 - Step 1: Use a Windows device and follow above guidance
-- Step 2: Copy the **.dcp** files in the **C:\Users\%username%\AppData\Roaming\Adobe\CameraRaw\CameraProfiles** folder into the **/Library/Application Support/Adobe/CameraRaw/Settings/Adobe/Profiles** folder on your Mac.
+- Step 2: Copy the `.dcp` files in the `C:\Users\%username%\AppData\Roaming\Adobe\CameraRaw\CameraProfiles` folder into the `/Library/Application Support/Adobe/CameraRaw/Settings/Adobe/Profiles` folder on your Mac.
 - Step3: Restart your Adobe applications after the installation to make sure that all changes have been applied.
 
 ## Important Notes:
-- The camera profile is **only used for RAW photos**, such as `.ARW` images from Sony cameras, or `.NEF` images from Nikon camera, ect.
+- The camera profiles from Adobe, Nikon, Sigma, and Fujifilm, are only available for Windows OS.
+- The camera profile is **only used for RAW photo formats**, such as `.ARW` format from Sony, or `.NEF` format from Nikon, ect.
 - Restarting the Adobe applications after installing camera profiles is a **must**.
 - The installed camera profiles are placed in the `Camera Matching` or `Profiles` category in the Camera Profile section of Camera Raw and Lightroom.
 - Camera Raw with its latest version is higher recommended than Lightroom.
