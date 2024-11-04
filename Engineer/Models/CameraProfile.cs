@@ -1,4 +1,4 @@
-﻿namespace Engineer
+﻿namespace Engineer.Models
 {
     public class CameraProfile
     {

@@ -32,7 +32,7 @@
                     <Button x:Name="ResetButton" Content="Reset" Width="100" Click="ResetButton_Click"/>
                 </StackPanel>
 
-                <controls:DataGrid BorderBrush="{StaticResource AccentAAFillColorDisabled}" BorderThickness="1" x:Name="ProfileTable" AutoGenerateColumns="False" IsReadOnly="True" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserSortColumns="False" Margin="0,20,0,10">
+                <controls:DataGrid BorderBrush="{StaticResource AccentAAFillColorDisabled}" BorderThickness="1" x:Name="ProfileTable" AutoGenerateColumns="False" IsReadOnly="True" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserSortColumns="False" Margin="0,20,0,10" MaxHeight="500">
                     <controls:DataGrid.Columns>
                         <controls:DataGridTextColumn Header="No." Binding="{Binding No}" Width="70" />
                         <controls:DataGridTextColumn Header="Camera Model" Binding="{Binding ProfileName}" Width="*" />

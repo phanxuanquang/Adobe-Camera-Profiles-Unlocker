@@ -3,12 +3,12 @@ using System.Security.Principal;
 
 namespace Engineer
 {
-    public static class GeneralHelper
+    public static class WindowsHelper
     {
         public static bool IsUserAdmin()
         {
             WindowsIdentity identity = WindowsIdentity.GetCurrent();
-            WindowsPrincipal principal = new WindowsPrincipal(identity);
+            WindowsPrincipal principal = new(identity);
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 

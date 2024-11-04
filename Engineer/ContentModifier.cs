@@ -1,8 +1,9 @@
 ﻿namespace Engineer
 {
-    public static class FileUpdater
+    public static class ContentModifier
     {
-        public static void ModifyXMPContent(string xmlPath, string brand, string outputCameraModel)
+        private static readonly string AuthorCredit = "© 2024 Phan Xuan Quang / Github: @phanxuanquang";
+        public static void ModifyXmp(string xmlPath, string outputCameraModel)
         {
             var lines = File.ReadAllLines(xmlPath);
 
@@ -10,12 +11,12 @@
             {
                 if (lines[i].Contains("crs:Copyright="))
                 {
-                    lines[i] = "crs:Copyright=\"© 2024 Phan Xuan Quang / Github: @phanxuanquang\"";
+                    lines[i] = $"crs:Copyright=\"{AuthorCredit}\"";
                 }
 
                 if (lines[i].Contains("crs:CameraModelRestriction="))
                 {
-                    lines[i] = $"crs:CameraModelRestriction=\"{outputCameraModel}\"";
+                    lines[i] = $"crs:CameraModelRestriction=\"{outputCameraModel.Trim()}\"";
                 }
 
                 if (lines[i].Contains("crs:CameraProfile="))
@@ -27,7 +28,7 @@
             File.WriteAllLines(xmlPath, lines);
         }
 
-        public static void ModifyXMLContent(string xmlPath, string brand, string outputCameraModel)
+        public static void ModifyXml(string xmlPath, string cameraModel, string outputCameraModel)
         {
             var lines = File.ReadAllLines(xmlPath);
 
@@ -35,12 +36,12 @@
             {
                 if (lines[i].Contains("<ProfileName>"))
                 {
-                    lines[i] = lines[i].Replace("Camera", $"{brand}:");
+                    lines[i] = lines[i].Replace("Camera", $"{cameraModel.Trim()}:");
                 }
 
                 if (lines[i].Contains("Copyright"))
                 {
-                    lines[i] = lines[i].Replace(lines[i], "<Copyright>© 2024 Phan Xuan Quang / Github: @phanxuanquang</Copyright>");
+                    lines[i] = lines[i].Replace(lines[i], $"<Copyright>{AuthorCredit}</Copyright>");
                 }
 
                 if (lines[i].Contains("<ProfileCalibrationSignature>"))
@@ -50,7 +51,7 @@
 
                 if (lines[i].Contains("<UniqueCameraModelRestriction>"))
                 {
-                    lines[i] = lines[i].Replace(lines[i], $"<UniqueCameraModelRestriction>{outputCameraModel}</UniqueCameraModelRestriction>");
+                    lines[i] = lines[i].Replace(lines[i], $"<UniqueCameraModelRestriction>{outputCameraModel.Trim()}</UniqueCameraModelRestriction>");
                 }
             });
 

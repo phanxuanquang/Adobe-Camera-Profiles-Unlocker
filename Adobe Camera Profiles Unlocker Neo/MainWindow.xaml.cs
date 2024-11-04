@@ -1,6 +1,9 @@
 ﻿using Engineer;
+using Engineer.Models;
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -26,16 +29,15 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
         public MainWindow()
         {
             this.InitializeComponent();
-
             this.AppWindow.TitleBar.IconShowOptions = Microsoft.UI.Windowing.IconShowOptions.HideIconAndSystemMenu;
             this.AppWindow.Title = "Adobe Camera Profiles Unlocker Neo - by Phan Xuan Quang";
 
             CameraProfilesDir_ACR = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Adobe\CameraRaw\CameraProfiles");
 
-            ModelDirs = new List<string>();
-            SelectedProfileDirs = new List<string>();
-            DataSource = new ObservableCollection<string>();
-            ProfileTable.ItemsSource = CameraProfiles = new ObservableCollection<CameraProfile>();
+            ModelDirs = [];
+            SelectedProfileDirs = [];
+            DataSource = [];
+            ProfileTable.ItemsSource = CameraProfiles = [];
 
             this.Activated += MainWindow_Activated;
             this.InputSearchBox.TextChanged += InputSearchBox_TextChanged;
@@ -47,48 +49,25 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
         {
             try
             {
-                await CheckUpdate("Neo 2.1");
+                await CheckUpdate("Neo 2.1.1");
 
-                if (!IsSupportedOS())
+                if (!IsWindowsVersionSupported())
                 {
-                    ContentDialog adminDialog = new ContentDialog
-                    {
-                        XamlRoot = RootGrid.XamlRoot,
-                        Title = "Error",
-                        Content = "The current version of your Windows is not supported by this application.",
-                        PrimaryButtonText = "OK"
-                    };
-                    await adminDialog.ShowAsync();
+                    await ShowDialog("The current version of your Windows is not supported by this application.", false);
+
                     Application.Current.Exit();
                 }
 
-                if (!GeneralHelper.IsUserAdmin())
+                if (!WindowsHelper.IsUserAdmin())
                 {
-                    ContentDialog adminDialog = new ContentDialog
-                    {
-                        XamlRoot = RootGrid.XamlRoot,
-                        Title = "Error",
-                        Content = "The application must be ran with the administrator right.",
-                        PrimaryButtonText = "OK",
-                        DefaultButton = ContentDialogButton.Primary
-                    };
-                    await adminDialog.ShowAsync();
+                    await ShowDialog("The application must be ran with the administrator right.", false);
+
                     Application.Current.Exit();
                 }
 
-                if (!Directory.Exists(CameraRaw.BaseDir))
+                if (!DirectoryHelper.IsDirectoryExist(DirectoryConstant.CameraRawRootDir))
                 {
-                    ContentDialog confirmationDialog = new ContentDialog
-                    {
-                        XamlRoot = RootGrid.XamlRoot,
-                        Title = "Error",
-                        Content = "The Camera Raw has not been installed on your device.",
-                        PrimaryButtonText = "Download Camera Raw",
-                        CloseButtonText = "Cancel",
-                        DefaultButton = ContentDialogButton.Primary
-                    };
-
-                    var result = await confirmationDialog.ShowAsync();
+                    var result = await ShowDialog("Camera Raw has not been installed on your device.", false);
 
                     if (result == ContentDialogResult.Primary)
                     {
@@ -98,32 +77,18 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     Application.Current.Exit();
                 }
 
-                if (!Directory.Exists(CameraRaw.InputModelsDir) && !Directory.Exists(CameraRaw.InputModelsDirAlt))
+                if (!DirectoryHelper.IsDirectoryExist(DirectoryConstant.VariantProfileFoldersDir) && !DirectoryHelper.IsDirectoryExist(DirectoryConstant.VariantProfileFoldersDirAlt))
                 {
-                    ContentDialog noAdobeDialog = new ContentDialog
-                    {
-                        XamlRoot = RootGrid.XamlRoot,
-                        Title = "Error",
-                        Content = "Cannot load camera profiles from Adobe.",
-                        PrimaryButtonText = "OK",
-                        DefaultButton = ContentDialogButton.Primary
-                    };
-                    await noAdobeDialog.ShowAsync();
+                    await ShowDialog("Cannot load camera profiles from Adobe. Try reinstalling Camera Raw, and Adobe Lightroom or Adobe Photoshop with default installation settings.", false);
+
                     Application.Current.Exit();
                 }
 
-                if (!Directory.Exists(CameraProfilesDir_ACR))
-                {
-                    Directory.CreateDirectory(CameraProfilesDir_ACR);
-                }
+                DirectoryHelper.CreateDirectoryIfNotExist(CameraProfilesDir_ACR);
+                DirectoryHelper.CreateDirectoryIfNotExist(DirectoryConstant.CameraRaw3rdPartyProfilesDir);
 
-                if (!Directory.Exists(CameraRaw.CameraProfilesDir_LR))
-                {
-                    Directory.CreateDirectory(CameraRaw.CameraProfilesDir_LR);
-                }
-
-                var modelDirsTask = DirectoryHelper.GetFolders(CameraRaw.InputModelsDir);
-                var modelDirsAltTask = DirectoryHelper.GetFolders(CameraRaw.InputModelsDirAlt, false);
+                var modelDirsTask = DirectoryHelper.GetFolders(DirectoryConstant.VariantProfileFoldersDir);
+                var modelDirsAltTask = DirectoryHelper.GetFolders(DirectoryConstant.VariantProfileFoldersDirAlt, false);
 
                 await Task.WhenAll(modelDirsTask, modelDirsAltTask);
 
@@ -132,7 +97,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 
                 if (modelDirs.Count == 0)
                 {
-                    ContentDialog noDcpDialog = new ContentDialog
+                    ContentDialog noDcpDialog = new()
                     {
                         XamlRoot = RootGrid.XamlRoot,
                         Title = "Error",
@@ -145,6 +110,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     if (await noDcpDialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         await Launcher.LaunchUriAsync(new Uri("https://www.adobe.com/go/acr_installer_win"));
+                        Application.Current.Exit();
                     }
                 }
                 else
@@ -154,11 +120,11 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 
                 if (modelDirsAlt.Count == 0)
                 {
-                    ContentDialog noXmlDialog = new ContentDialog
+                    ContentDialog noXmlDialog = new()
                     {
                         XamlRoot = RootGrid.XamlRoot,
                         Title = "Error",
-                        Content = "Cannot load camera profiles of Adobe, Sigma, Nikon, Panasonic, and Fujifilm. Try reinstalling Camera Raw, and Adobe Lightroom or Adobe Photoshop.",
+                        Content = "Cannot load full camera profiles of Adobe, Sigma, Nikon, Panasonic, and Fujifilm. Try reinstalling Camera Raw, and Adobe Lightroom or Adobe Photoshop with default installation settings.",
                         PrimaryButtonText = "Download Camera Raw",
                         CloseButtonText = "Skip",
                         DefaultButton = ContentDialogButton.Primary
@@ -167,6 +133,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     if (await noXmlDialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         await Launcher.LaunchUriAsync(new Uri("https://www.adobe.com/go/acr_installer_win"));
+                        Application.Current.Exit();
                     }
                 }
                 else
@@ -176,15 +143,8 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 
                 if (ModelDirs.Count == 0)
                 {
-                    ContentDialog noAdobeDialog = new ContentDialog
-                    {
-                        XamlRoot = RootGrid.XamlRoot,
-                        Title = "Error",
-                        Content = "Cannot load camera profiles from Adobe. Try reinstalling Camera Raw, and Adobe Lightroom or Adobe Photoshop.",
-                        PrimaryButtonText = "OK",
-                        DefaultButton = ContentDialogButton.Primary
-                    };
-                    await noAdobeDialog.ShowAsync();
+                    await ShowDialog("Cannot load camera profiles from Adobe. Try reinstalling Camera Raw, and Adobe Lightroom or Adobe Photoshop.", false);
+
                     Application.Current.Exit();
                 }
 
@@ -204,14 +164,8 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             }
             catch (Exception ex)
             {
-                ContentDialog errorDialog = new ContentDialog
-                {
-                    XamlRoot = RootGrid.XamlRoot,
-                    Title = "Error",
-                    Content = $"Cannot start the application. {ex.Message}",
-                    PrimaryButtonText = "OK",
-                };
-                await errorDialog.ShowAsync();
+                await ShowDialog($"Error while starting the application. {ex.Message}", false);
+                Application.Current.Exit();
             }
         }
 
@@ -233,12 +187,12 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
 
             foreach (var cameraDir in cameraDirs)
             {
-                if (!Directory.Exists(cameraDir))
+                if (!DirectoryHelper.IsDirectoryExist(cameraDir))
                 {
                     continue;
                 }
 
-                SelectedProfileDirs.AddRange(DirectoryHelper.GetProfileFiles(cameraDir));
+                SelectedProfileDirs.AddRange(await DirectoryHelper.GetProfiles(cameraDir));
             }
 
             try
@@ -261,14 +215,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             }
             catch (Exception ex)
             {
-                ContentDialog errorDialog = new ContentDialog
-                {
-                    XamlRoot = RootGrid.XamlRoot,
-                    Title = "Error",
-                    Content = $"Cannot find the profiles. {ex.Message}",
-                    PrimaryButtonText = "OK",
-                };
-                await errorDialog.ShowAsync();
+                await ShowDialog($"Cannot find the profiles. {ex.Message}", false);
             }
 
         }
@@ -276,14 +223,14 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                FilterResult(sender);
+                sender.ItemsSource = GetFilteredCameras(sender.Text);
             }
         }
         private void OutputSearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                FilterResult(sender);
+                sender.ItemsSource = GetFilteredCameras(sender.Text);
             }
         }
         #endregion
@@ -293,66 +240,31 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
         {
             if (string.IsNullOrEmpty(InputSearchBox.Text))
             {
-                ContentDialog errorDialog = new ContentDialog
-                {
-                    XamlRoot = RootGrid.XamlRoot,
-                    Title = "Error",
-                    Content = "Please input the code name of the camera model you want to take camera profiles.",
-                    PrimaryButtonText = "OK"
-                };
-                await errorDialog.ShowAsync();
+                await ShowDialog("Please input the code name of the camera model you want to take camera profiles.", false);
                 return;
             }
 
             if (string.IsNullOrEmpty(OutputSearchBox.Text))
             {
-                ContentDialog errorDialog = new ContentDialog
-                {
-                    XamlRoot = RootGrid.XamlRoot,
-                    Title = "Error",
-                    Content = "Please input the code name of your camera model.",
-                    PrimaryButtonText = "OK"
-                };
-                await errorDialog.ShowAsync();
+                await ShowDialog("Please input the code name of your camera model.", false);
                 return;
             }
 
             if (!ModelDirs.Exists(dir => dir.Contains(OutputSearchBox.Text.Trim()) || dir.Contains(InputSearchBox.Text.Trim())))
             {
-                ContentDialog errorDialog = new ContentDialog
-                {
-                    XamlRoot = RootGrid.XamlRoot,
-                    Title = "Error",
-                    Content = "Please input the correct code name of the camera models",
-                    PrimaryButtonText = "OK"
-                };
-                await errorDialog.ShowAsync();
+                await ShowDialog("Please input the correct code name of the camera models", false);
                 return;
             }
 
             if (InputSearchBox.Text.Equals(OutputSearchBox.Text))
             {
-                ContentDialog successDialog = new ContentDialog
-                {
-                    XamlRoot = RootGrid.XamlRoot,
-                    Title = "Success",
-                    Content = "Please restart the Lightroom and the Photoshop applications to apply changes.",
-                    PrimaryButtonText = "OK"
-                };
-                await successDialog.ShowAsync();
+                await ShowDialog("Please restart the Lightroom and the Photoshop applications to apply changes.");
                 return;
             }
 
             if (ProfileTable.SelectedItems.Count == 0)
             {
-                ContentDialog errorDialog = new ContentDialog
-                {
-                    XamlRoot = RootGrid.XamlRoot,
-                    Title = "Error",
-                    Content = "Please select at least one Camera Profile to export.",
-                    PrimaryButtonText = "OK"
-                };
-                await errorDialog.ShowAsync();
+                await ShowDialog("Please select at least one camera profile to export.", false);
                 return;
             }
 
@@ -371,32 +283,56 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     if (newProfile.EndsWith(".dcp"))
                     {
                         var xmlPath = DcpHelper.AsXML(newProfile);
-                        FileUpdater.ModifyXMLContent(xmlPath, InputSearchBox.Text, OutputSearchBox.Text);
+                        ContentModifier.ModifyXml(xmlPath, InputSearchBox.Text, OutputSearchBox.Text);
                         DcpHelper.AsDCP(xmlPath, Path.Combine(CameraProfilesDir_ACR, $"{profile} (for {OutputSearchBox.Text})"));
-                        DcpHelper.AsDCP(xmlPath, Path.Combine(CameraRaw.CameraProfilesDir_LR, $"{profile} (for {OutputSearchBox.Text})"));
+                        DcpHelper.AsDCP(xmlPath, Path.Combine(DirectoryConstant.CameraRaw3rdPartyProfilesDir, $"{profile} (for {OutputSearchBox.Text})"));
 
                         File.Delete(xmlPath);
                     }
                     else
                     {
-                        FileUpdater.ModifyXMPContent(newProfile, InputSearchBox.Text, OutputSearchBox.Text);
+                        ContentModifier.ModifyXmp(newProfile, OutputSearchBox.Text);
                     }
                 }
             }
 
             ProfileTable.SelectedItems.Clear();
 
-            ContentDialog successDialog2 = new ContentDialog
+            ContentDialog successDialog = new()
             {
                 XamlRoot = RootGrid.XamlRoot,
                 Title = "Success",
-                Content = "Please restart the Lightroom and the Photoshop applications to apply changes.",
                 PrimaryButtonText = VietcombankBtn.Content.ToString(),
                 SecondaryButtonText = "OK",
                 DefaultButton = ContentDialogButton.Primary
             };
 
-            if (await successDialog2.ShowAsync() == ContentDialogResult.Primary)
+            TextBlock contentText = new()
+            {
+                Text = "Please restart the Adobe applications to apply changes!",
+                TextWrapping = TextWrapping.Wrap
+            };
+
+            SymbolIcon successIcon = new()
+            {
+                Symbol = Symbol.Accept,
+                Foreground = new SolidColorBrush(Colors.Green),
+                Width = 24,
+                Height = 24
+            };
+
+            StackPanel contentPanel = new()
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 8
+            };
+
+            contentPanel.Children.Add(successIcon);
+            contentPanel.Children.Add(contentText);
+
+            successDialog.Content = contentPanel;
+
+            if (await successDialog.ShowAsync() == ContentDialogResult.Primary)
             {
                 await Launcher.LaunchUriAsync(new Uri(VietcombankBtn.NavigateUri.AbsoluteUri));
             }
@@ -406,26 +342,18 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             try
             {
                 var files = Directory.GetFiles(CameraProfilesDir_ACR)
-                            .Concat(Directory.GetFiles(CameraRaw.CameraProfilesDir_LR))
+                            .Concat(Directory.GetFiles(DirectoryConstant.CameraRaw3rdPartyProfilesDir))
                             .Where(f => f.EndsWith(".dcp"))
                             .ToArray();
 
                 if (files.Length == 0)
                 {
-                    ContentDialog doneDialog = new ContentDialog
-                    {
-                        XamlRoot = RootGrid.XamlRoot,
-                        Title = "Success",
-                        Content = "You have not installed any profiles yet.",
-                        PrimaryButtonText = "OK",
-                        DefaultButton = ContentDialogButton.Primary
-                    };
-                    await doneDialog.ShowAsync();
+                    await ShowDialog("You have not installed any profiles yet.", true);
 
                     return;
                 }
 
-                ContentDialog confirmationDialog = new ContentDialog
+                ContentDialog confirmationDialog = new()
                 {
                     XamlRoot = RootGrid.XamlRoot,
                     Title = "Confirmation",
@@ -450,7 +378,7 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                             .AsParallel()
                             .Select(f => f
                                 .Replace(CameraProfilesDir_ACR, string.Empty)
-                                .Replace(CameraRaw.CameraProfilesDir_LR, string.Empty)
+                                .Replace(DirectoryConstant.CameraRaw3rdPartyProfilesDir, string.Empty)
                                 .Replace("\\", string.Empty)
                                 .Replace(".dcp", string.Empty)
                                 .Trim())
@@ -458,72 +386,25 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                             .OrderBy(f => f)
                             .ToArray();
 
-                        ContentDialog successDialog = new ContentDialog
-                        {
-                            XamlRoot = RootGrid.XamlRoot,
-                            Title = "Success",
-                            Content = $"Deleted camera profiles:\n · {string.Join("\n · ", deletedFileNames)}",
-                            PrimaryButtonText = "OK",
-                            DefaultButton = ContentDialogButton.Primary
-                        };
-                        await successDialog.ShowAsync();
+                        await ShowDialog($"Deleted camera profiles:\n · {string.Join("\n · ", deletedFileNames)}");
+
                         break;
 
                     case ContentDialogResult.Secondary:
-                        GeneralHelper.OpenFolderInExplorer(CameraProfilesDir_ACR);
-                        GeneralHelper.OpenFolderInExplorer(CameraRaw.CameraProfilesDir_LR);
+                        WindowsHelper.OpenFolderInExplorer(CameraProfilesDir_ACR);
+                        WindowsHelper.OpenFolderInExplorer(DirectoryConstant.CameraRaw3rdPartyProfilesDir);
                         break;
                 }
             }
             catch (Exception ex)
             {
-                ContentDialog errorDialog = new ContentDialog
-                {
-                    XamlRoot = RootGrid.XamlRoot,
-                    Title = "Error",
-                    Content = ex.Message,
-                    PrimaryButtonText = "OK",
-                    DefaultButton = ContentDialogButton.Primary
-                };
-                await errorDialog.ShowAsync();
+                await ShowDialog(ex.Message, false);
             }
         }
         #endregion
 
         #region Helpers
-        private void FilterResult(AutoSuggestBox sender)
-        {
-            var keyword = sender.Text.Replace(" ", string.Empty).ToLower().Trim();
-
-            if (string.IsNullOrEmpty(keyword))
-            {
-                sender.ItemsSource = new List<string>() { "No camera found" };
-                return;
-            }
-
-            try
-            {
-                var matchedDirs = ModelDirs
-                    .AsParallel()
-                    .Where(dir => dir.Replace(" ", string.Empty).ToLower().Contains(keyword))
-                    .Select(Path.GetFileName)
-                    .Distinct()
-                    .OrderBy(name => name)
-                    .ToList();
-
-                if (matchedDirs.Count == 0)
-                {
-                    matchedDirs.Add("No camera found");
-                }
-
-                sender.ItemsSource = matchedDirs;
-            }
-            catch
-            {
-                sender.ItemsSource = new List<string>() { "Error while finding the camera" };
-            }
-        }
-        public static bool IsSupportedOS()
+        public static bool IsWindowsVersionSupported()
         {
             var minOsVersion = new Version(10, 0, 17763, 0);
 
@@ -534,12 +415,52 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
             ulong build = (versionAsLong & 0x00000000FFFF0000L) >> 16;
             ulong revision = (versionAsLong & 0x000000000000FFFFL);
 
-            Version currentOsVersion = new Version((int)major, (int)minor, (int)build, (int)revision);
+            Version currentOsVersion = new((int)major, (int)minor, (int)build, (int)revision);
             return currentOsVersion.CompareTo(minOsVersion) >= 0;
+        }
+        private List<string> GetFilteredCameras(string keyword)
+        {
+            if (string.IsNullOrEmpty(keyword) || string.IsNullOrWhiteSpace(keyword))
+            {
+                return
+                [
+                    "No camera found"
+                ];
+            }
+
+            keyword = keyword.Replace(" ", string.Empty).Trim();
+
+            try
+            {
+                var results = ModelDirs
+                    .AsParallel()
+                    .Where(dir => dir.Replace(" ", string.Empty).Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                    .Select(Path.GetFileName)
+                    .Distinct()
+                    .OrderBy(name => name)
+                    .ToList();
+
+                if (results.Count == 0)
+                {
+                    return
+                    [
+                        "No camera found"
+                    ];
+                }
+
+                return results;
+            }
+            catch
+            {
+                return
+                [
+                    "Error while finding the camera"
+                ];
+            }
         }
         private async Task CheckUpdate(string currentVersion)
         {
-            var latestRelease = await Updater.GetGithubLatestReleaseInfo();
+            var latestRelease = await AppUpdater.GetGithubLatestReleaseInfo();
 
             if (latestRelease != null && !currentVersion.Equals(latestRelease.Name, StringComparison.OrdinalIgnoreCase))
             {
@@ -567,6 +488,19 @@ namespace Adobe_Camera_Profiles_Unlocker_Neo
                     Application.Current.Exit();
                 }
             }
+        }
+        private async Task<ContentDialogResult> ShowDialog(string message, bool isSuccess = true, string buttonText = "OK")
+        {
+            var dialog = new ContentDialog
+            {
+                XamlRoot = RootGrid.XamlRoot,
+                Title = isSuccess ? "Success" : "Error",
+                Content = message,
+                PrimaryButtonText = buttonText,
+                DefaultButton = ContentDialogButton.Primary
+            };
+
+            return await dialog.ShowAsync();
         }
         #endregion
     }

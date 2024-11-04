@@ -4,17 +4,29 @@ namespace Engineer
 {
     public static class DirectoryHelper
     {
-        public static List<string> GetProfileFiles(string folderPath)
+        public static async Task<List<string>> GetProfiles(string folderPath)
         {
-            var dcpFiles = Directory.GetFiles(folderPath, "*.dcp").ToList();
-            var xmpFiles = Directory.GetFiles(folderPath, "*.xmp").ToList();
-            return dcpFiles.Concat(xmpFiles).ToList();
+            var profiles = new ConcurrentBag<string>();
+
+            await Task.WhenAll(
+                Task.Run(() => Parallel.ForEach(Directory.EnumerateFiles(folderPath, "*.dcp"), file =>
+                {
+                    profiles.Add(file);
+                })),
+                Task.Run(() => Parallel.ForEach(Directory.EnumerateFiles(folderPath, "*.xmp"), file =>
+                {
+                    profiles.Add(file);
+                }))
+            );
+
+            return new List<string>(profiles);
         }
+
         public static async Task<List<string>> GetFolders(string path, bool getDirectChildrenOnly = true)
         {
             if (!Directory.EnumerateFileSystemEntries(path).GetEnumerator().MoveNext())
             {
-                return new List<string>();
+                return [];
             }
 
             if (getDirectChildrenOnly)
@@ -33,15 +45,29 @@ namespace Engineer
                 {
                     var subfolders = await Task.Run(() => Directory.GetDirectories(currentPath));
 
-                    await Parallel.ForEachAsync(subfolders, async (folder, cancellationToken) =>
+                    await Parallel.ForEachAsync(subfolders, (folder, cancellationToken) =>
                     {
                         folders.Add(folder);
                         stack.Push(folder);
+                        return new ValueTask();
                     });
                 }
             }
 
             return new List<string>(folders);
+        }
+
+        public static bool IsDirectoryExist(string path)
+        {
+            return Directory.Exists(path);
+        }
+
+        public static void CreateDirectoryIfNotExist(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
         }
     }
 }
