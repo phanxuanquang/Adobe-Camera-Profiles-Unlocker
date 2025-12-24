@@ -6,10 +6,6 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/src/">
-    <Project Path="AdobeCameraProfilesUnlocker.App/AdobeCameraProfilesUnlocker.App (Package)/AdobeCameraProfilesUnlocker.App (Package).wapproj" Type="c7167f0d-bc9f-4e6e-afe1-012c56b48db5" Id="12ed62ec-5a0d-4a66-8385-2b31b35dcb12">
-      <Platform Solution="*|Any CPU" Project="x64" />
-      <Deploy />
-    </Project>
     <Project Path="AdobeCameraProfilesUnlocker.App/AdobeCameraProfilesUnlocker.App/AdobeCameraProfilesUnlocker.App.csproj" Id="e9c0eaae-a9a8-4bb0-8051-9416818cade2">
       <Platform Solution="*|Any CPU" Project="x64" />
       <Platform Solution="*|ARM64" Project="ARM64" />
