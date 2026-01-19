@@ -1,11 +1,18 @@
-﻿using AdobeCameraProfilesUnlocker.Core.Models.Enums;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AdobeCameraProfilesUnlocker.Core.Models
 {
     public class Camera
     {
-        public required string Name { get; set; }
-        public required CameraProfileType ProfileType { get; set; }
-        public List<string> Profiles { get; set; } = [];
+        [Key]
+        public int Id { get; set; }
+        public required string CodeName { get; set; }
+
+        [ForeignKey(nameof(BrandId))]
+        public required int BrandId { get; set; }
+
+        public virtual ICollection<CameraProfile> CameraProfiles { get; set; } = [];
+        public virtual CameraBrand CameraBrand { get; set; } = null!;
     }
 }
