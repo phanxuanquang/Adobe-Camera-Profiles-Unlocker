@@ -2,7 +2,7 @@
 
 namespace AdobeCameraProfilesUnlocker.Core.Models.Enums
 {
-    public enum CameraProfileType
+    public enum CameraProfileExtension : byte
     {
         [RootProfileDirectory(@"C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Camera")]
         DCP,

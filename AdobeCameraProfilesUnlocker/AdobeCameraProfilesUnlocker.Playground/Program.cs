@@ -1,4 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using AdobeCameraProfilesUnlocker.Core.Models;
+using AdobeCameraProfilesUnlocker.Core.Models.Enums;
+using System.Collections.Concurrent;
 using System.Collections.Frozen;
 
 namespace AdobeCameraProfilesUnlocker.Playground
@@ -11,23 +13,43 @@ namespace AdobeCameraProfilesUnlocker.Playground
 
         static async Task Main(string[] args)
         {
-            var camera = LoadCameraMetadatas();
+            var cameraMetadatas = LoadCameraMetadatas();
 
-            var brands = camera
+            var cameraBrands = cameraMetadatas
                 .Select(x => x.Brand)
                 .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
-            var x = 1;
+            var cameras = cameraMetadatas
+                .Select(x => new Camera
+                {
+                    CodeName = x.Name,
+                    BrandId = cameraBrands.First(b => b.Name.Equals(x.Brand, StringComparison.OrdinalIgnoreCase)).Id,
+                })
+                .ToList();
+
+            var cameraProfiles = new List<CameraProfile>();
+            foreach (var camera in cameras)
+            {
+                var metadata = cameraMetadatas.First(x => x.Name.Equals(camera.CodeName, StringComparison.OrdinalIgnoreCase));
+                cameraProfiles.AddRange(metadata.Profiles
+                    .Select(profile => new CameraProfile
+                    {
+                        Name = profile.Name,
+                        ExtensionId = profile.IsDcpFile ? CameraProfileExtension.DCP : CameraProfileExtension.XMP,
+                        FilePath = profile.FilePath,
+                        CameraId = camera.Id
+                    }));
+            }
         }
 
-        public static List<Camera> LoadCameraMetadatas()
+        public static List<CameraMetadata> LoadCameraMetadatas()
         {
             var cameras = EnumerateFilesSafe(AdobeStandardProfiles)
                 .Select(ParseCamera)
                 .DistinctBy(x => x.CameraName)
                 .ToFrozenDictionary(x => x.CameraName, x => x.Brand);
 
-            var bag = new ConcurrentBag<Camera>();
+            var bag = new ConcurrentBag<CameraMetadata>();
 
             var options = new ParallelOptions
             {
@@ -48,7 +70,7 @@ namespace AdobeCameraProfilesUnlocker.Playground
                             .Replace("Camera", string.Empty)
                             .Trim();
 
-                        return new Profile
+                        return new ProfileMetadata
                         {
                             Name = name,
                             FilePath = profilePath,
@@ -60,7 +82,7 @@ namespace AdobeCameraProfilesUnlocker.Playground
                 if (profiles.Count == 0)
                     return;
 
-                bag.Add(new Camera
+                bag.Add(new CameraMetadata
                 {
                     Name = camera.Key,
                     Brand = camera.Value,
@@ -97,11 +119,11 @@ namespace AdobeCameraProfilesUnlocker.Playground
         }
     }
 
-    public class Camera
+    public class CameraMetadata
     {
         public required string Name { get; set; }
         public required string Brand { get; set; }
-        public required List<Profile> Profiles { get; set; }
+        public required List<ProfileMetadata> Profiles { get; set; }
     }
 
     public class Profile

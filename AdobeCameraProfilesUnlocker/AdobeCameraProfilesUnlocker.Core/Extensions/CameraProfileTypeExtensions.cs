@@ -5,7 +5,7 @@ namespace AdobeCameraProfilesUnlocker.Core.Extensions
 {
     public static class CameraProfileTypeExtensions
     {
-        public static string GetRootDirectory(this CameraProfileType value)
+        public static string GetRootDirectory(this CameraProfileExtension value)
         {
             var memberInfo = value.GetType().GetMember(value.ToString());
             var attributes = memberInfo[0].GetCustomAttributes(typeof(RootProfileDirectoryAttribute), false);

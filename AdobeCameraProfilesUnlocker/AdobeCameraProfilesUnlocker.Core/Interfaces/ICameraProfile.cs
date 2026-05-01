@@ -1,11 +1,11 @@
-﻿
-using AdobeCameraProfilesUnlocker.Core.Models;
+﻿using AdobeCameraProfilesUnlocker.Core.Models;
+using AdobeCameraProfilesUnlocker.Core.Models.Enums;
 
-namespace AdobeCameraProfilesUnlocker.Interfaces
+namespace AdobeCameraProfilesUnlocker.Core.Interfaces
 {
     public interface ICameraProfile
     {
-        public Task<List<Camera>> SearchProfilesByNameAsync(string keyword, int? top = 10);
-        public Task<List<Camera>> GetAllProfilesAsync();
+        Task<List<CameraProfile>> ConvertAsync(List<CameraProfile> profiles, CameraProfileExtension targetType, string outputDirectory);
+        Task OverrideCameraRestrictionAsync(List<CameraProfile> profiles, Camera targetCamera);
     }
 }

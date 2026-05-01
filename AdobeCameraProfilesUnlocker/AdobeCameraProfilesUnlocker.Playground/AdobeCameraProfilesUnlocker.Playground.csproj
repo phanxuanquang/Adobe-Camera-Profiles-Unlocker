@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AdobeCameraProfilesUnlocker.Core\AdobeCameraProfilesUnlocker.Core.csproj" />
+  </ItemGroup>
+
 </Project>
