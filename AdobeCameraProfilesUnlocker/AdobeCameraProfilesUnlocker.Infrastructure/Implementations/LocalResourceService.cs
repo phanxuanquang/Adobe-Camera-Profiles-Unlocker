@@ -177,7 +177,7 @@ public class LocalResourceService : IResourceService
                 var cameraModel = Path.GetFileName(Path.GetDirectoryName(filePath))!;
                 var profileName = Path.GetFileNameWithoutExtension(filePath)
                     .Replace(cameraModel, string.Empty)
-                    .Replace(" Camera ", string.Empty)
+                    .Replace("Camera", string.Empty)
                     .Trim();
 
                 var fileExtension = Path.GetExtension(filePath);
