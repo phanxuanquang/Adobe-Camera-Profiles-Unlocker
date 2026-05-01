@@ -1,6 +1,8 @@
 ﻿namespace AdobeCameraProfilesUnlocker.Domain.Interfaces;
 
-public interface IMetadataService
+public interface IResourceService
 {
     Task EnsureDatasourceUpToDateAsync();
+
+    Task ForceUpdateDatasourceAsync();
 }

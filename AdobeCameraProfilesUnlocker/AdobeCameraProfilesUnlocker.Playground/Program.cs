@@ -23,7 +23,7 @@ namespace AdobeCameraProfilesUnlocker.Playground
                 .Select(x => new Camera
                 {
                     CodeName = x.Name,
-                    BrandId = cameraBrands.First(b => b.Name.Equals(x.Brand, StringComparison.OrdinalIgnoreCase)).Id,
+                    BrandId = cameraBrands.First(b => b.Equals(x.Brand, StringComparison.OrdinalIgnoreCase)).Id,
                 })
                 .ToList();
 
@@ -70,7 +70,7 @@ namespace AdobeCameraProfilesUnlocker.Playground
                             .Replace("Camera", string.Empty)
                             .Trim();
 
-                        return new ProfileMetadata
+                        return new Profile
                         {
                             Name = name,
                             FilePath = profilePath,
@@ -123,7 +123,7 @@ namespace AdobeCameraProfilesUnlocker.Playground
     {
         public required string Name { get; set; }
         public required string Brand { get; set; }
-        public required List<ProfileMetadata> Profiles { get; set; }
+        public required List<Profile> Profiles { get; set; }
     }
 
     public class Profile
