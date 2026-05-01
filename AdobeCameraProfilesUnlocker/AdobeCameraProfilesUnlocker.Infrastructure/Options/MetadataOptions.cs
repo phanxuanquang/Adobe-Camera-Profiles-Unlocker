@@ -1,6 +1,6 @@
 ﻿namespace AdobeCameraProfilesUnlocker.Infrastructure.Options;
 
-public sealed record ResourceOptions
+public sealed record MetadataOptions
 {
     public required string AdobeStandardCameraProfilesDirectory { get; init; }
     public required string[] CameraProfileDirectories { get; init; }

@@ -6,16 +6,10 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AdobeCameraProfilesUnlocker.Infrastructure.Implementations;
 
-public class BrandService : IBrandService
+public class BrandService(AppDbContext db, ILoggerFactory? loggerFactory = null) : IBrandService
 {
-    private readonly AppDbContext _db;
-    private readonly ILogger<BrandService> _logger;
-
-    public BrandService(AppDbContext db, ILoggerFactory? loggerFactory = null)
-    {
-        _db = db;
-        _logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<BrandService>();
-    }
+    private readonly AppDbContext _db = db;
+    private readonly ILogger<BrandService> _logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<BrandService>();
 
     public async Task<Dictionary<Guid, string>> GetAllBrandsAsync()
     {

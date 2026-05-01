@@ -13,23 +13,14 @@ using System.Collections.Frozen;
 
 namespace AdobeCameraProfilesUnlocker.Infrastructure.Implementations;
 
-public class LocalResourceService : IResourceService
+public class LocalResourceService(
+    AppDbContext db,
+    IOptionsSnapshot<MetadataOptions> metadataOptions,
+    ILogger<LocalResourceService>? logger = null) : IResourceService
 {
-    private readonly ILogger<LocalResourceService> _logger;
-    private readonly AppDbContext _db;
-    private readonly ResourceOptions _metadataOptions;
-    public LocalResourceService(
-        AppDbContext db,
-        IOptionsSnapshot<ResourceOptions> metadataOptions,
-        ILogger<LocalResourceService>? logger = null)
-    {
-        _db = db;
-        _metadataOptions = metadataOptions.Value;
-        _logger = logger ?? NullLogger<LocalResourceService>.Instance;
-
-        _logger.LogInformation("{Service} initialized with AdobeStandardCameraProfilesDirectory: {AdobeStandardCameraProfilesDirectory}, ThresholdForDataUpdateInDays: {ThresholdForDataUpdateInDays}",
-            nameof(LocalResourceService), _metadataOptions.AdobeStandardCameraProfilesDirectory, _metadataOptions.ThresholdForDataUpdateInDays);
-    }
+    private readonly ILogger<LocalResourceService> _logger = logger ?? NullLogger<LocalResourceService>.Instance;
+    private readonly MetadataOptions _options = metadataOptions.Value;
+    private readonly AppDbContext _db = db;
 
     public async Task EnsureDatasourceUpToDateAsync()
     {
@@ -47,9 +38,9 @@ public class LocalResourceService : IResourceService
             return;
         }
 
-        if (metadata.LastUpdatedTime < DateTime.UtcNow.AddDays(-_metadataOptions.ThresholdForDataUpdateInDays))
+        if (metadata.LastUpdatedTime < DateTime.UtcNow.AddDays(-_options.ThresholdForDataUpdateInDays))
         {
-            _logger.LogWarning("Datasource is outdated due to exceeding the threshold of {ThresholdForDataUpdateInDays} days.", _metadataOptions.ThresholdForDataUpdateInDays);
+            _logger.LogWarning("Datasource is outdated due to exceeding the threshold of {ThresholdForDataUpdateInDays} days.", _options.ThresholdForDataUpdateInDays);
             await ForceUpdateDatasourceAsync();
             metadata.LastUpdatedTime = DateTime.UtcNow;
             await _db.SaveChangesAsync();
@@ -62,17 +53,12 @@ public class LocalResourceService : IResourceService
     public async Task ForceUpdateDatasourceAsync()
     {
         _logger.LogTrace("Force updating datasource...");
-        var cameraWithBrandDict = IOHelper.EnumerateFilesSafe(_metadataOptions.AdobeStandardCameraProfilesDirectory)
+
+        var cameraWithBrandDict = IOHelper.EnumerateFilesSafe(_options.AdobeStandardCameraProfilesDirectory)
             .AsParallel()
             .Select(filePath =>
             {
-                if (filePath.Contains("Sony NEX-5T Adobe Standard", StringComparison.OrdinalIgnoreCase))
-                {
-                    var x = 1;
-                }
-
                 var name = Path.GetFileNameWithoutExtension(filePath);
-
                 name = name
                     .Replace(" Adobe Standard", string.Empty)
                     .Replace(" Adobe_Standard", string.Empty)
@@ -81,47 +67,35 @@ public class LocalResourceService : IResourceService
 
                 var spaceIndex = name.IndexOf(' ');
                 var brand = spaceIndex < 0 ? name : name[..spaceIndex];
-
-                return new
-                {
-                    CameraModel = name,
-                    Brand = brand
-                };
+                return (CameraModel: name, Brand: brand);
             })
-            .DistinctBy(x => x.CameraModel)
-            .ToFrozenDictionary(x => x.CameraModel, x => x.Brand);
+            .DistinctBy(x => x.CameraModel, StringComparer.OrdinalIgnoreCase)
+            .ToFrozenDictionary(x => x.CameraModel, x => x.Brand, StringComparer.OrdinalIgnoreCase);
 
         if (cameraWithBrandDict.Count == 0)
         {
-            _logger.LogWarning("No camera profiles found in the directory: {AdobeStandardCameraProfilesDirectory}", _metadataOptions.AdobeStandardCameraProfilesDirectory);
+            _logger.LogWarning("No camera profiles found in the directory: {AdobeStandardCameraProfilesDirectory}", _options.AdobeStandardCameraProfilesDirectory);
             return;
         }
 
         #region Sync camera brands
-        var brandNames = cameraWithBrandDict.Values
-            .AsParallel()
-            .Select(name => name.ToLower())
+        var distinctBrandNames = cameraWithBrandDict.Values
             .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
         var existingBrands = await _db.Brands
             .AsNoTracking()
-            .Where(b => brandNames.Contains(b.Name.ToLower()))
-            .Select(b => b.Name.ToLower())
+            .Where(b => distinctBrandNames.Contains(b.Name))
+            .Select(b => b.Name)
             .ToHashSetAsync(StringComparer.OrdinalIgnoreCase);
 
-        if (existingBrands.Count != brandNames.Count)
+        if (existingBrands.Count != distinctBrandNames.Count)
         {
-            var newBrands = cameraWithBrandDict.Values
-                .Where(name => !existingBrands.Contains(name.ToLower()))
-                .AsParallel()
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Select(name => new CameraBrand
-                {
-                    Name = name
-                })
+            var newBrands = distinctBrandNames
+                .Where(name => !existingBrands.Contains(name))
+                .Select(name => new CameraBrand { Name = name })
                 .ToArray();
-            _logger.LogTrace("Found {NewBrandCount} new camera brands.", newBrands.Length);
 
+            _logger.LogTrace("Found {NewBrandCount} new camera brands.", newBrands.Length);
             await _db.Brands.AddRangeAsync(newBrands);
             await _db.SaveChangesAsync();
             _logger.LogInformation("Added {NewBrandCount} new camera brands into the database.", newBrands.Length);
@@ -130,7 +104,6 @@ public class LocalResourceService : IResourceService
 
         #region Sync camera models
         var cameraNames = cameraWithBrandDict.Keys
-            .AsParallel()
             .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
         var existingCameras = await _db.Cameras
@@ -143,21 +116,19 @@ public class LocalResourceService : IResourceService
         {
             var cameraBrandMap = await _db.Brands
                 .AsNoTracking()
-                .Where(b => brandNames.Contains(b.Name.ToLower()))
-                .ToDictionaryAsync(b => b.Name.ToLower(), b => b.Id, StringComparer.OrdinalIgnoreCase);
+                .Where(b => distinctBrandNames.Contains(b.Name))
+                .ToDictionaryAsync(b => b.Name, b => b.Id, StringComparer.OrdinalIgnoreCase);
 
             var newCameras = cameraWithBrandDict
                 .Where(kv => !existingCameras.Contains(kv.Key))
-                .AsParallel()
-                .DistinctBy(kv => kv.Key, StringComparer.OrdinalIgnoreCase)
                 .Select(kv => new CameraModel
                 {
                     CodeName = kv.Key,
-                    BrandId = cameraBrandMap[kv.Value.ToLower()]
+                    BrandId = cameraBrandMap[kv.Value]
                 })
                 .ToArray();
-            _logger.LogTrace("Found {NewCameraCount} new camera models.", newCameras.Length);
 
+            _logger.LogTrace("Found {NewCameraCount} new camera models.", newCameras.Length);
             await _db.Cameras.AddRangeAsync(newCameras);
             await _db.SaveChangesAsync();
             _logger.LogInformation("Added {NewCameraCount} new camera models into the database.", newCameras.Length);
@@ -165,81 +136,81 @@ public class LocalResourceService : IResourceService
         #endregion
 
         #region Sync camera profiles
-
         var cameraWithIdDict = await _db.Cameras
             .AsNoTracking()
             .Where(c => cameraNames.Contains(c.CodeName))
             .ToDictionaryAsync(c => c.CodeName, c => c.Id, StringComparer.OrdinalIgnoreCase);
 
-        var cameraProfileTypeFileExtensionDict = ((CameraProfileType[])Enum.GetValues(typeof(CameraProfileType)))
+        var cameraProfileTypeByExtension = Enum.GetValues<CameraProfileType>()
             .ToFrozenDictionary(t => $".{t.ToString().ToLower()}", t => t, StringComparer.OrdinalIgnoreCase);
 
-        var profileFilePaths = _metadataOptions.CameraProfileDirectories
+        var profileFileLookup = _options.CameraProfileDirectories
             .AsParallel()
             .SelectMany(dir => IOHelper.EnumerateFilesSafe(dir))
-            .Where(filePath => cameraProfileTypeFileExtensionDict.ContainsKey(Path.GetExtension(filePath).ToLower()))
-            .ToArray();
+            .Select(fp =>
+            {
+                var ext = Path.GetExtension(fp);
+                if (!cameraProfileTypeByExtension.TryGetValue(ext, out var fileType))
+                    return default;
 
+                var stem = Path.GetFileNameWithoutExtension(fp);
+                var cameraIdx = stem.IndexOf(" Camera ", StringComparison.OrdinalIgnoreCase);
+                var modelName = cameraIdx >= 0 ? stem[..cameraIdx] : stem;
+                var profileName = cameraIdx >= 0 ? stem[(cameraIdx + " Camera ".Length)..] : "Default";
+
+                return (FilePath: fp, FileType: fileType, ModelName: modelName, ProfileName: profileName, IsValid: true);
+            })
+            .Where(x => x.IsValid)
+            .ToLookup(x => x.ModelName, StringComparer.OrdinalIgnoreCase);
+
+        var seenProfiles = new HashSet<(string Name, Guid CameraId)>(ProfileKeyComparer.Instance);
         var cameraProfiles = new List<CameraProfile>();
 
-        foreach (var dict in cameraWithBrandDict)
+        foreach (var (cameraModel, _) in cameraWithBrandDict)
         {
-            var profiles = profileFilePaths
-                .Where(filePath => filePath.Contains(dict.Key, StringComparison.OrdinalIgnoreCase))
-                .Select(profilePath =>
+            if (!cameraWithIdDict.TryGetValue(cameraModel, out var defaultCameraId))
+                continue;
+
+            foreach (var (FilePath, FileType, ModelName, ProfileName, IsValid) in profileFileLookup[cameraModel])
+            {
+                var cameraId = cameraWithIdDict.TryGetValue(ModelName, out var id) ? id : defaultCameraId;
+
+                if (!seenProfiles.Add((ProfileName, cameraId)))
+                    continue;
+
+                cameraProfiles.Add(new CameraProfile
                 {
-                    var substrings = Path.GetFileNameWithoutExtension(profilePath).Split([" Camera "], StringSplitOptions.RemoveEmptyEntries);
-                    var cameraModelName = substrings[0];
-                    var profileName = substrings.Length > 1 ? substrings[1] : "Default";
-
-                    var cameraId = cameraWithIdDict.TryGetValue(cameraModelName, out var id)
-                        ? id
-                        : cameraWithIdDict[dict.Key];
-
-                    var fileType = cameraProfileTypeFileExtensionDict[Path.GetExtension(profilePath).ToLower()];
-
-                    return new CameraProfile
-                    {
-                        FilePath = profilePath,
-                        CameraId = cameraId,
-                        Name = profileName,
-                        FileType = fileType,
-                    };
-                })
-                .Where(p => !cameraProfiles.Any(existing => existing.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase) && existing.CameraId == p.CameraId));
-
-            cameraProfiles.AddRange(profiles);
+                    FilePath = FilePath,
+                    CameraId = cameraId,
+                    Name = ProfileName,
+                    FileType = FileType,
+                });
+            }
         }
 
-        var profileNameAndCameraIdSet = cameraProfiles
-            .AsParallel()
-            .Select(p => new { p.Name, p.CameraId })
-            .ToHashSet();
-
-        var relevantCameraIds = profileNameAndCameraIdSet
+        var relevantCameraIds = cameraProfiles
             .Select(p => p.CameraId)
-            .ToHashSet();
+            .ToFrozenSet();
 
-        var existingProfiles = await _db.Profiles
+        var existingProfileSet = (await _db.Profiles
             .AsNoTracking()
             .Where(p => relevantCameraIds.Contains(p.CameraId))
             .Select(p => new { p.Name, p.CameraId })
-            .ToHashSetAsync();
+            .ToListAsync())
+            .Select(p => (p.Name, p.CameraId))
+            .ToFrozenSet(ProfileKeyComparer.Instance);
 
-        if (existingProfiles.Count != profileNameAndCameraIdSet.Count)
+        var newProfiles = cameraProfiles
+            .Where(p => !existingProfileSet.Contains((p.Name, p.CameraId)))
+            .ToArray();
+
+        _logger.LogTrace("Found {NewProfileCount} new camera profiles.", newProfiles.Length);
+
+        if (newProfiles.Length > 0)
         {
-            var newProfiles = cameraProfiles
-                .Where(p => !existingProfiles.Contains(new { p.Name, p.CameraId }))
-                .ToArray();
-
-            _logger.LogTrace("Found {NewProfileCount} new camera profiles.", newProfiles.Length);
-
-            if (newProfiles.Length > 0)
-            {
-                await _db.Profiles.AddRangeAsync(newProfiles);
-                await _db.SaveChangesAsync();
-                _logger.LogInformation("Added {NewProfileCount} new camera profiles into the database.", newProfiles.Length);
-            }
+            await _db.Profiles.AddRangeAsync(newProfiles);
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Added {NewProfileCount} new camera profiles into the database.", newProfiles.Length);
         }
         #endregion
     }

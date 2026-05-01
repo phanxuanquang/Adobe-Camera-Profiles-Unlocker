@@ -42,7 +42,7 @@ public class Program
             options.ConfigureWarnings(w => w.Ignore());
         });
 
-        builder.Services.Configure<ResourceOptions>(builder.Configuration.GetSection(nameof(ResourceOptions)));
+        builder.Services.Configure<MetadataOptions>(builder.Configuration.GetSection(nameof(MetadataOptions)));
         builder.Services.AddScoped<IResourceService, LocalResourceService>();
         builder.Services.AddScoped<IBrandService, BrandService>();
         builder.Services.AddScoped<ICameraProfileService, CameraProfileService>();

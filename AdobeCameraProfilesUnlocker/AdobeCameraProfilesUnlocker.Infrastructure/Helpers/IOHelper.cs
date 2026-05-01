@@ -2,7 +2,7 @@
 
 internal static class IOHelper
 {
-    public static IEnumerable<string> EnumerateFilesSafe(string path)
+    internal static IEnumerable<string> EnumerateFilesSafe(string path)
     {
         if (!Directory.Exists(path))
             yield break;
