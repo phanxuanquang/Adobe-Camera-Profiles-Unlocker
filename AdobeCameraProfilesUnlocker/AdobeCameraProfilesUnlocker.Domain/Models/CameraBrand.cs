@@ -6,7 +6,9 @@ public sealed record CameraBrand
 {
     [Key]
     public Guid Id { get; private set; } = Guid.NewGuid();
+
+    [Required]
     public required string Name { get; init; }
-    public ICollection<CameraModel> CameraModels { get; set; } = [];
+
     public ICollection<CameraProfile> Profiles { get; set; } = [];
 }

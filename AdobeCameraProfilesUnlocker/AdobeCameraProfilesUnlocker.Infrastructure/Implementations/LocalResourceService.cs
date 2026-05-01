@@ -66,6 +66,11 @@ public class LocalResourceService : IResourceService
             .AsParallel()
             .Select(filePath =>
             {
+                if (filePath.Contains("Sony NEX-5T Adobe Standard", StringComparison.OrdinalIgnoreCase))
+                {
+                    var x = 1;
+                }
+
                 var name = Path.GetFileNameWithoutExtension(filePath);
 
                 name = name
@@ -161,78 +166,81 @@ public class LocalResourceService : IResourceService
 
         #region Sync camera profiles
 
-        var cameraBrandDict = await _db.Brands
+        var cameraWithIdDict = await _db.Cameras
             .AsNoTracking()
-            .ToDictionaryAsync(b => b.Name.ToLower(), b => b.Id, StringComparer.OrdinalIgnoreCase);
+            .Where(c => cameraNames.Contains(c.CodeName))
+            .ToDictionaryAsync(c => c.CodeName, c => c.Id, StringComparer.OrdinalIgnoreCase);
 
         var cameraProfileTypeFileExtensionDict = ((CameraProfileType[])Enum.GetValues(typeof(CameraProfileType)))
             .ToFrozenDictionary(t => $".{t.ToString().ToLower()}", t => t, StringComparer.OrdinalIgnoreCase);
 
-        var profileFiles = _metadataOptions.CameraProfileDirectories
+        var profileFilePaths = _metadataOptions.CameraProfileDirectories
             .AsParallel()
             .SelectMany(dir => IOHelper.EnumerateFilesSafe(dir))
-            .Where(filePath => cameraProfileTypeFileExtensionDict.ContainsKey(Path.GetExtension(filePath)))
-            .Select(filePath =>
-            {
-                var cameraModel = Path.GetFileName(Path.GetDirectoryName(filePath))!;
-                var profileName = Path.GetFileNameWithoutExtension(filePath)
-                    .Replace(cameraModel, string.Empty)
-                    .Replace("Camera", string.Empty)
-                    .Trim();
-
-                var fileExtension = Path.GetExtension(filePath);
-                var brandId = cameraBrandDict
-                    .Where(dict => filePath.Contains(dict.Key, StringComparison.OrdinalIgnoreCase))
-                    .Select(dict => dict.Value)
-                    .FirstOrDefault();
-
-                if (brandId == default)
-                {
-                    _logger.LogWarning("No matching brand found for camera profile file: {FilePath}", filePath);
-                }
-
-                return new CameraProfile
-                {
-                    Name = profileName,
-                    FilePath = filePath,
-                    FileType = cameraProfileTypeFileExtensionDict[fileExtension],
-                    BrandId = brandId == default
-                        ? null
-                        : brandId
-                };
-            })
-            .DistinctBy(p => (p.Name, p.BrandId))
+            .Where(filePath => cameraProfileTypeFileExtensionDict.ContainsKey(Path.GetExtension(filePath).ToLower()))
             .ToArray();
 
-        var profileNames = profileFiles
-            .AsParallel()
-            .Select(p => p.Name.ToLower())
-            .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+        var cameraProfiles = new List<CameraProfile>();
 
-        var profileBrandIds = profileFiles
+        foreach (var dict in cameraWithBrandDict)
+        {
+            var profiles = profileFilePaths
+                .Where(filePath => filePath.Contains(dict.Key, StringComparison.OrdinalIgnoreCase))
+                .Select(profilePath =>
+                {
+                    var substrings = Path.GetFileNameWithoutExtension(profilePath).Split([" Camera "], StringSplitOptions.RemoveEmptyEntries);
+                    var cameraModelName = substrings[0];
+                    var profileName = substrings.Length > 1 ? substrings[1] : "Default";
+
+                    var cameraId = cameraWithIdDict.TryGetValue(cameraModelName, out var id)
+                        ? id
+                        : cameraWithIdDict[dict.Key];
+
+                    var fileType = cameraProfileTypeFileExtensionDict[Path.GetExtension(profilePath).ToLower()];
+
+                    return new CameraProfile
+                    {
+                        FilePath = profilePath,
+                        CameraId = cameraId,
+                        Name = profileName,
+                        FileType = fileType,
+                    };
+                })
+                .Where(p => !cameraProfiles.Any(existing => existing.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase) && existing.CameraId == p.CameraId));
+
+            cameraProfiles.AddRange(profiles);
+        }
+
+        var profileNameAndCameraIdSet = cameraProfiles
             .AsParallel()
-            .Select(p => p.BrandId)
-            .ToFrozenSet();
+            .Select(p => new { p.Name, p.CameraId })
+            .ToHashSet();
+
+        var relevantCameraIds = profileNameAndCameraIdSet
+            .Select(p => p.CameraId)
+            .ToHashSet();
 
         var existingProfiles = await _db.Profiles
             .AsNoTracking()
-            .Where(p => profileNames.Contains(p.Name.ToLower()) && profileBrandIds.Contains(p.BrandId))
-            .Select(p => new { p.Name, p.BrandId })
-            .ToArrayAsync();
+            .Where(p => relevantCameraIds.Contains(p.CameraId))
+            .Select(p => new { p.Name, p.CameraId })
+            .ToHashSetAsync();
 
-        if (existingProfiles.Length != profileFiles.Length)
+        if (existingProfiles.Count != profileNameAndCameraIdSet.Count)
         {
-            var newProfiles = profileFiles
-                .Where(p => !existingProfiles.Any(ep => ep.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase) && ep.BrandId == p.BrandId))
-                .AsParallel()
+            var newProfiles = cameraProfiles
+                .Where(p => !existingProfiles.Contains(new { p.Name, p.CameraId }))
                 .ToArray();
 
             _logger.LogTrace("Found {NewProfileCount} new camera profiles.", newProfiles.Length);
-            await _db.Profiles.AddRangeAsync(newProfiles);
-            await _db.SaveChangesAsync();
-            _logger.LogInformation("Added {NewProfileCount} new camera profiles into the database.", newProfiles.Length);
-        }
 
+            if (newProfiles.Length > 0)
+            {
+                await _db.Profiles.AddRangeAsync(newProfiles);
+                await _db.SaveChangesAsync();
+                _logger.LogInformation("Added {NewProfileCount} new camera profiles into the database.", newProfiles.Length);
+            }
+        }
         #endregion
     }
 }

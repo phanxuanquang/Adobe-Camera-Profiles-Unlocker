@@ -8,11 +8,19 @@ public sealed record CameraProfile
 {
     [Key]
     public Guid Id { get; private set; } = Guid.NewGuid();
+
+    [Required]
     public required string Name { get; init; }
+
+    [Required]
     public required CameraProfileType FileType { get; init; }
+
+    [Required]
     public required string FilePath { get; init; }
 
-    [ForeignKey(nameof(BrandId))]
-    public Guid? BrandId { get; set; }
-    public CameraBrand? Brand { get; set; }
+    [Required]
+    [ForeignKey(nameof(CameraId))]
+    public required Guid CameraId { get; set; }
+
+    public CameraModel Camera { get; set; } = default!;
 }

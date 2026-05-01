@@ -30,6 +30,16 @@ public class CameraProfileService : ICameraProfileService
         }
     }
 
+    public async Task<CameraProfile[]> GetCameraProfileByCameraIdAsync(Guid cameraId)
+    {
+        _logger.LogTrace("Retrieving camera profiles for camera model with ID {CameraModelId}", cameraId);
+        return await _db.Profiles
+            .AsNoTracking()
+            .Where(p => p.CameraId == cameraId)
+            .OrderBy(p => p.Name)
+            .ToArrayAsync();
+    }
+
     public async Task<CameraProfile> GetCameraProfileByIdAsync(Guid id)
     {
         _logger.LogTrace("Retrieving camera profile with ID {ProfileId}", id);
@@ -47,7 +57,8 @@ public class CameraProfileService : ICameraProfileService
         _logger.LogTrace("Retrieving camera profiles for brand with ID {BrandId}", brandId);
         return await _db.Profiles
             .AsNoTracking()
-            .Where(p => p.BrandId == brandId)
+            .Where(p => p.Camera.BrandId == brandId)
+            .OrderBy(p => p.Name)
             .ToArrayAsync();
     }
 
@@ -57,6 +68,7 @@ public class CameraProfileService : ICameraProfileService
         return await _db.Profiles
             .AsNoTracking()
             .Where(p => ids.Contains(p.Id))
+            .OrderBy(p => p.Name)
             .ToArrayAsync();
     }
 }

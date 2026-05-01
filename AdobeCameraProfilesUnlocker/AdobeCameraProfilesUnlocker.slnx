@@ -5,10 +5,6 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Folder Name="/src/">
-    <Project Path="AdobeCameraProfilesUnlocker.Core/AdobeCameraProfilesUnlocker.Core.csproj" Id="2b07c808-78ed-4978-b809-cb4dfea04b0f" />
-    <Project Path="AdobeCameraProfilesUnlocker.Playground/AdobeCameraProfilesUnlocker.Playground.csproj" Id="ac96a7a2-e0fe-4a82-998e-498c5d00e06a" />
-  </Folder>
   <Project Path="AdobeCameraProfilesUnlocker.ConsoleApp/AdobeCameraProfilesUnlocker.ConsoleApp.csproj" Id="fced62df-ef3b-40ef-8239-382b2e6e6782" />
   <Project Path="AdobeCameraProfilesUnlocker.Domain/AdobeCameraProfilesUnlocker.Domain.csproj" Id="85ce234d-6c33-449e-b1f8-c7f6bacc9ea7" />
   <Project Path="AdobeCameraProfilesUnlocker.Infrastructure/AdobeCameraProfilesUnlocker.Infrastructure.csproj" Id="6b9dd7b1-3ed8-4ff7-ae52-2cde94eadce6" />

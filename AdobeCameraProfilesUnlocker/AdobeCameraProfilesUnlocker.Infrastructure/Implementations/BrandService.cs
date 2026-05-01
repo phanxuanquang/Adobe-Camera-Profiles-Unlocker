@@ -22,6 +22,7 @@ public class BrandService : IBrandService
         _logger.LogTrace("Getting all camera brands from database...");
         return await _db.Brands
             .AsNoTracking()
+            .OrderBy(b => b.Name)
             .ToDictionaryAsync(b => b.Id, b => b.Name);
     }
 
@@ -31,15 +32,18 @@ public class BrandService : IBrandService
         return await _db.Cameras
             .AsNoTracking()
             .Where(cm => cm.BrandId == brandId)
+            .OrderBy(cm => cm.CodeName)
             .ToDictionaryAsync(cm => cm.Id, cm => cm.CodeName);
     }
 
     public async Task<Dictionary<Guid, string>> GetProfilesByBrandIdAsync(Guid brandId)
     {
         _logger.LogTrace("Getting camera profiles for brand id {brandId} from database...", brandId);
+
         return await _db.Profiles
             .AsNoTracking()
-            .Where(cp => cp.BrandId == brandId)
+            .Where(cp => cp.Camera.BrandId == brandId)
+            .OrderBy(cp => cp.Name)
             .ToDictionaryAsync(cp => cp.Id, cp => cp.Name);
     }
 }
