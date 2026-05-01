@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.Frozen;
 
 namespace AdobeCameraProfilesUnlocker.Playground
 {
@@ -14,9 +15,7 @@ namespace AdobeCameraProfilesUnlocker.Playground
 
             var brands = camera
                 .Select(x => x.Brand)
-                .Distinct()
-                .OrderBy(x => x)
-                .ToList();
+                .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
             var x = 1;
         }
@@ -26,7 +25,7 @@ namespace AdobeCameraProfilesUnlocker.Playground
             var cameras = EnumerateFilesSafe(AdobeStandardProfiles)
                 .Select(ParseCamera)
                 .DistinctBy(x => x.CameraName)
-                .ToList();
+                .ToFrozenDictionary(x => x.CameraName, x => x.Brand);
 
             var bag = new ConcurrentBag<Camera>();
 
@@ -37,15 +36,15 @@ namespace AdobeCameraProfilesUnlocker.Playground
 
             Parallel.ForEach(cameras, options, camera =>
             {
-                var standardDir = Path.Combine(VariantProfileFolders, camera.CameraName);
-                var altDir = Path.Combine(SpecialVariantProfileFolders, camera.Brand, camera.CameraName);
+                var standardDir = Path.Combine(VariantProfileFolders, camera.Key);
+                var altDir = Path.Combine(SpecialVariantProfileFolders, camera.Value, camera.Key);
 
                 var profiles = EnumerateFilesSafe(standardDir)
                     .Concat(EnumerateFilesSafe(altDir))
                     .Select(profilePath =>
                     {
                         var name = Path.GetFileNameWithoutExtension(profilePath)
-                            .Replace(camera.CameraName, string.Empty)
+                            .Replace(camera.Key, string.Empty)
                             .Replace("Camera", string.Empty)
                             .Trim();
 
@@ -63,8 +62,8 @@ namespace AdobeCameraProfilesUnlocker.Playground
 
                 bag.Add(new Camera
                 {
-                    Name = camera.CameraName,
-                    Brand = camera.Brand,
+                    Name = camera.Key,
+                    Brand = camera.Value,
                     Profiles = profiles
                 });
             });
@@ -105,7 +104,7 @@ namespace AdobeCameraProfilesUnlocker.Playground
         public required List<Profile> Profiles { get; set; }
     }
 
-    public class Profile 
+    public class Profile
     {
         public required string Name { get; set; }
         public required string FilePath { get; set; }
