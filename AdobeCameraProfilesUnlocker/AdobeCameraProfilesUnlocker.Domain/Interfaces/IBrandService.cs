@@ -1,10 +1,8 @@
-﻿using System.Collections.Frozen;
-
-namespace AdobeCameraProfilesUnlocker.Domain.Interfaces;
+﻿namespace AdobeCameraProfilesUnlocker.Domain.Interfaces;
 
 public interface IBrandService
 {
-    Task<FrozenDictionary<Guid, string>> GetAllBrandsAsync();
-    Task<FrozenDictionary<Guid, string>> GetCameraModelsByBrandIdAsync(Guid brandId);
-    Task<FrozenDictionary<Guid, string>> GetProfilesByBrandIdAsync(Guid brandId);
+    Task<Dictionary<Guid, string>> GetAllBrandsAsync();
+    Task<Dictionary<Guid, string>> GetCameraModelsByBrandIdAsync(Guid brandId);
+    Task<Dictionary<Guid, string>> GetProfilesByBrandIdAsync(Guid brandId);
 }

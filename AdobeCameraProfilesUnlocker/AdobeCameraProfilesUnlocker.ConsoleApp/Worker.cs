@@ -8,14 +8,15 @@ namespace AdobeCameraProfilesUnlocker.ConsoleApp;
 public class Worker(
         ILogger<Worker> logger,
         IServiceScopeFactory scopeFactory,
-        IDbContextFactory<AppDbContext> dbContextFactory) : BackgroundService
+        IDbContextFactory<AppDbContext> dbContextFactory) 
+    : BackgroundService
 {
     private readonly ILogger<Worker> _logger = logger;
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
     private readonly IDbContextFactory<AppDbContext> _dbContextFactory = dbContextFactory;
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (stoppingToken.IsCancellationRequested)
+        while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
@@ -82,8 +83,12 @@ public class Worker(
             {
                 _logger.LogError(ex, "An error occurred while running the worker.");
             }
+            finally
+            {
+                _logger.LogInformation("Worker completed execution at: {time}", DateTimeOffset.Now);
+                await Task.Delay(100000, stoppingToken);
+            }
 
-            await Task.Delay(100000, stoppingToken);
         }
     }
 }

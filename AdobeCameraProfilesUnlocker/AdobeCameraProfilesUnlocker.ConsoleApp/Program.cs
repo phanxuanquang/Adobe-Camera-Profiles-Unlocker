@@ -9,7 +9,7 @@ namespace AdobeCameraProfilesUnlocker.ConsoleApp;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = Host.CreateApplicationBuilder(args);
 
@@ -37,7 +37,9 @@ public class Program
                 logger.LogWarning("Database directory does not exist. Creating directory at path: {dbDirectoryPath}", dbDirectoryPath);
                 Directory.CreateDirectory(dbDirectoryPath);
             }
+
             options.UseSqlite(connectionString);
+            options.ConfigureWarnings(w => w.Ignore());
         });
 
         builder.Services.Configure<ResourceOptions>(builder.Configuration.GetSection(nameof(ResourceOptions)));
@@ -48,6 +50,6 @@ public class Program
         builder.Services.AddHostedService<Worker>();
 
         var host = builder.Build();
-        host.Start();
+        await host.RunAsync();
     }
 }

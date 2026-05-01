@@ -93,19 +93,21 @@ public class LocalResourceService : IResourceService
 
         var brandNames = cameraWithBrandDict.Values
             .AsParallel()
+            .Select(name => name.ToLower())
             .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
         var existingBrands = await _db.Brands
             .AsNoTracking()
-            .Where(b => brandNames.Contains(b.Name))
-            .Select(b => b.Name)
+            .Where(b => brandNames.Contains(b.Name.ToLower()))
+            .Select(b => b.Name.ToLower())
             .ToHashSetAsync(StringComparer.OrdinalIgnoreCase);
 
         if (existingBrands.Count != brandNames.Count)
         {
             var newBrands = cameraWithBrandDict.Values
+                .Where(name => !existingBrands.Contains(name.ToLower()))
                 .AsParallel()
-                .Where(name => !existingBrands.Contains(name))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Select(name => new CameraBrand
                 {
                     Name = name
@@ -132,16 +134,17 @@ public class LocalResourceService : IResourceService
         {
             var cameraBrandMap = await _db.Brands
                 .AsNoTracking()
-                .Where(b => brandNames.Contains(b.Name))
-                .ToDictionaryAsync(b => b.Name, b => b.Id, StringComparer.OrdinalIgnoreCase);
+                .Where(b => brandNames.Contains(b.Name.ToLower()))
+                .ToDictionaryAsync(b => b.Name.ToLower(), b => b.Id, StringComparer.OrdinalIgnoreCase);
 
             var newCameras = cameraWithBrandDict
-                .AsParallel()
                 .Where(kv => !existingCameras.Contains(kv.Key))
+                .AsParallel()
+                .DistinctBy(kv => kv.Key, StringComparer.OrdinalIgnoreCase)
                 .Select(kv => new CameraModel
                 {
                     CodeName = kv.Key,
-                    BrandId = cameraBrandMap[kv.Value]
+                    BrandId = cameraBrandMap[kv.Value.ToLower()]
                 })
                 .ToArray();
             _logger.LogTrace("Found {NewCameraCount} new camera models.", newCameras.Length);
