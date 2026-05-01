@@ -1,5 +1,6 @@
 ﻿using AdobeCameraProfilesUnlocker.Domain.Interfaces;
 using AdobeCameraProfilesUnlocker.Domain.Models;
+using AdobeCameraProfilesUnlocker.Domain.Models.Enums;
 using AdobeCameraProfilesUnlocker.Infrastructure.Databases;
 using AdobeCameraProfilesUnlocker.Infrastructure.Databases.Models;
 using AdobeCameraProfilesUnlocker.Infrastructure.Helpers;
@@ -91,6 +92,7 @@ public class LocalResourceService : IResourceService
             return;
         }
 
+        #region Sync camera brands
         var brandNames = cameraWithBrandDict.Values
             .AsParallel()
             .Select(name => name.ToLower())
@@ -119,7 +121,9 @@ public class LocalResourceService : IResourceService
             await _db.SaveChangesAsync();
             _logger.LogInformation("Added {NewBrandCount} new camera brands into the database.", newBrands.Length);
         }
+        #endregion
 
+        #region Sync camera models
         var cameraNames = cameraWithBrandDict.Keys
             .AsParallel()
             .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
@@ -153,5 +157,82 @@ public class LocalResourceService : IResourceService
             await _db.SaveChangesAsync();
             _logger.LogInformation("Added {NewCameraCount} new camera models into the database.", newCameras.Length);
         }
+        #endregion
+
+        #region Sync camera profiles
+
+        var cameraBrandDict = await _db.Brands
+            .AsNoTracking()
+            .ToDictionaryAsync(b => b.Name.ToLower(), b => b.Id, StringComparer.OrdinalIgnoreCase);
+
+        var cameraProfileTypeFileExtensionDict = ((CameraProfileType[])Enum.GetValues(typeof(CameraProfileType)))
+            .ToFrozenDictionary(t => $".{t.ToString().ToLower()}", t => t, StringComparer.OrdinalIgnoreCase);
+
+        var profileFiles = _metadataOptions.CameraProfileDirectories
+            .AsParallel()
+            .SelectMany(dir => IOHelper.EnumerateFilesSafe(dir))
+            .Where(filePath => cameraProfileTypeFileExtensionDict.ContainsKey(Path.GetExtension(filePath)))
+            .Select(filePath =>
+            {
+                var cameraModel = Path.GetFileName(Path.GetDirectoryName(filePath))!;
+                var profileName = Path.GetFileNameWithoutExtension(filePath)
+                    .Replace(cameraModel, string.Empty)
+                    .Replace(" Camera ", string.Empty)
+                    .Trim();
+
+                var fileExtension = Path.GetExtension(filePath);
+                var brandId = cameraBrandDict
+                    .Where(dict => filePath.Contains(dict.Key, StringComparison.OrdinalIgnoreCase))
+                    .Select(dict => dict.Value)
+                    .FirstOrDefault();
+
+                if (brandId == default)
+                {
+                    _logger.LogWarning("No matching brand found for camera profile file: {FilePath}", filePath);
+                }
+
+                return new CameraProfile
+                {
+                    Name = profileName,
+                    FilePath = filePath,
+                    FileType = cameraProfileTypeFileExtensionDict[fileExtension],
+                    BrandId = brandId == default
+                        ? null
+                        : brandId
+                };
+            })
+            .DistinctBy(p => (p.Name, p.BrandId))
+            .ToArray();
+
+        var profileNames = profileFiles
+            .AsParallel()
+            .Select(p => p.Name.ToLower())
+            .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+
+        var profileBrandIds = profileFiles
+            .AsParallel()
+            .Select(p => p.BrandId)
+            .ToFrozenSet();
+
+        var existingProfiles = await _db.Profiles
+            .AsNoTracking()
+            .Where(p => profileNames.Contains(p.Name.ToLower()) && profileBrandIds.Contains(p.BrandId))
+            .Select(p => new { p.Name, p.BrandId })
+            .ToArrayAsync();
+
+        if (existingProfiles.Length != profileFiles.Length)
+        {
+            var newProfiles = profileFiles
+                .Where(p => !existingProfiles.Any(ep => ep.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase) && ep.BrandId == p.BrandId))
+                .AsParallel()
+                .ToArray();
+
+            _logger.LogTrace("Found {NewProfileCount} new camera profiles.", newProfiles.Length);
+            await _db.Profiles.AddRangeAsync(newProfiles);
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Added {NewProfileCount} new camera profiles into the database.", newProfiles.Length);
+        }
+
+        #endregion
     }
 }

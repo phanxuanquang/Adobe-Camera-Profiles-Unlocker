@@ -13,6 +13,6 @@ public sealed record CameraProfile
     public required string FilePath { get; init; }
 
     [ForeignKey(nameof(BrandId))]
-    public Guid BrandId { get; set; }
-    public CameraBrand Brand { get; set; } = default!;
+    public Guid? BrandId { get; set; }
+    public CameraBrand? Brand { get; set; }
 }

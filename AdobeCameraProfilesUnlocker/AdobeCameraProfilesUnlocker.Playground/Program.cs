@@ -1,6 +1,4 @@
-﻿using AdobeCameraProfilesUnlocker.Core.Models;
-using AdobeCameraProfilesUnlocker.Core.Models.Enums;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Frozen;
 
 namespace AdobeCameraProfilesUnlocker.Playground
@@ -18,28 +16,6 @@ namespace AdobeCameraProfilesUnlocker.Playground
             var cameraBrands = cameraMetadatas
                 .Select(x => x.Brand)
                 .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
-
-            var cameras = cameraMetadatas
-                .Select(x => new Camera
-                {
-                    CodeName = x.Name,
-                    BrandId = cameraBrands.First(b => b.Equals(x.Brand, StringComparison.OrdinalIgnoreCase)).Id,
-                })
-                .ToList();
-
-            var cameraProfiles = new List<CameraProfile>();
-            foreach (var camera in cameras)
-            {
-                var metadata = cameraMetadatas.First(x => x.Name.Equals(camera.CodeName, StringComparison.OrdinalIgnoreCase));
-                cameraProfiles.AddRange(metadata.Profiles
-                    .Select(profile => new CameraProfile
-                    {
-                        Name = profile.Name,
-                        ExtensionId = profile.IsDcpFile ? CameraProfileExtension.DCP : CameraProfileExtension.XMP,
-                        FilePath = profile.FilePath,
-                        CameraId = camera.Id
-                    }));
-            }
         }
 
         public static List<CameraMetadata> LoadCameraMetadatas()

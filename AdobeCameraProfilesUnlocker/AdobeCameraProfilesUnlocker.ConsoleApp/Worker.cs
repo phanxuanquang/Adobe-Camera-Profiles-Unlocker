@@ -8,7 +8,7 @@ namespace AdobeCameraProfilesUnlocker.ConsoleApp;
 public class Worker(
         ILogger<Worker> logger,
         IServiceScopeFactory scopeFactory,
-        IDbContextFactory<AppDbContext> dbContextFactory) 
+        IDbContextFactory<AppDbContext> dbContextFactory)
     : BackgroundService
 {
     private readonly ILogger<Worker> _logger = logger;
@@ -39,7 +39,7 @@ public class Worker(
                     .Where(x => x.Value.Contains(userCameraBrandKeyword, StringComparison.OrdinalIgnoreCase))
                     .ToFrozenDictionary();
                 _logger.LogTrace("Found {count} camera brands matching keyword '{keyword}'", userCameraBrandSearchDict.Count, userCameraBrandKeyword);
-                _logger.LogTrace("Camera brands found: {brands}", string.Join(", ", userCameraBrandSearchDict.Values));
+                _logger.LogTrace("Camera brands found:\n - {brands}", string.Join("\n - ", userCameraBrandSearchDict.Values));
 
                 var userCameraBrandId = userCameraBrandSearchDict.FirstOrDefault().Key; // For demo purpose, just take the first matched brand
                 _logger.LogInformation("User's camera brand: {brand}", userCameraBrandSearchDict.FirstOrDefault().Value);
@@ -47,7 +47,7 @@ public class Worker(
 
                 var userCameraBrandSearchModels = await brandService.GetCameraModelsByBrandIdAsync(userCameraBrandId);
                 _logger.LogTrace("Found {count} camera models for brand '{brand}'", userCameraBrandSearchModels.Count, userCameraBrandSearchDict.FirstOrDefault().Value);
-                _logger.LogTrace("Camera models found: {models}", string.Join(", ", userCameraBrandSearchModels.Values));
+                _logger.LogTrace("Camera models found:\n - {models}", string.Join("\n - ", userCameraBrandSearchModels.Values));
 
                 var userCameraModelId = userCameraBrandSearchModels.FirstOrDefault().Key; // For demo purpose, just take the first matched camera model
                 _logger.LogInformation("User's camera model: {model}", userCameraBrandSearchModels.FirstOrDefault().Value);
@@ -59,20 +59,20 @@ public class Worker(
                     .Where(x => x.Value.Contains(targetCameraBrandKeyword, StringComparison.OrdinalIgnoreCase))
                     .ToFrozenDictionary();
                 _logger.LogTrace("Found {count} camera brands matching keyword '{keyword}'", targetCameraBrandSearchDict.Count, targetCameraBrandKeyword);
-                _logger.LogTrace("Camera brands found: {brands}", string.Join(", ", targetCameraBrandSearchDict.Values));
+                _logger.LogTrace("Camera brands found:\n - {brands}", string.Join("\n - ", targetCameraBrandSearchDict.Values));
 
                 var targetCameraBrandId = targetCameraBrandSearchDict.FirstOrDefault().Key; // For demo purpose, just take the first matched brand
                 _logger.LogInformation("Target camera brand for profile searching: {brand}", targetCameraBrandSearchDict.FirstOrDefault().Value);
 
                 var brandCameraProfileDict = await brandService.GetProfilesByBrandIdAsync(targetCameraBrandId);
                 _logger.LogTrace("Found {count} camera profiles for brand '{brand}'", brandCameraProfileDict.Count, targetCameraBrandSearchDict.FirstOrDefault().Value);
-                _logger.LogTrace("Camera profiles found: {profiles}", string.Join(", ", brandCameraProfileDict.Values));
+                _logger.LogTrace("Camera profiles found:\n - {profiles}", string.Join("\n - ", brandCameraProfileDict.Values));
 
                 var userSelectedCameraProfileDict = brandCameraProfileDict
                     .Take(5)
                     .ToFrozenDictionary();
                 var userSelectedCameraProfiles = await cameraProfileService.GetCameraProfilesByIdsAsync(userSelectedCameraProfileDict.Keys.ToArray());
-                _logger.LogInformation("User selected camera profiles: {names}", string.Join(", ", userSelectedCameraProfileDict.Values));
+                _logger.LogInformation("User selected camera profiles:\n - {names}", string.Join("\n - ", userSelectedCameraProfileDict.Values));
 
                 _logger.LogInformation("Adapting {count} camera profiles to user's camera model '{model}'", userSelectedCameraProfiles.Length, userCameraBrandSearchModels.FirstOrDefault().Value);
                 await cameraProfileService.AdaptToCameraModelAsync(userSelectedCameraProfiles, userCameraModelId);

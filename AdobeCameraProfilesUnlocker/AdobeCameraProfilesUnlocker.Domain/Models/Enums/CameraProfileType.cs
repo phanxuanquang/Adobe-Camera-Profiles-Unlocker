@@ -1,13 +1,12 @@
-﻿using AAdobeCameraProfilesUnlocker.Domain.Attributes;
+﻿using AdobeCameraProfilesUnlocker.Domain.Attributes;
 
-namespace AdobeCameraProfilesUnlocker.Domain.Models.Enums
+namespace AdobeCameraProfilesUnlocker.Domain.Models.Enums;
+
+public enum CameraProfileType : byte
 {
-    public enum CameraProfileType : byte
-    {
-        [RootProfileDirectory(@"C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Camera")]
-        DCP,
+    [Meta(@".dcp")]
+    DCP,
 
-        [RootProfileDirectory(@"C:\ProgramData\Adobe\CameraRaw\Settings\Adobe\Profiles\Camera")]
-        XMP
-    }
+    [Meta(@".xmp")]
+    XMP
 }
