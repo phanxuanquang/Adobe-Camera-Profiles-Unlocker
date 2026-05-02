@@ -15,15 +15,18 @@ namespace AdobeCameraProfilesUnlocker.Infrastructure.Implementations;
 
 public class LocalResourceService(
     AppDbContext db,
+    IIOService ioService,
     IOptionsSnapshot<MetadataOptions> metadataOptions,
     ILogger<LocalResourceService>? logger = null) : IResourceService
 {
     private readonly ILogger<LocalResourceService> _logger = logger ?? NullLogger<LocalResourceService>.Instance;
     private readonly MetadataOptions _options = metadataOptions.Value;
     private readonly AppDbContext _db = db;
+    private readonly IIOService _ioService = ioService;
 
     public async Task EnsureDatasourceUpToDateAsync()
     {
+        await _db.Database.EnsureCreatedAsync();
         _logger.LogTrace("Checking if datasource is up to date.");
         var metadata = await _db.Metas.FirstOrDefaultAsync();
 
@@ -54,7 +57,7 @@ public class LocalResourceService(
     {
         _logger.LogTrace("Force updating datasource...");
 
-        var cameraWithBrandDict = IOHelper.EnumerateFilesSafe(_options.AdobeStandardCameraProfilesDirectory)
+        var cameraWithBrandDict = _ioService.EnumerateFiles(_options.AdobeStandardCameraProfilesDirectory)
             .AsParallel()
             .Select(filePath =>
             {
@@ -146,7 +149,7 @@ public class LocalResourceService(
 
         var profileFileLookup = _options.CameraProfileDirectories
             .AsParallel()
-            .SelectMany(dir => IOHelper.EnumerateFilesSafe(dir))
+            .SelectMany(dir => _ioService.EnumerateFiles(dir))
             .Select(fp =>
             {
                 var ext = Path.GetExtension(fp);

@@ -1,4 +1,5 @@
 using AdobeCameraProfilesUnlocker.Domain.Interfaces;
+using AdobeCameraProfilesUnlocker.Infrastructure;
 using AdobeCameraProfilesUnlocker.Infrastructure.Databases;
 using AdobeCameraProfilesUnlocker.Infrastructure.Implementations;
 using AdobeCameraProfilesUnlocker.Infrastructure.Options;
@@ -42,7 +43,10 @@ public class Program
             options.ConfigureWarnings(w => w.Ignore());
         });
 
+        builder.Services.Configure<DcpToolOptions>(builder.Configuration.GetSection(nameof(DcpToolOptions)));
         builder.Services.Configure<MetadataOptions>(builder.Configuration.GetSection(nameof(MetadataOptions)));
+
+        builder.Services.AddIOService();
         builder.Services.AddScoped<IResourceService, LocalResourceService>();
         builder.Services.AddScoped<IBrandService, BrandService>();
         builder.Services.AddScoped<ICameraProfileService, CameraProfileService>();

@@ -13,11 +13,13 @@ namespace AdobeCameraProfilesUnlocker.Infrastructure.Implementations;
 
 public class CameraProfileService(
     AppDbContext db,
+    IIOService ioService,
     IDcpToolService dcpToolService,
     IOptionsSnapshot<DcpToolOptions> dcpToolOptions,
     ILoggerFactory? loggerFactory = null) : ICameraProfileService
 {
     private readonly AppDbContext _db = db;
+    private readonly IIOService _ioService = ioService;
     private readonly IDcpToolService _dcpToolService = dcpToolService;
     private readonly ILogger<CameraProfileService> _logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<CameraProfileService>();
     private readonly DcpToolOptions _dcpToolOptions = dcpToolOptions.Value;
@@ -64,8 +66,7 @@ public class CameraProfileService(
 
         foreach (var filePath in xmlFilePaths)
         {
-            _logger.LogTrace("Deleting temporary XML file at {FilePath}", filePath);
-            File.Delete(filePath);
+            await _ioService.DeleteFileAsync(filePath);
         }
     }
 
