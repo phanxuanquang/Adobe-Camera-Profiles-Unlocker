@@ -10,7 +10,7 @@ namespace AdobeCameraProfilesUnlocker.Infrastructure.Implementations;
 
 public class DcpToolService(
     IIOService ioService,
-    IOptionsSnapshot<DcpToolOptions> options, 
+    IOptionsSnapshot<DcpToolOptions> options,
     ICameraProfileService cameraProfileService,
     ILoggerFactory? loggerFactory = null) : IDcpToolService
 {
@@ -24,7 +24,7 @@ public class DcpToolService(
         _logger.LogTrace("Compiling XML files into DCP for profile IDs:\n- {ProfileIds}", string.Join("\n- ", cameraProfileIds));
 
         targetDirectory = string.IsNullOrEmpty(targetDirectory) ? Path.GetTempPath() : targetDirectory;
-        
+
         var profileIdWithFilePathDict = cameraProfileIds
             .Distinct()
             .Select(id => new
@@ -47,7 +47,7 @@ public class DcpToolService(
             {
                 await RunDcpToolAsync("-c", item.XmlFilePath, item.DcpFilePath);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error compiling XML file {XmlFilePath} into DCP file {DcpFilePath}.", item.XmlFilePath, item.DcpFilePath);
             }
@@ -60,7 +60,7 @@ public class DcpToolService(
 
         targetDirectory = string.IsNullOrEmpty(targetDirectory) ? Path.GetTempPath() : targetDirectory;
 
-        var profileIds = await _cameraProfileService.GetCameraProfilesByIdsAsync(cameraProfileIds.ToArray());
+        var profileIds = await _cameraProfileService.GetCameraProfilesByIdsAsync(cameraProfileIds);
         var profileIdWithFilePathDict = profileIds
             .Where(p => p.FileType == CameraProfileType.DCP && File.Exists(p.FilePath) && !File.Exists(Path.Combine(targetDirectory, $"{p.Id}.xml")))
             .Select(p => new
@@ -82,7 +82,7 @@ public class DcpToolService(
             {
                 await RunDcpToolAsync("-d", item.DcpFilePath, item.XmlFilePath);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error decompiling DCP file {DcpFilePath} into XML file {XmlFilePath}.", item.DcpFilePath, item.XmlFilePath);
             }
@@ -92,7 +92,7 @@ public class DcpToolService(
     public async Task EnsureResourceInitializedAsync()
     {
         if (Directory.Exists(_options.DcpToolExecutableDirectory)
-            && _ioService.EnumerateFiles(_options.DcpToolExecutableDirectory).Any() 
+            && _ioService.EnumerateFiles(_options.DcpToolExecutableDirectory).Any()
             && _ioService.EnumerateFiles(_options.DcpToolExecutableDirectory).Sum(f => new FileInfo(f).Length) > 1 * 1024 * 1024
             && File.Exists(Path.Combine(_options.DcpToolExecutableDirectory, "dcpTool.exe")))
         {
@@ -147,8 +147,8 @@ public class DcpToolService(
             throw new FileNotFoundException($"DCP tool executable not found: {executablePath}", executablePath);
         }
 
-        using var process = new Process 
-        { 
+        using var process = new Process
+        {
             StartInfo = new ProcessStartInfo
             {
                 FileName = executablePath,
