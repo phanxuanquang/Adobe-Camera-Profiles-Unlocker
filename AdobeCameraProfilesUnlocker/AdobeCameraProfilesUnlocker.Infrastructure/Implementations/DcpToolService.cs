@@ -25,32 +25,21 @@ public class DcpToolService(
 
         targetDirectory = string.IsNullOrEmpty(targetDirectory) ? Path.GetTempPath() : targetDirectory;
         
-        var profileIdsToCompile = cameraProfileIds
+        var profileIdWithFilePathDict = cameraProfileIds
             .Distinct()
             .Select(id => new
             {
-                Id = id,
-                XmlFilePath = Path.Combine(_options.DecompileOutputDirectory, $"{id}.xml"),
-                TargetDcpFilePath = Path.Combine(targetDirectory, $"{id}.dcp")
+                DcpFilePath = Path.Combine(targetDirectory, $"{id}.dcp"),
+                XmlFilePath = Path.Combine(_options.DecompileOutputDirectory, $"{id}.xml")
             })
-            .Where(x => File.Exists(x.XmlFilePath) && !File.Exists(x.TargetDcpFilePath))
-            .Select(x => x.Id)
+            .Where(x => File.Exists(x.XmlFilePath) && !File.Exists(x.DcpFilePath))
             .ToArray();
 
-        if (profileIdsToCompile.Length == 0)
+        if (profileIdWithFilePathDict.Length == 0)
         {
-            _logger.LogWarning("No new XML files found to compile into DCP in the directory: {DecompileOutputDirectory}", _options.DecompileOutputDirectory);
+            _logger.LogWarning("No new XML files found to compile into DCP for the provided profile IDs.");
             return;
         }
-
-        var profileIds = await _cameraProfileService.GetCameraProfilesByIdsAsync(profileIdsToCompile);
-        var profileIdWithFilePathDict = profileIds
-            .Select(p => new
-            {
-                XmlFilePath = Path.Combine(_options.DecompileOutputDirectory, $"{p.Id}.xml"),
-                DcpFilePath = Path.Combine(targetDirectory, $"{p.Id}.dcp")
-            })
-            .ToArray();
 
         foreach (var item in profileIdWithFilePathDict)
         {
