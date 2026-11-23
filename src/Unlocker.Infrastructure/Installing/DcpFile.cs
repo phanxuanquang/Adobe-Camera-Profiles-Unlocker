@@ -34,8 +34,8 @@ internal sealed class DcpFile
         get
         {
             var size = DataStart(_entries.Count);
-            foreach (var e in _entries)
-                if (e.Data.Length > 4) size += e.Data.Length + (e.Data.Length & 1);
+            foreach (var l in _entries.Where(e => e.Data.Length > 4).Select(e => e.Data.Length))
+                size += l + (l & 1);
             return size;
         }
     }
