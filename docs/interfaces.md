@@ -1,0 +1,46 @@
+# Contracts
+
+## Core models (`Unlocker.Core/Models`, records, immutable)
+```csharp
+public enum CameraProfileFormat { Dcp, Xmp }
+public sealed record CameraProfile(string Name, string SourcePath, CameraProfileFormat Format);
+public sealed record CameraModel(string Name, string Brand, IReadOnlyList<CameraProfile> Profiles);
+public sealed record Brand(string Name, string Family, IReadOnlyList<CameraModel> Models);
+public sealed record InstalledCameraProfile(string Name, string SourceModel, string TargetModel,
+    IReadOnlyList<string> Files, bool IsLegacy);
+public sealed record ReleaseInfo(Version Version, Uri DownloadUrl);
+public enum EnvironmentIssue { CameraRawMissing, DcpProfilesMissing, XmpProfilesMissing }
+```
+
+## Core abstractions (`Unlocker.Core/Abstractions`, backend ports)
+```csharp
+public interface ICameraCatalog          { Task<IReadOnlyList<Brand>> LoadAsync(CancellationToken ct = default); }
+public interface ICameraProfileInstaller { Task<InstalledCameraProfile> InstallAsync(CameraProfile profile, CameraModel source, string targetModel, CancellationToken ct = default); }
+public interface IInstalledStore
+{
+    IReadOnlyList<InstalledCameraProfile> All { get; }
+    IReadOnlyList<string> Folders { get; }            // [DCP output dir, XMP output dir]
+    event EventHandler? Changed;
+    Task LoadAsync(CancellationToken ct = default);   // manifest + legacy detect, once at startup
+    Task AddAsync(InstalledCameraProfile item, CancellationToken ct = default);
+    Task RemoveAsync(IEnumerable<InstalledCameraProfile> items, CancellationToken ct = default);  // move to trash
+    Task RestoreAsync(IEnumerable<InstalledCameraProfile> items, CancellationToken ct = default); // undo
+}
+public interface IEnvironmentProbe { IReadOnlyList<EnvironmentIssue> Check(); }
+public interface IUpdateService    { Task<ReleaseInfo?> GetNewerAsync(Version current, CancellationToken ct = default); }
+public interface ISettings         { string? TargetCamera { get; set; } Task SaveAsync(CancellationToken ct = default); }
+```
+Installer does NOT touch store; UnlockViewModel adds results (single place for Undo/rollback).
+`IDcpTool` = Infrastructure-internal (`Installing/`, installer detail + test seam), not Core.
+
+## Presentation ports (`Unlocker.Presentation/Ports`, each UI implements)
+```csharp
+public interface IDialogService { Task<bool> ConfirmAsync(string title, string body, string confirmText); }
+public interface ILauncher      { Task OpenUrlAsync(Uri uri, CancellationToken ct = default); Task OpenFolderAsync(string path, CancellationToken ct = default); }
+```
+InfoBar, progress, errors = VM observable state (`Common/StatusMessage`) bound to a plain WinUI `InfoBar` in the page. No notification service, no custom InfoBar control.
+
+## Rules
+- Add member only when a VM needs it. No speculative members.
+- Single impl per interface OK: 2nd "impl" = test fake / other UI.
+- Impl classes `internal sealed`; exposed only via `Add<Layer>()`.
