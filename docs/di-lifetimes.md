@@ -1,6 +1,7 @@
 # DI + lifetimes
 
 Container: `Microsoft.Extensions.DependencyInjection`, plain `ServiceCollection`. NO Generic Host (slower cold start, unused config/logging).
+No direct DI package refs: libraries get `IServiceCollection` via `Logging.Abstractions` -> `DependencyInjection.Abstractions`; WinUI + tests get the container via `Microsoft.Extensions.Logging`. No `appsettings.json` / `IOptions<T>`: no value needs runtime config (owner asked 2026-11-23, declined: constants change only with a release).
 
 ```csharp
 // Unlocker.WinUI/App.xaml.cs
