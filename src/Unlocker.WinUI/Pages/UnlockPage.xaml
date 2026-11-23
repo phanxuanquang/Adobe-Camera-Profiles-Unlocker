@@ -6,6 +6,7 @@
     xmlns:common="using:Unlocker.Presentation.Common"
     xmlns:controls="using:Unlocker.WinUI.Controls"
     xmlns:pages="using:Unlocker.WinUI.Pages"
+    xmlns:startup="using:Unlocker.Presentation.Startup"
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:unlock="using:Unlocker.Presentation.Unlock"
     x:DefaultBindMode="OneWay"
@@ -23,11 +24,12 @@
                     MinWidth="0"
                     HorizontalAlignment="Stretch"
                     AutomationProperties.AutomationId="ProfileCheckBox"
+                    AutomationProperties.HelpText="{x:Bind pages:UnlockPage.InstalledHelp(IsInstalled)}"
                     Content="{x:Bind Name}"
                     IsChecked="{x:Bind IsSelected, Mode=TwoWay}" />
+                <!--  FontIcon has no automation peer: screen readers get this from the CheckBox HelpText.  -->
                 <FontIcon
                     Grid.Column="1"
-                    AutomationProperties.Name="Installed"
                     FontSize="16"
                     Foreground="{ThemeResource SystemFillColorSuccessBrush}"
                     Glyph="&#xEC61;"
@@ -91,6 +93,7 @@
                         <Setter Target="InstallRing.Visibility" Value="Visible" />
                         <Setter Target="InstallRing.IsActive" Value="True" />
                         <Setter Target="InstallText.Text" Value="Installing…" />
+                        <Setter Target="InstallButton.(AutomationProperties.Name)" Value="Installing…" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -155,7 +158,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Grid Padding="40,28,40,20" RowSpacing="{StaticResource PageSpacing}">
+            <Grid Padding="{StaticResource PagePadding}" RowSpacing="{StaticResource PageSpacing}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -174,6 +177,7 @@
                     <Button
                         x:Name="TargetButton"
                         Grid.Column="1"
+                        AutomationProperties.AutomationId="TargetButton"
                         Padding="12,8"
                         VerticalAlignment="Top"
                         AutomationProperties.Name="{x:Bind pages:UnlockPage.TargetButtonName(ViewModel.TargetCamera)}"
@@ -200,10 +204,10 @@
                         Message="Some Camera Raw profiles weren't found. Reinstall Camera Raw with default settings to get them."
                         Severity="Warning">
                         <InfoBar.ActionButton>
-                            <Button
+                            <HyperlinkButton
                                 AutomationProperties.AutomationId="GetCameraRawButton"
-                                Click="GetCameraRaw_Click"
-                                Content="Get Camera Raw" />
+                                Content="Get Camera Raw"
+                                NavigateUri="{x:Bind startup:StartupViewModel.CameraRawDownload, Mode=OneTime}" />
                         </InfoBar.ActionButton>
                     </InfoBar>
                     <InfoBar
@@ -272,6 +276,7 @@
                         <AutoSuggestBox
                             x:Name="ProfileSearch"
                             Margin="4,0"
+                            AutomationProperties.AutomationId="ProfileSearch"
                             AutomationProperties.Name="Search camera profiles"
                             IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource Not}}"
                             PlaceholderText="Search camera profiles"
@@ -280,6 +285,7 @@
                         <ListView
                             x:Name="BrandList"
                             Grid.Row="1"
+                            AutomationProperties.AutomationId="BrandList"
                             AutomationProperties.Name="Brands"
                             IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource Not}}"
                             IsItemClickEnabled="True"
@@ -354,12 +360,15 @@
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SecondaryCaptionTextStyle}"
                                     Text="Copied from" />
+                                <!--  ItemsSource before SelectedItem: the selection must apply to the new list.  -->
                                 <ComboBox
                                     x:Name="ModelBox"
                                     Grid.Column="1"
+                                    AutomationProperties.AutomationId="ModelBox"
                                     AutomationProperties.Name="Copy camera profiles from model"
                                     IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource Not}}"
-                                    SelectionChanged="ModelBox_SelectionChanged" />
+                                    ItemsSource="{x:Bind ViewModel.SelectedBrand.ModelLabels, FallbackValue={x:Null}}"
+                                    SelectedItem="{x:Bind ViewModel.SelectedBrand.SourceLabel, Mode=TwoWay, FallbackValue={x:Null}}" />
                             </Grid>
                             <Button
                                 Grid.Column="1"
@@ -500,6 +509,7 @@
                     Spacing="8">
                     <Button
                         x:Name="ClearButton"
+                        AutomationProperties.AutomationId="ClearButton"
                         Command="{x:Bind ViewModel.ClearSelectionCommand}"
                         Content="Clear"
                         Visibility="{x:Bind ViewModel.TrayChips, Converter={StaticResource VisibleWhenAny}}" />
@@ -511,6 +521,7 @@
                     <Button
                         x:Name="InstallButton"
                         MinWidth="168"
+                        AutomationProperties.AutomationId="InstallButton"
                         AutomationProperties.Name="{x:Bind ViewModel.InstallLabel}"
                         Command="{x:Bind ViewModel.InstallCommand}"
                         Style="{StaticResource AccentButtonStyle}">

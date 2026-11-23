@@ -122,6 +122,25 @@ public sealed class UnlockViewModelTests
     }
 
     [TestMethod]
+    public void Brand_model_labels_mark_best_model_and_label_selects_source()
+    {
+        var brand = new BrandItemViewModel(Fujifilm);
+        var changed = new List<string?>();
+        brand.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+        CollectionAssert.AreEqual(new[] { "Fujifilm X-T5 (most camera profiles)", "Fujifilm X-T1" }, brand.ModelLabels.ToArray());
+        Assert.AreEqual("Fujifilm X-T5 (most camera profiles)", brand.SourceLabel);
+        brand.SourceLabel = "Fujifilm X-T1";
+        Assert.AreEqual("Fujifilm X-T1", brand.SourceModel.Name);
+        CollectionAssert.Contains(changed, nameof(BrandItemViewModel.SourceLabel));
+        // While the brand changes, the ComboBox pushes null or another brand's label: both are ignored.
+        brand.SourceLabel = null;
+        brand.SourceLabel = "Sony ILCE-7M4";
+        Assert.AreEqual("Fujifilm X-T1", brand.SourceModel.Name);
+        CollectionAssert.AreEqual(new[] { "Sony ILCE-7M4" }, new BrandItemViewModel(Sony).ModelLabels.ToArray());
+    }
+
+    [TestMethod]
     public async Task Changing_source_model_keeps_shared_profiles_and_drops_missing()
     {
         var vm = await Unlock();

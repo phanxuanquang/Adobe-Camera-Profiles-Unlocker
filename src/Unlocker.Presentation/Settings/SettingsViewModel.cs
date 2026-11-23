@@ -51,11 +51,5 @@ public sealed partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private Task OpenGitHubAsync(CancellationToken ct) => _launcher.OpenUrlAsync(GitHubUrl, ct);
-
-    [RelayCommand]
-    private Task DonateAsync(CancellationToken ct) => _launcher.OpenUrlAsync(DonateUrl, ct);
-
-    [RelayCommand]
     private Task OpenFolderAsync(string path, CancellationToken ct) => _launcher.OpenFolderAsync(path, ct);
 }

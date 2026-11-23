@@ -75,7 +75,7 @@
                 <Setter Property="Width" Value="40" />
                 <Setter Property="Height" Value="40" />
                 <Setter Property="Padding" Value="0" />
-                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Background" Value="{ThemeResource SubtleFillColorTransparentBrush}" />
                 <Setter Property="BorderThickness" Value="0" />
             </Style>
         </ResourceDictionary>
