@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Unlocker.WinUI.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:pages="using:Unlocker.WinUI.Pages"
+    xmlns:tk="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
+    x:DefaultBindMode="OneWay"
+    NavigationCacheMode="Disabled">
+
+    <Page.Resources>
+        <Style
+            x:Key="SectionHeader"
+            BasedOn="{StaticResource BodyStrongTextBlockStyle}"
+            TargetType="TextBlock">
+            <Setter Property="Margin" Value="1,24,0,6" />
+        </Style>
+    </Page.Resources>
+    <ScrollViewer>
+        <Grid Padding="{StaticResource PagePadding}">
+        <StackPanel
+            MaxWidth="{StaticResource PageMaxWidth}"
+            HorizontalAlignment="Stretch"
+            Spacing="4">
+            <TextBlock Style="{StaticResource PageTitleTextStyle}" Text="Settings" />
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeader}"
+                Text="Updates" />
+            <tk:SettingsCard AutomationProperties.AutomationId="UpdateCard"
+                Description="{x:Bind ViewModel.UpdateStatus}"
+                Header="{x:Bind pages:SettingsPage.VersionText(ViewModel.AppVersion), Mode=OneTime}"
+                HeaderIcon="{ui:FontIcon Glyph=&#xE895;}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button AutomationProperties.AutomationId="DownloadButton"
+                        Command="{x:Bind ViewModel.DownloadCommand, Mode=OneTime}"
+                        Content="{x:Bind pages:SettingsPage.DownloadText(ViewModel.LatestRelease)}"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Visibility="{x:Bind ViewModel.IsUpdateAvailable}" />
+                    <Button AutomationProperties.AutomationId="CheckUpdatesButton" Command="{x:Bind ViewModel.CheckForUpdatesCommand, Mode=OneTime}" Content="Check again" />
+                </StackPanel>
+            </tk:SettingsCard>
+
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeader}"
+                Text="Profile folders" />
+            <tk:SettingsCard
+                ActionIcon="{ui:FontIcon Glyph=&#xE8A7;}"
+                ActionIconToolTip="Open in File Explorer"
+                x:Name="DcpCard"
+                Click="OpenDcpFolder_Click"
+                Header="Camera profiles (DCP)"
+                HeaderIcon="{ui:FontIcon Glyph=&#xE8B7;}"
+                IsClickEnabled="True" />
+            <tk:SettingsCard
+                ActionIcon="{ui:FontIcon Glyph=&#xE8A7;}"
+                ActionIconToolTip="Open in File Explorer"
+                x:Name="XmpCard"
+                Click="OpenXmpFolder_Click"
+                Header="Camera profiles (XMP)"
+                HeaderIcon="{ui:FontIcon Glyph=&#xE8B7;}"
+                IsClickEnabled="True" />
+
+            <TextBlock
+                AutomationProperties.HeadingLevel="Level2"
+                Style="{StaticResource SectionHeader}"
+                Text="About" />
+            <tk:SettingsCard AutomationProperties.AutomationId="GitHubCard"
+                Description="github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker"
+                Header="Source code and issues"
+                HeaderIcon="{ui:FontIcon Glyph=&#xE943;}">
+                <Button AutomationProperties.AutomationId="GitHubButton" Command="{x:Bind ViewModel.OpenGitHubCommand, Mode=OneTime}" Content="Open GitHub" />
+            </tk:SettingsCard>
+            <tk:SettingsCard AutomationProperties.AutomationId="DonateCard"
+                Description="The app is free. Donations keep it updated for new cameras."
+                Header="Support the project"
+                HeaderIcon="{ui:FontIcon Glyph=&#xEB51;}">
+                <Button AutomationProperties.AutomationId="DonateButton" Command="{x:Bind ViewModel.DonateCommand, Mode=OneTime}" Content="Donate" />
+            </tk:SettingsCard>
+        </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Page>

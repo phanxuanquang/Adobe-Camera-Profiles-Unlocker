@@ -1,0 +1,14 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="ARM64" />
+  </Configurations>
+  <Project Path="Unlocker.Core/Unlocker.Core.csproj" />
+  <Project Path="Unlocker.Infrastructure/Unlocker.Infrastructure.csproj" />
+  <Project Path="Unlocker.Presentation/Unlocker.Presentation.csproj" />
+  <Project Path="../tests/Unlocker.Tests/Unlocker.Tests.csproj" />
+  <Project Path="Unlocker.WinUI/Unlocker.WinUI.csproj">
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|ARM64" Project="ARM64" />
+  </Project>
+</Solution>

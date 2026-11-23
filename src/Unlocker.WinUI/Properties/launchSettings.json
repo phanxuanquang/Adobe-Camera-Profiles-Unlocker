@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Unlocker.WinUI (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Unlocker.WinUI (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

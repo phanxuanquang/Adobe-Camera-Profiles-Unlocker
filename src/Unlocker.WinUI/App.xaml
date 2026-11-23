@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="Unlocker.WinUI.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+            <converters:BoolNegationConverter x:Key="Not" />
+            <converters:BoolToVisibilityConverter
+                x:Key="CollapsedWhenTrue"
+                FalseValue="Visible"
+                TrueValue="Collapsed" />
+            <converters:EmptyObjectToObjectConverter x:Key="TrueWhenNotNull">
+                <converters:EmptyObjectToObjectConverter.EmptyValue>
+                    <x:Boolean>False</x:Boolean>
+                </converters:EmptyObjectToObjectConverter.EmptyValue>
+                <converters:EmptyObjectToObjectConverter.NotEmptyValue>
+                    <x:Boolean>True</x:Boolean>
+                </converters:EmptyObjectToObjectConverter.NotEmptyValue>
+            </converters:EmptyObjectToObjectConverter>
+            <converters:StringVisibilityConverter x:Key="VisibleWhenText" />
+            <converters:EmptyCollectionToObjectConverter
+                x:Key="VisibleWhenAny"
+                EmptyValue="Collapsed"
+                NotEmptyValue="Visible" />
+
+            <!--  Fluent geometry: page surfaces use OverlayCornerRadius (8px), controls inside them ControlCornerRadius (4px). Spacing on a 4px grid.  -->
+            <Thickness x:Key="PagePadding">40,28,40,28</Thickness>
+            <x:Double x:Key="PageSpacing">16</x:Double>
+            <x:Double x:Key="ItemSpacing">8</x:Double>
+            <x:Double x:Key="PageMaxWidth">880</x:Double>
+            <x:Double x:Key="TileHeight">48</x:Double>
+
+            <Style x:Key="CardGridStyle" TargetType="Grid">
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="{StaticResource OverlayCornerRadius}" />
+            </Style>
+            <Style x:Key="TileGridStyle" TargetType="Grid">
+                <Setter Property="MinHeight" Value="{StaticResource TileHeight}" />
+                <Setter Property="Padding" Value="12,0" />
+                <Setter Property="ColumnSpacing" Value="{StaticResource ItemSpacing}" />
+                <Setter Property="Background" Value="{ThemeResource ControlFillColorDefaultBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
+            </Style>
+
+            <Style
+                x:Key="SecondaryTextStyle"
+                BasedOn="{StaticResource BodyTextBlockStyle}"
+                TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+            </Style>
+            <Style
+                x:Key="SecondaryCaptionTextStyle"
+                BasedOn="{StaticResource CaptionTextBlockStyle}"
+                TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+            </Style>
+            <Style
+                x:Key="PageTitleTextStyle"
+                BasedOn="{StaticResource TitleTextBlockStyle}"
+                TargetType="TextBlock">
+                <Setter Property="AutomationProperties.HeadingLevel" Value="Level1" />
+            </Style>
+
+            <!--  Icon-only button: 40px hit target. Always set AutomationProperties.Name and a ToolTip.  -->
+            <Style x:Key="IconButtonStyle" TargetType="Button">
+                <Setter Property="Width" Value="40" />
+                <Setter Property="Height" Value="40" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
