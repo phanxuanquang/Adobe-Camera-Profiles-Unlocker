@@ -1,0 +1,34 @@
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    target-branch: master
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: [dependencies]
+    commit-message:
+      prefix: chore
+      include: scope
+    ignore:
+      - dependency-name: Microsoft.Extensions.*
+        update-types: [version-update:semver-major]
+    groups:
+      microsoft-extensions:
+        patterns: [Microsoft.Extensions.*]
+      windows-sdk:
+        patterns: [Microsoft.WindowsAppSDK, Microsoft.Windows.SDK.*]
+      community-toolkit:
+        patterns: [CommunityToolkit.*]
+      testing:
+        patterns: [MSTest*]
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: master
+    schedule:
+      interval: monthly
+    labels: [dependencies]
+    commit-message:
+      prefix: ci
