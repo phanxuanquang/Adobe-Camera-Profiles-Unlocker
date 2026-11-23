@@ -30,6 +30,20 @@ public sealed class JsonInstalledStoreTests : TempFolderTest
     }
 
     [TestMethod]
+    public async Task Cancelled_save_keeps_previous_manifest()
+    {
+        var store = new JsonInstalledStore(Paths, NullLogger<JsonInstalledStore>.Instance);
+        await store.AddAsync(Installed("A", "Sony", "a.xmp"));
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() => store.AddAsync(Installed("B", "Sony", "b.xmp"), new CancellationToken(canceled: true)));
+
+        var reloaded = new JsonInstalledStore(Paths, NullLogger<JsonInstalledStore>.Instance);
+        await reloaded.LoadAsync();
+        CollectionAssert.AreEqual(new[] { "A" }, reloaded.All.Select(p => p.Name).ToArray());
+        CollectionAssert.AreEqual(new[] { Paths.ManifestFile }, Directory.GetFiles(Paths.AppDataDir));
+    }
+
+    [TestMethod]
     public async Task Remove_moves_files_to_trash_and_restore_brings_them_back()
     {
         var store = new JsonInstalledStore(Paths, NullLogger<JsonInstalledStore>.Instance);

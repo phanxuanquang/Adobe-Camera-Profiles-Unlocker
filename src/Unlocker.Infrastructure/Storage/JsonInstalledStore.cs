@@ -144,8 +144,19 @@ internal sealed class JsonInstalledStore(AppPaths paths, ILogger<JsonInstalledSt
     private async Task SaveAsync(CancellationToken ct)
     {
         Directory.CreateDirectory(paths.AppDataDir);
-        await using var stream = File.Create(paths.ManifestFile);
-        await JsonSerializer.SerializeAsync(stream, _items, UnlockerJsonContext.Default.ListInstalledCameraProfile, ct);
+        // Write a temp file, then rename over the manifest: a crash or cancel never leaves a half-written manifest.
+        var tmp = paths.ManifestFile + ".tmp";
+        try
+        {
+            await using (var stream = File.Create(tmp))
+                await JsonSerializer.SerializeAsync(stream, _items, UnlockerJsonContext.Default.ListInstalledCameraProfile, ct);
+            File.Move(tmp, paths.ManifestFile, overwrite: true);
+        }
+        catch
+        {
+            File.Delete(tmp);
+            throw;
+        }
     }
 
     public ValueTask DisposeAsync()

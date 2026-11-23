@@ -31,7 +31,18 @@ internal sealed class JsonSettings : ISettings
     public async Task SaveAsync(CancellationToken ct = default)
     {
         Directory.CreateDirectory(_paths.AppDataDir);
-        await using var stream = File.Create(_paths.SettingsFile);
-        await JsonSerializer.SerializeAsync(stream, new SettingsData(TargetCamera), UnlockerJsonContext.Default.SettingsData, ct);
+        // Write a temp file, then rename over settings.json: a crash or cancel never leaves a half-written file.
+        var tmp = _paths.SettingsFile + ".tmp";
+        try
+        {
+            await using (var stream = File.Create(tmp))
+                await JsonSerializer.SerializeAsync(stream, new SettingsData(TargetCamera), UnlockerJsonContext.Default.SettingsData, ct);
+            File.Move(tmp, _paths.SettingsFile, overwrite: true);
+        }
+        catch
+        {
+            File.Delete(tmp);
+            throw;
+        }
     }
 }

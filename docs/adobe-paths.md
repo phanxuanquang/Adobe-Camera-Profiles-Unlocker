@@ -31,6 +31,7 @@ Rules:
 - Legacy detection: `*.dcp` in `CameraProfiles` root matching `* (for *).dcp`, not in manifest.
 
 ## App-own data
-- `%LocalAppData%\CameraProfilesUnlocker\settings.json`: target camera, theme
+- `%LocalAppData%\CameraProfilesUnlocker\settings.json`: target camera
 - `%LocalAppData%\CameraProfilesUnlocker\installed.json`: manifest of created files
+- Both JSON files: written to `<file>.tmp` then `File.Move(overwrite)` (atomic on same volume). Crash/cancel never leaves half-written JSON. Plain JSON (System.Text.Json source-gen), no SQLite/EF Core: tiny data, one process, whole-file read/write (owner asked 2026-11-23, declined).
 - `%LocalAppData%\CameraProfilesUnlocker\trash\`: removed files kept for Undo, emptied on exit
