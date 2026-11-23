@@ -1,5 +1,6 @@
 using System.Xml.Linq;
 using Microsoft.Extensions.Logging.Abstractions;
+using Unlocker.Core.Enums;
 using Unlocker.Core.Models;
 using Unlocker.Core.Rules;
 using Unlocker.Infrastructure.Installing;
@@ -15,7 +16,7 @@ public sealed class CameraProfileInstallerTests : TempFolderTest
     public async Task Dcp_writes_rewritten_copy_to_output_dir()
     {
         var src = Touch(Path.Combine(Paths.DcpProfilesDir, "Canon EOS R5", "Canon EOS R5 Camera Portrait.dcp"));
-        var profile = new CameraProfile("Portrait", src, CameraProfileFormat.Dcp);
+        var profile = new CameraProfile("Portrait", src, CameraProfileFormat.DCP);
         var model = new CameraModel("Canon EOS R5", "Canon", [profile]);
 
         var result = await new CameraProfileInstaller(Paths, new FakeDcpTool(), NullLogger<CameraProfileInstaller>.Instance).InstallAsync(profile, model, "Sony ILCE-7M4");
@@ -32,7 +33,7 @@ public sealed class CameraProfileInstallerTests : TempFolderTest
     {
         var src = WriteXmp(@"Fujifilm\Fujifilm X-T5\Fujifilm X-T5 Camera CLASSIC Neg.xmp", "Fujifilm X-T5");
         var before = File.ReadAllBytes(src);
-        var profile = new CameraProfile("CLASSIC Neg", src, CameraProfileFormat.Xmp);
+        var profile = new CameraProfile("CLASSIC Neg", src, CameraProfileFormat.XMP);
         var model = new CameraModel("Fujifilm X-T5", "Fujifilm", [profile]);
 
         var result = await new CameraProfileInstaller(Paths, new FakeDcpTool(), NullLogger<CameraProfileInstaller>.Instance).InstallAsync(profile, model, "Sony ILCE-7M4");

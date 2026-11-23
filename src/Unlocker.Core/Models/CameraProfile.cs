@@ -1,3 +1,5 @@
+using Unlocker.Core.Enums;
+
 namespace Unlocker.Core.Models;
 
 /// <param name="Name">Name without the model prefix, e.g. "CLASSIC CHROME".</param>

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging.Abstractions;
-using Unlocker.Core.Models;
+using Unlocker.Core.Enums;
 using Unlocker.Infrastructure.Catalog;
 using Unlocker.Tests.Support;
 
@@ -19,7 +19,7 @@ public sealed class FileCameraCatalogTests : TempFolderTest
         var fuji = brands.Single(b => b.Name == "Fujifilm");
         var xt5 = fuji.Models.Single(m => m.Name == "Fujifilm X-T5").Profiles.Single();
         Assert.AreEqual("CLASSIC Neg", xt5.Name);
-        Assert.AreEqual(CameraProfileFormat.Xmp, xt5.Format);
+        Assert.AreEqual(CameraProfileFormat.XMP, xt5.Format);
         Assert.AreEqual("Sepia", fuji.Models.Single(m => m.Name == "Fujifilm GFX 100").Profiles.Single().Name);
     }
 
@@ -34,8 +34,8 @@ public sealed class FileCameraCatalogTests : TempFolderTest
 
         var profiles = brands.Single().Models.Single().Profiles;
         Assert.AreEqual(2, profiles.Count);
-        Assert.AreEqual(CameraProfileFormat.Xmp, profiles.Single(p => p.Name == "CLASSIC Neg").Format);
-        Assert.AreEqual(CameraProfileFormat.Dcp, profiles.Single(p => p.Name == "PROVIA").Format);
+        Assert.AreEqual(CameraProfileFormat.XMP, profiles.Single(p => p.Name == "CLASSIC Neg").Format);
+        Assert.AreEqual(CameraProfileFormat.DCP, profiles.Single(p => p.Name == "PROVIA").Format);
     }
 
     [TestMethod]

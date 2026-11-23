@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Unlocker.Core.Abstractions;
-using Unlocker.Core.Models;
+using Unlocker.Core.Enums;
 using Unlocker.Presentation.Ports;
 
 namespace Unlocker.Presentation.Startup;

@@ -1,4 +1,5 @@
 using System.Xml.Linq;
+using Unlocker.Core.Enums;
 using Unlocker.Core.Models;
 
 namespace Unlocker.Core.Rules;
@@ -48,7 +49,7 @@ public static class CameraProfileRewriter
     /// <summary>"{name} (for {target}).dcp|.xmp" with invalid file-name chars replaced by '-'.</summary>
     public static string OutputFileName(string profileName, string targetModel, CameraProfileFormat format)
     {
-        var name = $"{profileName} (for {targetModel}){(format == CameraProfileFormat.Dcp ? ".dcp" : ".xmp")}";
+        var name = $"{profileName} (for {targetModel}){(format == CameraProfileFormat.DCP ? ".dcp" : ".xmp")}";
         return string.Concat(name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '-' : c));
     }
 

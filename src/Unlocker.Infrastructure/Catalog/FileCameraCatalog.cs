@@ -1,5 +1,6 @@
 using System.Xml;
 using Microsoft.Extensions.Logging;
+using Unlocker.Core.Enums;
 using Unlocker.Core.Abstractions;
 using Unlocker.Core.Models;
 using Unlocker.Core.Rules;
@@ -30,7 +31,7 @@ internal sealed class FileCameraCatalog(AppPaths paths, ILogger<FileCameraCatalo
                 foreach (var file in Directory.EnumerateFiles(dir, "*.dcp"))
                 {
                     if (CameraProfileRewriter.ParseProfileName(file, model) is not { } name) continue;
-                    Add(models, model, new CameraProfile(name, file, CameraProfileFormat.Dcp));
+                    Add(models, model, new CameraProfile(name, file, CameraProfileFormat.DCP));
                 }
             }
         }
@@ -45,7 +46,7 @@ internal sealed class FileCameraCatalog(AppPaths paths, ILogger<FileCameraCatalo
                 if (CameraProfileRewriter.ParseProfileName(file, model) is not { } name) continue;
                 if (models.TryGetValue(model, out var existing))
                     existing.RemoveAll(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
-                Add(models, model, new CameraProfile(name, file, CameraProfileFormat.Xmp));
+                Add(models, model, new CameraProfile(name, file, CameraProfileFormat.XMP));
             }
         }
 

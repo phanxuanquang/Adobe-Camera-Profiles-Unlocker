@@ -1,4 +1,4 @@
-namespace Unlocker.Core.Models;
+namespace Unlocker.Core.Enums;
 
 public enum EnvironmentIssue
 {

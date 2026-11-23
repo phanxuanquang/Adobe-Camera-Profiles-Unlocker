@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Unlocker.Core.Abstractions;
-using Unlocker.Core.Models;
+using Unlocker.Core.Enums;
 
 namespace Unlocker.Infrastructure.Platform;
 

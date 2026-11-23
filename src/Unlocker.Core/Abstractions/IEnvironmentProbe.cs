@@ -1,4 +1,4 @@
-using Unlocker.Core.Models;
+using Unlocker.Core.Enums;
 
 namespace Unlocker.Core.Abstractions;
 

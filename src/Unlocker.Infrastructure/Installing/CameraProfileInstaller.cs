@@ -1,5 +1,6 @@
 using System.Xml.Linq;
 using Microsoft.Extensions.Logging;
+using Unlocker.Core.Enums;
 using Unlocker.Core.Abstractions;
 using Unlocker.Core.Models;
 using Unlocker.Core.Rules;
@@ -11,7 +12,7 @@ internal sealed class CameraProfileInstaller(AppPaths paths, IDcpTool dcpTool, I
 {
     public async Task<InstalledCameraProfile> InstallAsync(CameraProfile profile, CameraModel source, string targetModel, CancellationToken ct = default)
     {
-        var installed = profile.Format == CameraProfileFormat.Dcp
+        var installed = profile.Format == CameraProfileFormat.DCP
             ? await InstallDcpAsync(profile, source, targetModel, ct)
             : await InstallXmpAsync(profile, source, targetModel, ct);
         logger.LogInformation("Installed profile {Profile} from {SourceModel} for {TargetModel} at {Output}",
@@ -33,7 +34,7 @@ internal sealed class CameraProfileInstaller(AppPaths paths, IDcpTool dcpTool, I
                 await doc.SaveAsync(write, SaveOptions.None, ct);
 
             Directory.CreateDirectory(paths.DcpOutputDir);
-            var output = Path.Combine(paths.DcpOutputDir, CameraProfileRewriter.OutputFileName(profile.Name, targetModel, CameraProfileFormat.Dcp));
+            var output = Path.Combine(paths.DcpOutputDir, CameraProfileRewriter.OutputFileName(profile.Name, targetModel, CameraProfileFormat.DCP));
             await dcpTool.CompileAsync(tmp, output, ct);
             return new InstalledCameraProfile(profile.Name, source.Name, targetModel, [output]);
         }
@@ -51,7 +52,7 @@ internal sealed class CameraProfileInstaller(AppPaths paths, IDcpTool dcpTool, I
         CameraProfileRewriter.RewriteXmp(doc, source.Name, profile.Name, targetModel, Guid.NewGuid());
 
         Directory.CreateDirectory(paths.XmpOutputDir);
-        var output = Path.Combine(paths.XmpOutputDir, CameraProfileRewriter.OutputFileName(profile.Name, targetModel, CameraProfileFormat.Xmp));
+        var output = Path.Combine(paths.XmpOutputDir, CameraProfileRewriter.OutputFileName(profile.Name, targetModel, CameraProfileFormat.XMP));
         await using (var write = File.Create(output))
             await doc.SaveAsync(write, SaveOptions.DisableFormatting, ct);
         return new InstalledCameraProfile(profile.Name, source.Name, targetModel, [output]);

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using Unlocker.Core.Enums;
 using Unlocker.Core.Models;
 using Unlocker.Presentation.Ports;
 using Unlocker.Presentation.Startup;

@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging.Abstractions;
+using Unlocker.Core.Enums;
 using Unlocker.Core.Models;
 using Unlocker.Presentation.Common;
 using Unlocker.Presentation.Unlock;
@@ -10,7 +11,7 @@ namespace Unlocker.Tests.Presentation;
 [TestClass]
 public sealed class UnlockViewModelTests
 {
-    private static CameraProfile P(string name) => new(name, $@"C:\src\{name}", CameraProfileFormat.Xmp);
+    private static CameraProfile P(string name) => new(name, $@"C:\src\{name}", CameraProfileFormat.XMP);
 
     private static readonly Brand Fujifilm = new("Fujifilm", "Film Simulations",
     [

@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Xml.Linq;
+using Unlocker.Core.Enums;
 using Unlocker.Core.Models;
 using Unlocker.Core.Rules;
 using Unlocker.Tests.Support;
@@ -21,7 +22,7 @@ public sealed class CameraProfileRewriterTests
     [TestMethod]
     public void OutputFileName_replaces_invalid_chars()
         => Assert.AreEqual("PROVIA-Standard (for Sony ILCE-7M4).xmp",
-            CameraProfileRewriter.OutputFileName("PROVIA/Standard", "Sony ILCE-7M4", CameraProfileFormat.Xmp));
+            CameraProfileRewriter.OutputFileName("PROVIA/Standard", "Sony ILCE-7M4", CameraProfileFormat.XMP));
 
     [TestMethod]
     public void RewriteDcpXml_rewrites_name_copyright_signature_restriction()
