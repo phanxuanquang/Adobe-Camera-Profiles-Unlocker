@@ -205,6 +205,47 @@ public sealed class UnlockViewModelTests
     }
 
     [TestMethod]
+    public async Task Undo_failure_shows_error()
+    {
+        var vm = await Unlock();
+        Tile(vm, "ACROS").IsSelected = true;
+        await vm.InstallCommand.ExecuteAsync(null);
+        _store.FailRemoveWith = new UnauthorizedAccessException("Access denied.");
+
+        await ((IAsyncRelayCommand)vm.Status!.Actions!.Single(a => a.Label == "Undo").Command).ExecuteAsync(null);
+
+        Assert.AreEqual(StatusSeverity.Error, vm.Status!.Severity);
+        Assert.AreEqual("Couldn't undo the install.", vm.Status.Title);
+    }
+
+    [TestMethod]
+    public async Task Rollback_failure_still_shows_install_error()
+    {
+        var vm = await Unlock();
+        vm.ToggleAllVisibleCommand.Execute(null);
+        _installer.FailWhen = p => p.Name == "Velvia" ? new IOException("Disk full.") : null;
+        _store.FailRemoveWith = new IOException("File in use.");
+
+        await vm.InstallCommand.ExecuteAsync(null);
+
+        Assert.AreEqual(StatusSeverity.Error, vm.Status!.Severity);
+        Assert.AreEqual("Couldn't install Velvia.", vm.Status.Title);
+        StringAssert.Contains(vm.Status.Message, "Some installed camera profiles could not be removed");
+    }
+
+    [TestMethod]
+    public async Task Set_target_save_failure_shows_error()
+    {
+        var vm = await Unlock();
+        _settings.FailSaveWith = new IOException("Disk full.");
+
+        await vm.SetTargetCommand.ExecuteAsync("Fujifilm X-T5");
+
+        Assert.AreEqual(StatusSeverity.Error, vm.Status!.Severity);
+        Assert.AreEqual("Couldn't save your camera.", vm.Status.Title);
+    }
+
+    [TestMethod]
     public async Task Install_cancel_rolls_back()
     {
         var vm = await Unlock();

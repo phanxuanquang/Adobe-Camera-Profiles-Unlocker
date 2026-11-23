@@ -6,5 +6,7 @@ internal sealed class FakeSettings : ISettings
 {
     public string? TargetCamera { get; set; }
 
-    public Task SaveAsync(CancellationToken ct = default) => Task.CompletedTask;
+    public Exception? FailSaveWith { get; set; }
+
+    public Task SaveAsync(CancellationToken ct = default) => FailSaveWith is { } ex ? Task.FromException(ex) : Task.CompletedTask;
 }

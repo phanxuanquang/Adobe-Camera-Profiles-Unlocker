@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging.Abstractions;
 using Unlocker.Core.Models;
+using Unlocker.Presentation.Common;
 using Unlocker.Presentation.Installed;
 using Unlocker.Tests.Fakes;
 
@@ -27,6 +28,32 @@ public sealed class InstalledViewModelTests
         await ((IAsyncRelayCommand)vm.Status.Actions!.Single().Command).ExecuteAsync(null);
         Assert.AreEqual(1, vm.Groups.Single().Items.Count);
         Assert.IsNull(vm.Status);
+    }
+
+    [TestMethod]
+    public async Task Remove_access_denied_shows_error()
+    {
+        await _store.AddAsync(Installed("ACROS", "Sony ILCE-7M4"));
+        _store.FailRemoveWith = new UnauthorizedAccessException("Access denied.");
+        var vm = new InstalledViewModel(_store, new FakeDialogs(), new FakeLauncher(), NullLogger<InstalledViewModel>.Instance);
+
+        await vm.RemoveCommand.ExecuteAsync(_store.All[0]);
+
+        Assert.AreEqual(StatusSeverity.Error, vm.Status!.Severity);
+    }
+
+    [TestMethod]
+    public async Task Undo_failure_shows_error()
+    {
+        await _store.AddAsync(Installed("ACROS", "Sony ILCE-7M4"));
+        var vm = new InstalledViewModel(_store, new FakeDialogs(), new FakeLauncher(), NullLogger<InstalledViewModel>.Instance);
+        await vm.RemoveCommand.ExecuteAsync(_store.All[0]);
+        _store.FailRestoreWith = new IOException("File in use.");
+
+        await ((IAsyncRelayCommand)vm.Status!.Actions!.Single().Command).ExecuteAsync(null);
+
+        Assert.AreEqual(StatusSeverity.Error, vm.Status!.Severity);
+        Assert.AreEqual("Couldn't undo the removal.", vm.Status.Title);
     }
 
     [TestMethod]

@@ -44,6 +44,19 @@ public sealed class JsonInstalledStoreTests : TempFolderTest
     }
 
     [TestMethod]
+    public async Task Load_with_locked_manifest_starts_empty()
+    {
+        Directory.CreateDirectory(Paths.AppDataDir);
+        File.WriteAllText(Paths.ManifestFile, "[]");
+        using var locked = new FileStream(Paths.ManifestFile, FileMode.Open, FileAccess.Read, FileShare.None);
+        var store = new JsonInstalledStore(Paths, NullLogger<JsonInstalledStore>.Instance);
+
+        await store.LoadAsync();
+
+        Assert.AreEqual(0, store.All.Count);
+    }
+
+    [TestMethod]
     public async Task Remove_moves_files_to_trash_and_restore_brings_them_back()
     {
         var store = new JsonInstalledStore(Paths, NullLogger<JsonInstalledStore>.Instance);
@@ -91,7 +104,7 @@ public sealed class JsonInstalledStoreTests : TempFolderTest
         await store.AddAsync(a);
         await store.RemoveAsync([a]);
 
-        await store.DisposeAsync();
+        store.Dispose();
 
         Assert.IsFalse(Directory.Exists(Paths.TrashDir));
     }

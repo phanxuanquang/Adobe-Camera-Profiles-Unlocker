@@ -10,7 +10,7 @@ using Unlocker.Infrastructure.Serialization;
 namespace Unlocker.Infrastructure.Storage;
 
 /// <summary>Manifest in installed.json plus a session trash for Undo. Disposing empties the trash.</summary>
-internal sealed class JsonInstalledStore(AppPaths paths, ILogger<JsonInstalledStore> logger) : IInstalledStore, IAsyncDisposable
+internal sealed class JsonInstalledStore(AppPaths paths, ILogger<JsonInstalledStore> logger) : IInstalledStore, IDisposable
 {
     private const int ErrorCancelled = 1223;
 
@@ -35,10 +35,10 @@ internal sealed class JsonInstalledStore(AppPaths paths, ILogger<JsonInstalledSt
                 await using var stream = File.OpenRead(paths.ManifestFile);
                 items = await JsonSerializer.DeserializeAsync(stream, UnlockerJsonContext.Default.ListInstalledCameraProfile, ct) ?? [];
             }
-            catch (JsonException e)
+            catch (Exception e) when (e is JsonException or IOException or UnauthorizedAccessException)
             {
-                // Corrupt manifest: start empty. Files stay on disk because untracked files are never deleted.
-                logger.LogWarning(e, "Corrupt manifest {File}, starting empty", paths.ManifestFile);
+                // Corrupt or unreadable manifest: start empty. Files stay on disk because untracked files are never deleted.
+                logger.LogWarning(e, "Corrupt or unreadable manifest {File}, starting empty", paths.ManifestFile);
             }
         }
         // Drop entries the user deleted by hand. Legacy entries are always re-detected from disk.
@@ -159,9 +159,8 @@ internal sealed class JsonInstalledStore(AppPaths paths, ILogger<JsonInstalledSt
         }
     }
 
-    public ValueTask DisposeAsync()
+    public void Dispose()
     {
         if (Directory.Exists(paths.TrashDir)) Directory.Delete(paths.TrashDir, recursive: true);
-        return ValueTask.CompletedTask;
     }
 }

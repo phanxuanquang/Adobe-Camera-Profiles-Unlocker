@@ -9,6 +9,8 @@ internal sealed class FakeStore : IInstalledStore
 
     public Exception? FailRemoveWith { get; set; }
 
+    public Exception? FailRestoreWith { get; set; }
+
     public IReadOnlyList<InstalledCameraProfile> All => _items;
 
     public IReadOnlyList<string> Folders { get; } = [@"C:\out\dcp", @"C:\out\xmp"];
@@ -34,6 +36,7 @@ internal sealed class FakeStore : IInstalledStore
 
     public Task RestoreAsync(IEnumerable<InstalledCameraProfile> items, CancellationToken ct = default)
     {
+        if (FailRestoreWith is { } ex) throw ex;
         _items.AddRange(items);
         Changed?.Invoke(this, EventArgs.Empty);
         return Task.CompletedTask;

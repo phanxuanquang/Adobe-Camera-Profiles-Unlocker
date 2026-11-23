@@ -78,7 +78,7 @@ public sealed partial class InstalledViewModel : ObservableObject
         {
             return; // UAC declined for legacy files: nothing changed.
         }
-        catch (IOException ex)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             _logger.LogError(ex, "Removing {Count} camera profiles failed", list.Count);
             Status = new StatusMessage(StatusSeverity.Error, "Couldn't remove camera profiles.", ex.Message);
@@ -87,8 +87,22 @@ public sealed partial class InstalledViewModel : ObservableObject
         var title = list.Count == 1 ? $"Removed {list[0].Name} for {list[0].TargetModel}." : $"Removed {Text.Profiles(list.Count)}.";
         // Legacy files are deleted for real, so they cannot be restored.
         IReadOnlyList<StatusAction>? actions = list.Any(p => p.IsLegacy) ? null :
-            [new StatusAction("Undo", new AsyncRelayCommand(async () => { await _store.RestoreAsync(list); Status = null; }))];
+            [new StatusAction("Undo", new AsyncRelayCommand(() => RestoreAsync(list)))];
         Status = new StatusMessage(StatusSeverity.Info, title, "Restart Lightroom or Photoshop to apply.", actions);
+    }
+
+    private async Task RestoreAsync(IReadOnlyList<InstalledCameraProfile> list)
+    {
+        try
+        {
+            await _store.RestoreAsync(list);
+            Status = null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            _logger.LogError(ex, "Restoring {Count} camera profiles failed", list.Count);
+            Status = new StatusMessage(StatusSeverity.Error, "Couldn't undo the removal.", ex.Message);
+        }
     }
 
     [RelayCommand]

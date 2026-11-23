@@ -229,10 +229,20 @@ public sealed partial class UnlockViewModel : ObservableObject
     {
         TargetCamera = model;
         _settings.TargetCamera = model;
-        await _settings.SaveAsync(ct);
-        _logger.LogInformation("Target camera set to {Model}", model);
         MarkYourBrand();
         RefreshInstalledFlags();
+        try
+        {
+            await _settings.SaveAsync(ct);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // The choice still applies for this session.
+            _logger.LogError(ex, "Saving target camera {Model} failed", model);
+            Status = new StatusMessage(StatusSeverity.Error, "Couldn't save your camera.", $"{ex.Message} It applies until you close the app.");
+            return;
+        }
+        _logger.LogInformation("Target camera set to {Model}", model);
         Status = new StatusMessage(StatusSeverity.Success, $"Your camera is now {model}.", "Camera profiles you install will show up for this camera.");
     }
 
@@ -292,28 +302,48 @@ public sealed partial class UnlockViewModel : ObservableObject
                 new StatusAction("View installed", new RelayCommand(() => ViewInstalledRequested?.Invoke(this, EventArgs.Empty))),
                 new StatusAction("Undo", new AsyncRelayCommand(async () =>
                 {
-                    await _store.RemoveAsync(added);
-                    Status = new StatusMessage(StatusSeverity.Info, "Install undone.", $"Removed {Text.Profiles(added.Count)}.");
+                    Status = await RollbackAsync(added)
+                        ? new StatusMessage(StatusSeverity.Info, "Install undone.", $"Removed {Text.Profiles(added.Count)}.")
+                        : new StatusMessage(StatusSeverity.Error, "Couldn't undo the install.", RollbackFailed);
                 })),
             ]);
         }
         catch (OperationCanceledException)
         {
             _logger.LogInformation("Install cancelled after {Done} of {Total} camera profiles", added.Count, list.Count);
-            await _store.RemoveAsync(added, CancellationToken.None);
-            Status = new StatusMessage(StatusSeverity.Info, "Install cancelled.", "No camera profiles were added.");
+            Status = await RollbackAsync(added)
+                ? new StatusMessage(StatusSeverity.Info, "Install cancelled.", "No camera profiles were added.")
+                : new StatusMessage(StatusSeverity.Error, "Install cancelled.", RollbackFailed);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Installing {Name} from {Source} for {Target} failed", current?.Name, current?.Source.Name, target);
-            await _store.RemoveAsync(added, CancellationToken.None);
-            Status = new StatusMessage(StatusSeverity.Error, $"Couldn't install {current?.Name}.", $"{ex.Message} Nothing was installed.",
+            var rolledBack = await RollbackAsync(added);
+            Status = new StatusMessage(StatusSeverity.Error, $"Couldn't install {current?.Name}.", $"{ex.Message} {(rolledBack ? "Nothing was installed." : RollbackFailed)}",
                 [new StatusAction("Try again", InstallCommand)]);
         }
         finally
         {
             IsBusy = false;
             ProgressText = null;
+        }
+    }
+
+    private const string RollbackFailed = "Some installed camera profiles could not be removed. Remove them on the Installed page.";
+
+    /// <summary>Removes what an install added. False when the files could not be removed (logged).</summary>
+    private async Task<bool> RollbackAsync(List<InstalledCameraProfile> added)
+    {
+        try
+        {
+            // No token: a cancel between the file moves and the manifest save would leave them out of sync.
+            await _store.RemoveAsync(added, CancellationToken.None);
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            _logger.LogError(ex, "Removing {Count} installed camera profiles failed", added.Count);
+            return false;
         }
     }
 }

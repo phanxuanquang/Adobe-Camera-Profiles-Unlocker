@@ -23,7 +23,7 @@ public partial class App : Application
             .AddLogging(logging => logging
                 .SetMinimumLevel(LogLevel.Information)
                 .AddDebug()
-                .AddEventLog(o => o.Filter = (_, level) => level >= LogLevel.Information))
+                .AddEventLog(o => o.Filter = (_, level) => level >= LogLevel.Warning))
             .AddInfrastructure()
             .AddPresentation()
             .AddSingleton<MainWindow>().AddSingleton<IDialogService, DialogService>().AddSingleton<ILauncher, Launcher>()
@@ -33,8 +33,8 @@ public partial class App : Application
         UnhandledException += (_, e) => logger.LogCritical(e.Exception, "Unhandled exception");
 
         var window = _services.GetRequiredService<MainWindow>();
-        // DisposeAsync, not Dispose: the installed store is IAsyncDisposable and empties the trash.
-        window.Closed += async (_, _) => await _services.DisposeAsync();
+        // Synchronous on purpose: an async handler lets the process exit before the store empties the trash.
+        window.Closed += (_, _) => _services.Dispose();
         window.Activate();
     }
 }
