@@ -10,7 +10,7 @@ Wording: always "camera profile(s)", never "look" or bare "profile" (owner, 2026
 ## Startup (StartupViewModel)
 - Loading: `ProgressRing` + "Getting ready".
 - `CameraRawMissing`: full page, "Get Camera Raw" (opens `https://www.adobe.com/go/acr_installer_win`) + "Try again". Never exit app on error.
-- `XmpProfilesMissing` / `DcpProfilesMissing`: warning `InfoBar`, app usable.
+- `ProfilesMissing` (DCP or XMP folder; log names which): warning `InfoBar`, app usable.
 - No admin screen (no admin needed, see adobe-paths.md).
 - Update check once, background, non-blocking -> Settings.
 

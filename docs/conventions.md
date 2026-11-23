@@ -41,7 +41,7 @@
 - Remove the TODO comment when implemented. Step done = `grep "TODO(step N)"` returns nothing.
 
 ## Tests
-- One test project, folders mirror layers: `Core/`, `Infrastructure/`, `Presentation/` (one test class per subject), `Fakes/` (one fake per file), `Support/` (`TempFolderTest` base, `TestFiles`), `Fixtures/`.
+- One test project, folders mirror layers: `Core/`, `Infrastructure/`, `Presentation/` (one test class per subject), `Fakes/` (one fake per file), `Support/` (`TempFolderTest` base), `Fixtures/`.
 - File-system tests derive from `TempFolderTest` (temp paths, never real Camera Raw folders). DCP tests build a small DCP in code (`DcpFileTests.Sample`), no binary fixture.
 - No mocking framework unless fakes get painful; hand-written fakes.
 - Run: `dotnet test`.

@@ -61,6 +61,15 @@ Status: `[ ]` todo, `[~]` in progress, `[x]` done. Update this file when a step 
    - Round 5 (owner): tray hint text removed; install progress = `ProgressRing` inside Install button (ProgressBar, ProgressValue/Max, TrayHint removed).
    - Surprise: an installed.json written by the earlier build (key "Look") loads with an empty Name after the rename. Pre-release, so no migration.
 6. [ ] **Ship**: publish (format per owner), e2e manual in Camera Raw, README update.
+   - Done (2026-11-23): review round (ponytail-review + ponytail-audit + winui-code-review). Fixed:
+     unguarded I/O in Undo / rollback / SetTarget / restore / manifest load (IOException + UnauthorizedAccessException now show an Error status; 7 tests);
+     Event Log filter Warning+ (was Information); store is IDisposable, disposed synchronously in Window.Closed (async handler let the process exit before the trash was emptied);
+     a11y: installed state via CheckBox HelpText (FontIcon has no automation peer), explicit AutomationIds, Install button name while busy; StartupPage x:DefaultBindMode;
+     "Copied from" ComboBox bound in XAML (BrandItemViewModel.ModelLabels + SourceLabel, TwoWay SelectedItem; index binding leaked selections across brands), code-behind FillModels removed;
+     GitHub / Donate / InfoBar "Get Camera Raw" = HyperlinkButton NavigateUri (commands + service locator call removed);
+     csproj: RID from Platform (NETSDK1032 on clean checkout), template leftovers removed; EnvironmentIssue.ProfilesMissing (one value); CameraModel.Brand removed; ICameraProfileInstaller takes sourceModel string; TestFiles inlined.
+     Not done (decided): StatusActionTemplate stays per page (x:Bind DataTemplate cannot live in App.xaml without a code-behind ResourceDictionary); atomic-save block stays duplicated in two stores (sharing needs a new class); ArrayPool kept (owner asked for memory optimization).
+   - TODO at release: publish settings (SelfContained, PublishTrimmed, ReadyToRun) removed from Unlocker.WinUI.csproj 2026-11-23: PublishTrimmed without SelfContained fails Release build (NETSDK1102) on a clean checkout. Set them with the release format (MSIX vs exe).
    - Done (2026-11-23): tests moved to `tests/` (Unlocker.Tests + ui-tests.ps1, owner); Directory.Build.props, Directory.Packages.props, global.json moved to repo root so both trees share them.
    - Done (2026-11-23): `old-src/` + `mock-ui/` deleted (owner). Old app in git history (`cc278d2`); mock not kept. CI `.github/workflows/ci.yml` (windows-latest: build x64, test, build ARM64); Dependabot nuget + github-actions.
    - Done (2026-11-23): README rewritten for new app (download step generic until release format decided); CONTRIBUTING.md; `.github` PR template + issue forms (bug, feature, camera request, config with blank issues off).

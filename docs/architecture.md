@@ -34,7 +34,7 @@ tests/
   Unlocker.Tests/             MSTest 4. DependencyInjectionTests at root.
     Core/ Infrastructure/ Presentation/   one test class per subject
     Fakes/                    one fake per file
-    Support/                  TempFolderTest (temp AppPaths base), TestFiles
+    Support/                  TempFolderTest (temp AppPaths base)
     Fixtures/                 sample.xmp (DCP built in code: DcpFileTests.Sample)
   ui-tests.ps1                UI smoke batch (winapp ui); output test-results.json + ui-test-artifacts/ next to it (git-ignored)
 ```

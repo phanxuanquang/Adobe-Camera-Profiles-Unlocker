@@ -4,18 +4,18 @@
 ```csharp
 public enum CameraProfileFormat { Dcp, Xmp }
 public sealed record CameraProfile(string Name, string SourcePath, CameraProfileFormat Format);
-public sealed record CameraModel(string Name, string Brand, IReadOnlyList<CameraProfile> Profiles);
+public sealed record CameraModel(string Name, IReadOnlyList<CameraProfile> Profiles);
 public sealed record Brand(string Name, string Family, IReadOnlyList<CameraModel> Models);
 public sealed record InstalledCameraProfile(string Name, string SourceModel, string TargetModel,
     IReadOnlyList<string> Files, bool IsLegacy);
 public sealed record ReleaseInfo(Version Version, Uri DownloadUrl);
-public enum EnvironmentIssue { CameraRawMissing, DcpProfilesMissing, XmpProfilesMissing }
+public enum EnvironmentIssue { CameraRawMissing, ProfilesMissing }
 ```
 
 ## Core abstractions (`Unlocker.Core/Abstractions`, backend ports)
 ```csharp
 public interface ICameraCatalog          { Task<IReadOnlyList<Brand>> LoadAsync(CancellationToken ct = default); }
-public interface ICameraProfileInstaller { Task<InstalledCameraProfile> InstallAsync(CameraProfile profile, CameraModel source, string targetModel, CancellationToken ct = default); }
+public interface ICameraProfileInstaller { Task<InstalledCameraProfile> InstallAsync(CameraProfile profile, string sourceModel, string targetModel, CancellationToken ct = default); }
 public interface IInstalledStore
 {
     IReadOnlyList<InstalledCameraProfile> All { get; }

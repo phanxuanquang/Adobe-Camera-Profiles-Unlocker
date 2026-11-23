@@ -36,4 +36,4 @@ Services = new ServiceCollection()
 - Constructor injection only. `GetRequiredService` only in composition root / page factory.
 - Generic registration + Mvvm source generators -> trim-safe.
 - JSON: `System.Text.Json` source-gen `JsonSerializerContext` (trim/AOT safe).
-- Dispose `ServiceProvider` on app exit; `JsonInstalledStore : IAsyncDisposable` empties trash.
+- Dispose `ServiceProvider` on app exit; `JsonInstalledStore : IDisposable` empties trash. Dispose synchronously in `Window.Closed` (async handler lets process exit first).
