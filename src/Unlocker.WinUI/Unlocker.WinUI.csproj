@@ -6,22 +6,32 @@
     <RootNamespace>Unlocker.WinUI</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon Condition="Exists('Assets\AppIcon.ico')">Assets\AppIcon.ico</ApplicationIcon>
-    <Platforms>x64;ARM64</Platforms>
-    <!-- RID follows Platform, not the dotnet process architecture (x64 dotnet on an ARM64 machine gave NETSDK1032). -->
-    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(Platform)' == 'ARM64'">win-arm64</RuntimeIdentifier>
-    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
+    <Platforms>x86;x64;ARM64</Platforms>
+    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <PublishProfile Condition="Exists('Properties\PublishProfiles\win-$(Platform).pubxml')">win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks> <!-- LibraryImport GetDpiForWindow -->
-    <WinUISDKReferences>false</WinUISDKReferences>
+    <Nullable>enable</Nullable>
+    <SelfContained>true</SelfContained>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <PublishTrimmed>false</PublishTrimmed>
+    <PublishReadyToRun>true</PublishReadyToRun>
     <EnableMsixTooling>true</EnableMsixTooling>
+    <PublishAot>False</PublishAot>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
     <Title>Adobe Camera Profiles Unlocker</Title>
     <PackageProjectUrl>https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker</PackageProjectUrl>
     <RepositoryUrl>https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker</RepositoryUrl>
     <RepositoryType>https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/blob/master/README.md</RepositoryType>
   </PropertyGroup>
-
+  <Target Name="RemoveFoldersWithMuiFiles" AfterTargets="Build">
+    <ItemGroup>
+      <RemovingFiles Include="$(OutDir)*\*.mui" Exclude="$(OutDir)en-us\*.mui" />
+      <RemovingFolders Include="@(RemovingFiles->'%(RootDir)%(Directory)')" />
+    </ItemGroup>
+    <RemoveDir Directories="@(RemovingFolders)" />
+  </Target>
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
@@ -37,6 +47,14 @@
     <Content Include="Assets\AppIcon.ico" CopyToPublishDirectory="PreserveNewest" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
+
+  <!-- Visual Studio needs these to deploy and debug as an MSIX package. Without them F5 runs unpackaged: REGDB_E_CLASSNOTREG. -->
+  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <ProjectCapability Include="Msix" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+  </PropertyGroup>
 
   <!-- BuildTools.WinApp: `winapp run` / `dotnet run` with package identity. -->
   <ItemGroup>
@@ -56,5 +74,28 @@
     <ProjectReference Include="..\Unlocker.Infrastructure\Unlocker.Infrastructure.csproj" />
     <ProjectReference Include="..\Unlocker.Presentation\Unlocker.Presentation.csproj" />
   </ItemGroup>
-
+  
+  <!--
+    Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
+    Tools extension to be activated for this project even if the Windows App SDK Nuget
+    package has not yet been restored.
+  -->
+  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <ProjectCapability Include="Msix" />
+  </ItemGroup>
+  
+  <!--
+    Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
+    Explorer "Package and Publish" context menu entry to be enabled for this project even if
+    the Windows App SDK Nuget package has not yet been restored.
+  -->
+  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Optimize>false</Optimize>
+  </PropertyGroup>
 </Project>
