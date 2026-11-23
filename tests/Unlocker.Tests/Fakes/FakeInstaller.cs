@@ -7,10 +7,10 @@ internal sealed class FakeInstaller : ICameraProfileInstaller
 {
     public Func<CameraProfile, Exception?> FailWhen { get; set; } = _ => null;
 
-    public Task<InstalledCameraProfile> InstallAsync(CameraProfile profile, CameraModel source, string targetModel, CancellationToken ct = default)
+    public Task<InstalledCameraProfile> InstallAsync(CameraProfile profile, string sourceModel, string targetModel, CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
         if (FailWhen(profile) is { } ex) throw ex;
-        return Task.FromResult(new InstalledCameraProfile(profile.Name, source.Name, targetModel, [$"C:\\fake\\{profile.Name}"]));
+        return Task.FromResult(new InstalledCameraProfile(profile.Name, sourceModel, targetModel, [$"C:\\fake\\{profile.Name}"]));
     }
 }

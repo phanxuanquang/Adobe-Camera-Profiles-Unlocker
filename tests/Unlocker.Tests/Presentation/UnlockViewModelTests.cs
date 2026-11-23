@@ -15,12 +15,12 @@ public sealed class UnlockViewModelTests
 
     private static readonly Brand Fujifilm = new("Fujifilm", "Film Simulations",
     [
-        new CameraModel("Fujifilm X-T5", "Fujifilm", [P("CLASSIC CHROME"), P("ACROS"), P("Velvia")]),
-        new CameraModel("Fujifilm X-T1", "Fujifilm", [P("ACROS"), P("Velvia")]),
+        new CameraModel("Fujifilm X-T5", [P("CLASSIC CHROME"), P("ACROS"), P("Velvia")]),
+        new CameraModel("Fujifilm X-T1", [P("ACROS"), P("Velvia")]),
     ]);
 
     private static readonly Brand Sony = new("Sony", "Creative Looks",
-        [new CameraModel("Sony ILCE-7M4", "Sony", [P("FL"), P("IN")])]);
+        [new CameraModel("Sony ILCE-7M4", [P("FL"), P("IN")])]);
 
     private readonly FakeInstaller _installer = new();
     private readonly FakeStore _store = new();

@@ -68,8 +68,8 @@ internal sealed class FileCameraCatalog(AppPaths paths, ILogger<FileCameraCatalo
 
         // ponytail: brand = first word of the model ("OM Digital Solutions OM-1" -> "OM"). Add an alias map if a brand groups wrong.
         var brands = models
-            .Select(m => new CameraModel(m.Key, m.Key.Split(' ', 2)[0], m.Value.OrderBy(p => p.Name).ToList()))
-            .GroupBy(m => m.Brand, StringComparer.OrdinalIgnoreCase)
+            .Select(m => new CameraModel(m.Key, m.Value.OrderBy(p => p.Name).ToList()))
+            .GroupBy(m => m.Name.Split(' ', 2)[0], StringComparer.OrdinalIgnoreCase)
             .Select(g => new Brand(g.Key, Families.GetValueOrDefault(g.Key, "Camera Profiles"), g.OrderBy(m => m.Name).ToList()))
             .OrderBy(b => b.Name)
             .ToList();

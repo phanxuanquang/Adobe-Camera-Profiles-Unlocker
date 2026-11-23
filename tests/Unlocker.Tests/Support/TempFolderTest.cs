@@ -31,7 +31,7 @@ public abstract class TempFolderTest
     /// <summary>Writes the sample XMP restricted to <paramref name="model"/> under the Adobe XMP folder.</summary>
     protected string WriteXmp(string relativePath, string model)
     {
-        var doc = XDocument.Load(TestFiles.Fixture("sample.xmp"));
+        var doc = XDocument.Load(Path.Combine(AppContext.BaseDirectory, "Fixtures", "sample.xmp"));
         var desc = doc.Descendants(XmpProfileInstaller.Rdf + "Description").Single();
         desc.SetAttributeValue(XmpProfileInstaller.Crs + "CameraModelRestriction", model);
         var path = Path.Combine(Paths.XmpProfilesDir, relativePath);

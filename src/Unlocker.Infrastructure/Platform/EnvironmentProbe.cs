@@ -8,15 +8,14 @@ internal sealed class EnvironmentProbe(AppPaths paths, ILogger<EnvironmentProbe>
 {
     public IReadOnlyList<EnvironmentIssue> Check()
     {
-        var issues = new List<EnvironmentIssue>();
-        if (!Directory.Exists(paths.CameraRawRoot)) issues.Add(EnvironmentIssue.CameraRawMissing);
-        else
+        if (!Directory.Exists(paths.CameraRawRoot))
         {
-            if (!Directory.Exists(paths.DcpProfilesDir)) issues.Add(EnvironmentIssue.DcpProfilesMissing);
-            if (!Directory.Exists(paths.XmpProfilesDir)) issues.Add(EnvironmentIssue.XmpProfilesMissing);
+            logger.LogWarning("Camera Raw not found at {CameraRawRoot}", paths.CameraRawRoot);
+            return [EnvironmentIssue.CameraRawMissing];
         }
-        if (issues.Count > 0)
-            logger.LogWarning("Environment issues under {CameraRawRoot}: {Issues}", paths.CameraRawRoot, string.Join(", ", issues));
-        return issues;
+        var missing = new[] { paths.DcpProfilesDir, paths.XmpProfilesDir }.Where(d => !Directory.Exists(d)).ToList();
+        if (missing.Count == 0) return [];
+        logger.LogWarning("Camera profile folders missing: {Folders}", string.Join(", ", missing));
+        return [EnvironmentIssue.ProfilesMissing];
     }
 }

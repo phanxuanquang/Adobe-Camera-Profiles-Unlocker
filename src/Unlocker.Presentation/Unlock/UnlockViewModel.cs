@@ -280,7 +280,7 @@ public sealed partial class UnlockViewModel : ObservableObject
             {
                 current = list[i];
                 ProgressText = $"Installing {i + 1} of {list.Count}: {current.Name}";
-                var installed = await _installer.InstallAsync(current.Profile, current.Source, target, ct);
+                var installed = await _installer.InstallAsync(current.Profile, current.Source.Name, target, ct);
                 // The file is on disk now: record it even if cancel arrives, so the rollback finds it.
                 await _store.AddAsync(installed, CancellationToken.None);
                 added.Add(installed);

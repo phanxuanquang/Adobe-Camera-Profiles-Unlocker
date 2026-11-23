@@ -24,9 +24,8 @@ public sealed class CameraProfileInstallerTests : TempFolderTest
         var before = DcpFileTests.Sample();
         File.WriteAllBytes(src, before);
         var profile = new CameraProfile("Portrait", src, CameraProfileFormat.DCP);
-        var model = new CameraModel("Canon EOS R5", "Canon", [profile]);
 
-        var result = await Installer().InstallAsync(profile, model, "Sony ILCE-7M4");
+        var result = await Installer().InstallAsync(profile, "Canon EOS R5", "Sony ILCE-7M4");
 
         var output = Path.Combine(Paths.DcpOutputDir, "Portrait (for Sony ILCE-7M4).dcp");
         CollectionAssert.AreEqual(new[] { output }, result.Files.ToArray());
@@ -44,9 +43,8 @@ public sealed class CameraProfileInstallerTests : TempFolderTest
         var src = WriteXmp(@"Fujifilm\Fujifilm X-T5\Fujifilm X-T5 Camera CLASSIC Neg.xmp", "Fujifilm X-T5");
         var before = File.ReadAllBytes(src);
         var profile = new CameraProfile("CLASSIC Neg", src, CameraProfileFormat.XMP);
-        var model = new CameraModel("Fujifilm X-T5", "Fujifilm", [profile]);
 
-        var result = await Installer().InstallAsync(profile, model, "Sony ILCE-7M4");
+        var result = await Installer().InstallAsync(profile, "Fujifilm X-T5", "Sony ILCE-7M4");
 
         var output = Path.Combine(Paths.XmpOutputDir, "CLASSIC Neg (for Sony ILCE-7M4).xmp");
         CollectionAssert.AreEqual(new[] { output }, result.Files.ToArray());

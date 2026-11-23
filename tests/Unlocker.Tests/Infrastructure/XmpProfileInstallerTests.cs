@@ -1,11 +1,11 @@
 using Unlocker.Core.Rules;
 using Unlocker.Infrastructure.Installing;
-using Unlocker.Tests.Support;
+using Unlocker.Infrastructure.Platform;
 
 namespace Unlocker.Tests.Infrastructure;
 
 [TestClass]
-public sealed class XmpProfileInstallerTests : TempFolderTest
+public sealed class XmpProfileInstallerTests
 {
     [TestMethod]
     public void Rewrite_applies_shared_rules_new_uuid_and_standard_base_profile()
@@ -17,7 +17,7 @@ public sealed class XmpProfileInstallerTests : TempFolderTest
             ["CameraProfile"] = "Camera PROVIA/Standard",
         };
 
-        new XmpProfileInstaller(Paths, new CameraProfileRewriter()).Rewrite(tags, "Fujifilm X-T5", "Sony ILCE-7M4");
+        new XmpProfileInstaller(AppPaths.Create("p", "l"), new CameraProfileRewriter()).Rewrite(tags, "Fujifilm X-T5", "Sony ILCE-7M4");
 
         Assert.AreEqual("Fujifilm X-T5: BLEACH BYPASS", tags["Name"]);
         Assert.AreEqual("Camera Standard", tags["CameraProfile"]);

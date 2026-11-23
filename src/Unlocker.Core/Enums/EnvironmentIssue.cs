@@ -5,7 +5,6 @@ public enum EnvironmentIssue
     /// <summary>Blocks the app. The others only show a warning.</summary>
     CameraRawMissing,
 
-    DcpProfilesMissing,
-
-    XmpProfilesMissing,
+    /// <summary>The Adobe DCP or XMP profile folder is missing. The log names which.</summary>
+    ProfilesMissing,
 }

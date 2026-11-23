@@ -9,5 +9,5 @@ public interface ICameraProfileInstaller
     /// Never modifies the source file. Overwrites an earlier copy of the same profile for the same target.
     /// Does not touch <see cref="IInstalledStore"/>: the caller records the result.
     /// </summary>
-    Task<InstalledCameraProfile> InstallAsync(CameraProfile profile, CameraModel source, string targetModel, CancellationToken ct = default);
+    Task<InstalledCameraProfile> InstallAsync(CameraProfile profile, string sourceModel, string targetModel, CancellationToken ct = default);
 }
