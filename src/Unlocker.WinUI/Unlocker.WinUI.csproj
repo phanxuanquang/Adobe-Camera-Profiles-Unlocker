@@ -15,9 +15,6 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
     <Title>Adobe Camera Profiles Unlocker</Title>
-    <Company>github.com/phanxuanquang</Company>
-    <Authors>Phan Xuan Quang</Authors>
-    <Copyright>© 2026 Phan Xuan Quang / Adobe Camera Profiles Unlocker</Copyright>
     <PackageProjectUrl>https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker</PackageProjectUrl>
     <RepositoryUrl>https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker</RepositoryUrl>
     <RepositoryType>https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/blob/master/README.md</RepositoryType>
