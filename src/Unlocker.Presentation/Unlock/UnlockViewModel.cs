@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Unlocker.Core.Abstractions;
 using Unlocker.Core.Models;
-using Unlocker.Core.Rules;
 using Unlocker.Presentation.Common;
 
 namespace Unlocker.Presentation.Unlock;
@@ -124,8 +123,8 @@ public sealed partial class UnlockViewModel : ObservableObject
 
     private void MarkYourBrand()
     {
-        var yours = TargetCamera is null ? null : BrandCatalog.BrandOf(TargetCamera);
-        foreach (var b in Brands) b.IsYourBrand = string.Equals(b.Name, yours, StringComparison.OrdinalIgnoreCase);
+        foreach (var b in Brands)
+            b.IsYourBrand = b.Brand.Models.Any(m => string.Equals(m.Name, TargetCamera, StringComparison.OrdinalIgnoreCase));
     }
 
     private List<CameraProfileItemViewModel> ItemsOf(BrandItemViewModel brand)

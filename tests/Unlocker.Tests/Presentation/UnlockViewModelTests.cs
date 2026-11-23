@@ -192,7 +192,7 @@ public sealed class UnlockViewModelTests
     {
         var vm = await Unlock();
         vm.ToggleAllVisibleCommand.Execute(null);
-        _installer.FailWhen = p => p.Name == "Velvia" ? new InvalidOperationException("dcpTool stopped responding.") : null;
+        _installer.FailWhen = p => p.Name == "Velvia" ? new InvalidOperationException("DCP file is truncated or corrupt.") : null;
 
         await vm.InstallCommand.ExecuteAsync(null);
 
@@ -200,7 +200,7 @@ public sealed class UnlockViewModelTests
         Assert.AreEqual(3, vm.Selected.Count);
         Assert.AreEqual(StatusSeverity.Error, vm.Status!.Severity);
         Assert.AreEqual("Couldn't install Velvia.", vm.Status.Title);
-        StringAssert.Contains(vm.Status.Message, "dcpTool stopped responding.");
+        StringAssert.Contains(vm.Status.Message, "DCP file is truncated or corrupt.");
         Assert.AreEqual("Try again", vm.Status.Actions!.Single().Label);
     }
 

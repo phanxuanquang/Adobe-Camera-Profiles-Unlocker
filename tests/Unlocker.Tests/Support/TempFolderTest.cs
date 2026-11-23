@@ -1,5 +1,5 @@
 using System.Xml.Linq;
-using Unlocker.Core.Rules;
+using Unlocker.Infrastructure.Installing;
 using Unlocker.Infrastructure.Platform;
 
 namespace Unlocker.Tests.Support;
@@ -32,8 +32,8 @@ public abstract class TempFolderTest
     protected string WriteXmp(string relativePath, string model)
     {
         var doc = XDocument.Load(TestFiles.Fixture("sample.xmp"));
-        var desc = doc.Descendants(CameraProfileRewriter.Rdf + "Description").Single();
-        desc.SetAttributeValue(CameraProfileRewriter.Crs + "CameraModelRestriction", model);
+        var desc = doc.Descendants(XmpProfileInstaller.Rdf + "Description").Single();
+        desc.SetAttributeValue(XmpProfileInstaller.Crs + "CameraModelRestriction", model);
         var path = Path.Combine(Paths.XmpProfilesDir, relativePath);
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         doc.Save(path);

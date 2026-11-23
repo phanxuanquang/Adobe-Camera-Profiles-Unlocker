@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Unlocker.Core.Abstractions;
+using Unlocker.Core.Rules;
 using Unlocker.Infrastructure.Catalog;
 using Unlocker.Infrastructure.Installing;
 using Unlocker.Infrastructure.Platform;
@@ -16,7 +17,9 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton(AppPaths.Default);
         services.AddSingleton<ICameraCatalog, FileCameraCatalog>();
-        services.AddSingleton<IDcpTool, DcpTool>();
+        services.AddSingleton<CameraProfileRewriter>();
+        services.AddSingleton<DcpProfileInstaller>();
+        services.AddSingleton<XmpProfileInstaller>();
         services.AddSingleton<ICameraProfileInstaller, CameraProfileInstaller>();
         services.AddSingleton<IInstalledStore, JsonInstalledStore>();
         services.AddSingleton<ISettings, JsonSettings>();

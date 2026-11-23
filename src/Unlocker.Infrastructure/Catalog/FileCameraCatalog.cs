@@ -1,9 +1,9 @@
 using System.Xml;
 using Microsoft.Extensions.Logging;
-using Unlocker.Core.Enums;
 using Unlocker.Core.Abstractions;
+using Unlocker.Core.Enums;
 using Unlocker.Core.Models;
-using Unlocker.Core.Rules;
+using Unlocker.Infrastructure.Installing;
 using Unlocker.Infrastructure.Platform;
 
 namespace Unlocker.Infrastructure.Catalog;
@@ -11,8 +11,24 @@ namespace Unlocker.Infrastructure.Catalog;
 /// <summary>Scans Camera Raw once and caches names and paths only (layout: docs/adobe-paths.md).</summary>
 internal sealed class FileCameraCatalog(AppPaths paths, ILogger<FileCameraCatalog> logger) : ICameraCatalog
 {
-    private static readonly string RdfNs = CameraProfileRewriter.Rdf.NamespaceName;
-    private static readonly string CrsNs = CameraProfileRewriter.Crs.NamespaceName;
+    private static readonly string RdfNs = XmpProfileInstaller.Rdf.NamespaceName;
+    private static readonly string CrsNs = XmpProfileInstaller.Crs.NamespaceName;
+
+    /// <summary>What each brand calls its camera profiles.</summary>
+    private static readonly Dictionary<string, string> Families = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Fujifilm"] = "Film Simulations",
+        ["Canon"] = "Picture Styles",
+        ["Nikon"] = "Picture Controls",
+        ["Sony"] = "Creative Looks",
+        ["Panasonic"] = "Photo Styles",
+        ["Leica"] = "Film Styles",
+        ["Olympus"] = "Picture Modes",
+        ["OM"] = "Picture Modes",
+        ["Pentax"] = "Custom Images",
+        ["Ricoh"] = "Custom Images",
+        ["Sigma"] = "Color Modes",
+    };
 
     private readonly Lazy<Task<IReadOnlyList<Brand>>> _cache = new(() => Task.Run(() => Scan(paths, logger)));
 
@@ -30,7 +46,7 @@ internal sealed class FileCameraCatalog(AppPaths paths, ILogger<FileCameraCatalo
                 var model = Path.GetFileName(dir);
                 foreach (var file in Directory.EnumerateFiles(dir, "*.dcp"))
                 {
-                    if (CameraProfileRewriter.ParseProfileName(file, model) is not { } name) continue;
+                    if (ParseProfileName(file, model) is not { } name) continue;
                     Add(models, model, new CameraProfile(name, file, CameraProfileFormat.DCP));
                 }
             }
@@ -43,17 +59,18 @@ internal sealed class FileCameraCatalog(AppPaths paths, ILogger<FileCameraCatalo
             foreach (var file in Directory.EnumerateFiles(paths.XmpProfilesDir, "*.xmp", SearchOption.AllDirectories))
             {
                 if (ReadXmpModel(file, logger) is not { } model) continue;
-                if (CameraProfileRewriter.ParseProfileName(file, model) is not { } name) continue;
+                if (ParseProfileName(file, model) is not { } name) continue;
                 if (models.TryGetValue(model, out var existing))
                     existing.RemoveAll(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
                 Add(models, model, new CameraProfile(name, file, CameraProfileFormat.XMP));
             }
         }
 
+        // ponytail: brand = first word of the model ("OM Digital Solutions OM-1" -> "OM"). Add an alias map if a brand groups wrong.
         var brands = models
-            .Select(m => new CameraModel(m.Key, BrandCatalog.BrandOf(m.Key), m.Value.OrderBy(p => p.Name).ToList()))
+            .Select(m => new CameraModel(m.Key, m.Key.Split(' ', 2)[0], m.Value.OrderBy(p => p.Name).ToList()))
             .GroupBy(m => m.Brand, StringComparer.OrdinalIgnoreCase)
-            .Select(g => new Brand(g.Key, BrandCatalog.FamilyOf(g.Key), g.OrderBy(m => m.Name).ToList()))
+            .Select(g => new Brand(g.Key, Families.GetValueOrDefault(g.Key, "Camera Profiles"), g.OrderBy(m => m.Name).ToList()))
             .OrderBy(b => b.Name)
             .ToList();
         logger.LogInformation("Camera catalog scanned: {BrandCount} brands, {ModelCount} models, {ProfileCount} profiles",
@@ -76,6 +93,16 @@ internal sealed class FileCameraCatalog(AppPaths paths, ILogger<FileCameraCatalo
             logger.LogWarning(e, "Skipped unreadable XMP profile {File}", file);
             return null;
         }
+    }
+
+    /// <summary>"Canon EOS R5 Camera Portrait.dcp" + "Canon EOS R5" -> "Portrait". Null when the pattern does not match.</summary>
+    private static string? ParseProfileName(string fileName, string model)
+    {
+        var stem = Path.GetFileNameWithoutExtension(fileName);
+        var prefix = model + " Camera ";
+        return stem.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && stem.Length > prefix.Length
+            ? stem[prefix.Length..]
+            : null;
     }
 
     private static void Add(Dictionary<string, List<CameraProfile>> models, string model, CameraProfile profile)

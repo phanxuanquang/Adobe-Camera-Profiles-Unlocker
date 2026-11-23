@@ -13,7 +13,6 @@ internal sealed record AppPaths(
     public string SettingsFile => Path.Combine(AppDataDir, "settings.json");
     public string ManifestFile => Path.Combine(AppDataDir, "installed.json");
     public string TrashDir => Path.Combine(AppDataDir, "trash");
-    public static string DcpToolExe => Path.Combine(AppContext.BaseDirectory, "Assets", "dcpTool.exe");
 
     public static AppPaths Default { get; } = Create(
         Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
