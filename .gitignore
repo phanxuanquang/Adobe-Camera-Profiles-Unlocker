@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+.remember
+.playwright-mcp
+# UI test evidence
+tests/ui-test-artifacts/
+tests/test-results.json
