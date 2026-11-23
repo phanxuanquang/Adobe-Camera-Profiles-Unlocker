@@ -6,7 +6,7 @@ One topic per file. Read only what task needs.
 |---|---|
 | [product.md](product.md) | What app does, glossary |
 | [adobe-paths.md](adobe-paths.md) | Camera Raw folders, file layout, permissions (no admin) |
-| [profile-format.md](profile-format.md) | DCP + XMP format, rewrite rules, dcpTool |
+| [profile-format.md](profile-format.md) | DCP + XMP format, rewrite rules, DcpFile |
 | [architecture.md](architecture.md) | Projects, layers, dependency direction |
 | [interfaces.md](interfaces.md) | Core contracts + models |
 | [di-lifetimes.md](di-lifetimes.md) | DI container setup, service lifetimes |

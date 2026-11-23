@@ -12,15 +12,14 @@ src/
   Unlocker.Core/              net10.0, 0 packages.
     Abstractions/             ICameraCatalog, ICameraProfileInstaller, IInstalledStore, ISettings, IEnvironmentProbe, IUpdateService
     Models/                   Brand, CameraModel, CameraProfile, CameraProfileFormat, InstalledCameraProfile, ReleaseInfo, EnvironmentIssue
-    Rules/                    CameraProfileRewriter, BrandCatalog (pure static)
+    Rules/                    CameraProfileRewriter (shared rules, author credit, output name)
   Unlocker.Infrastructure/    net10.0-windows. AddInfrastructure() at root.
     Catalog/                  FileCameraCatalog
-    Installing/               CameraProfileInstaller, IDcpTool, DcpTool
+    Installing/               CameraProfileInstaller (picks by format) -> DcpProfileInstaller (+ DcpFile), XmpProfileInstaller; each has Rewrite (shared + format tags)
     Storage/                  JsonInstalledStore, JsonSettings, SettingsData
     Updates/                  GitHubUpdateService, GitHubRelease, GitHubAsset
     Platform/                 AppPaths, EnvironmentProbe
     Serialization/            UnlockerJsonContext
-    Assets/                   dcpTool.exe (+dlls)
   Unlocker.Presentation/      net10.0 + CommunityToolkit.Mvvm. AddPresentation() at root.
     Common/                   StatusMessage, StatusAction, StatusSeverity, Text
     Ports/                    IDialogService, ILauncher
@@ -36,7 +35,7 @@ tests/
     Core/ Infrastructure/ Presentation/   one test class per subject
     Fakes/                    one fake per file
     Support/                  TempFolderTest (temp AppPaths base), TestFiles
-    Fixtures/                 sample.dcp.xml, sample.xmp
+    Fixtures/                 sample.xmp (DCP built in code: DcpFileTests.Sample)
   ui-tests.ps1                UI smoke batch (winapp ui); output test-results.json + ui-test-artifacts/ next to it (git-ignored)
 ```
 One type per file. Folder = namespace.

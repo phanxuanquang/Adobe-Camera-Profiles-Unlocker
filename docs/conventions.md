@@ -9,6 +9,8 @@
 - Deliberate shortcut -> `// ponytail: <ceiling>, <upgrade path>`.
 - Comments explain why, not what. Only when needed: non-obvious constraint, workaround, safety rule. No doc-pointer or "Singleton." comments (lifetimes live in di-lifetimes.md).
 - One type per file (class, record, interface, enum). File name = type name. Folder = namespace.
+- Static classes only when the language needs them (extension methods: `ServiceCollectionExtensions`; x:Bind functions shared with VMs: `Presentation/Common/Text`). Rules = sealed classes resolved by DI. Private static helpers inside a class are fine (owner, 2026-11-23).
+- One installer per profile format (DCP / XMP), same flow: tags dictionary -> own `Rewrite` (shared `CameraProfileRewriter` + format tags) -> copy. No format `switch` beyond `CameraProfileInstaller` (owner, 2026-11-23).
 
 ## MVVM (CommunityToolkit.Mvvm)
 - `partial` VMs, `[ObservableProperty]` (partial property form), `[RelayCommand]`.
@@ -40,7 +42,7 @@
 
 ## Tests
 - One test project, folders mirror layers: `Core/`, `Infrastructure/`, `Presentation/` (one test class per subject), `Fakes/` (one fake per file), `Support/` (`TempFolderTest` base, `TestFiles`), `Fixtures/`.
-- File-system tests derive from `TempFolderTest` (temp paths, never real Camera Raw folders). Installer uses `FakeDcpTool`; `DcpToolTests` run the real exe.
+- File-system tests derive from `TempFolderTest` (temp paths, never real Camera Raw folders). DCP tests build a small DCP in code (`DcpFileTests.Sample`), no binary fixture.
 - No mocking framework unless fakes get painful; hand-written fakes.
 - Run: `dotnet test`.
 

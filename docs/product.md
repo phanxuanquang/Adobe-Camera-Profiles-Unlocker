@@ -9,7 +9,7 @@ Example: Fujifilm `CLASSIC CHROME` usable on Sony ILCE-7M4 raw files.
 - **Brand** = camera maker. Family names: Fujifilm Film Simulations, Canon Picture Styles, Nikon Picture Controls, Sony Creative Looks, Panasonic Photo Styles, Leica Film Styles. Unknown brand -> "Camera Profiles".
 - **Source model** = camera whose camera profiles get copied. Default = brand model with most camera profiles.
 - **Target / Your camera** = user's camera. Set once, persisted.
-- **DCP** = DNG Camera Profile, binary. Edited via `dcpTool.exe` (DCP <-> XML).
+- **DCP** = DNG Camera Profile, binary. TIFF-based. Copied by `DcpProfileInstaller` + `DcpFile` (C#, no dcpTool).
 - **XMP profile** = text XML, `crs:` namespace. Fujifilm, Nikon, Panasonic, Ricoh, Sigma newer camera profiles.
 - **Installed camera profile** = file app created. Tracked in manifest. Only these may be removed.
 

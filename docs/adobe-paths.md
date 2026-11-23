@@ -34,4 +34,3 @@ Rules:
 - `%LocalAppData%\CameraProfilesUnlocker\settings.json`: target camera, theme
 - `%LocalAppData%\CameraProfilesUnlocker\installed.json`: manifest of created files
 - `%LocalAppData%\CameraProfilesUnlocker\trash\`: removed files kept for Undo, emptied on exit
-- dcpTool temp XML: `Path.GetTempPath()`

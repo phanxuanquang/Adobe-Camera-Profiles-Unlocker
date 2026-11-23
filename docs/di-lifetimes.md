@@ -17,8 +17,9 @@ Services = new ServiceCollection()
 | `ICameraCatalog` -> `FileCameraCatalog` | Singleton | Scan once, cache `Lazy<Task<...>>`. Names + paths only, never file content |
 | `IInstalledStore` -> `JsonInstalledStore` | Singleton | Single source of truth for Unlock + Installed |
 | `ISettings` -> `JsonSettings` | Singleton | Load once |
-| `IDcpTool` -> `DcpTool` | Singleton | Stateless, process per call |
 | `ICameraProfileInstaller` -> `CameraProfileInstaller` | Singleton | Stateless, deps singleton |
+| `DcpProfileInstaller`, `XmpProfileInstaller` (concrete, internal) | Singleton | Stateless. No interface: one impl each, tests build them directly |
+| `CameraProfileRewriter` (Core, registered in AddInfrastructure) | Singleton | Stateless shared rules |
 | `IUpdateService` -> `GitHubUpdateService` | Singleton, one shared `HttpClient` | One request per session: no IHttpClientFactory. Generic User-Agent `CameraProfilesUnlocker` |
 | `IEnvironmentProbe` | Transient | Startup only |
 | `ShellViewModel`, `UnlockViewModel`, `InstalledViewModel`, `SettingsViewModel` | Singleton | Keep state across tab switches |

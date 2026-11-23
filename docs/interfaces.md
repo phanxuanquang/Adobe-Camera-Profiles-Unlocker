@@ -31,7 +31,7 @@ public interface IUpdateService    { Task<ReleaseInfo?> GetNewerAsync(Version cu
 public interface ISettings         { string? TargetCamera { get; set; } Task SaveAsync(CancellationToken ct = default); }
 ```
 Installer does NOT touch store; UnlockViewModel adds results (single place for Undo/rollback).
-`IDcpTool` = Infrastructure-internal (`Installing/`, installer detail + test seam), not Core.
+Per format: `DcpProfileInstaller` / `XmpProfileInstaller` (Infrastructure-internal, same shape: `Task<string> InstallAsync(profile, sourceModel, targetModel, ct)` returns output path). `DcpFile` = parsed DCP (`Parse`, `GetStrings`, `SetStrings`, `Size`, `WriteTo`).
 
 ## Presentation ports (`Unlocker.Presentation/Ports`, each UI implements)
 ```csharp
