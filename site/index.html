@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Adobe Camera Profiles Unlocker: use other brands' camera profiles on your camera</title>
+  <meta name="description" content="Free Windows app that copies camera profiles such as Fujifilm Classic Chrome or Canon Portrait to your camera, so Lightroom Classic, Photoshop and Camera Raw show them. No admin rights needed.">
+  <link rel="canonical" href="https://phanxuanquang.github.io/Adobe-Camera-Profiles-Unlocker/">
+  <link rel="icon" href="assets/img/favicon.ico" sizes="any">
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Adobe Camera Profiles Unlocker">
+  <meta property="og:description" content="Use Fujifilm, Canon, Nikon and other camera profiles on your camera in Lightroom and Photoshop. Free Windows app.">
+  <meta property="og:url" content="https://phanxuanquang.github.io/Adobe-Camera-Profiles-Unlocker/">
+  <meta property="og:image" content="https://phanxuanquang.github.io/Adobe-Camera-Profiles-Unlocker/assets/img/social.png">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+  <meta property="og:image:alt" content="Adobe Camera Profiles Unlocker logo and the app window">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Segoe UI Variable is used on Windows; Roboto is only downloaded where it is missing -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="assets/css/site.css">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/lucide@1.71.0/dist/umd/lucide.min.js" integrity="sha384-6EHa8+k3FX+G1d7o5WxOED4ySMmmWJotc4rXa2It3wwx5jj09dzqY15y13tKV6Xg" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js" integrity="sha384-InMmvD3VoYcY7hGjSC80aLb2bNNE4CzpX+Eq6FVDlmB0IKgDvmfPw4UY8L/M++iG" crossorigin="anonymous"></script>
+  <script type="module" src="assets/js/main.js"></script>
+</head>
+<body>
+  <a class="visually-hidden-focusable btn btn-primary tap position-absolute m-2 z-3" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <nav class="container d-flex align-items-center gap-1 py-2" aria-label="Main">
+      <a class="d-flex align-items-center gap-2 me-auto link-body-emphasis text-decoration-none fw-semibold tap" href="#top">
+        <img src="assets/img/logo.svg" width="28" height="28" alt="">
+        <span>Camera Profiles Unlocker</span>
+      </a>
+      <ul class="nav d-none d-md-flex gap-1">
+        <li class="nav-item"><a class="nav-link tap" href="#how">How it works</a></li>
+        <li class="nav-item"><a class="nav-link tap" href="#faq">Questions</a></li>
+        <li class="nav-item"><a class="nav-link tap" href="#support">Support the author</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <section id="top" class="container py-5" aria-labelledby="hero-title">
+      <div class="row align-items-center g-4 g-lg-5">
+        <div class="col-lg-5">
+          <h1 id="hero-title" class="mb-3">Use Fujifilm, Canon, Nikon and other camera profiles on your camera</h1>
+          <p class="lead text-body-secondary mb-4">A free Windows app for Lightroom Classic, Photoshop and Camera Raw.</p>
+          <a class="btn btn-primary btn-lg tap" href="https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker">View on GitHub</a>
+        </div>
+        <div class="col-lg-7">
+          <button type="button" class="zoom window" data-zoom>
+            <span class="visually-hidden">Enlarge screenshot: </span>
+            <img class="shot" src="assets/img/unlock.png" width="2333" height="1348" fetchpriority="high" alt="The app: Fujifilm Film Simulations with two camera profiles ticked, ready to install for a Sony camera.">
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="download" class="container pb-5" aria-labelledby="download-title" aria-busy="true">
+      <h2 id="download-title" class="mb-3">Download</h2>
+      <div class="card">
+        <div class="card-body">
+          <p id="release-status" class="d-flex align-items-center gap-2 mb-3" role="status">
+            <span class="spinner-border spinner-border-sm text-primary flex-shrink-0" aria-hidden="true"></span>
+            <span>Checking the latest version…</span>
+          </p>
+          <div class="downloads mb-3" id="downloads">
+            <a class="btn btn-light text-start p-3 tap" data-download="x64" href="https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/releases/latest">
+              <span class="d-flex align-items-center gap-2 fw-semibold"><i data-lucide="download" aria-hidden="true"></i>Windows x64 <span class="badge" data-recommended hidden>For this PC</span></span>
+              <span class="d-block small mt-1">Most PCs (Intel, AMD) <span data-size></span></span>
+            </a>
+            <a class="btn btn-light text-start p-3 tap" data-download="arm64" href="https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/releases/latest">
+              <span class="d-flex align-items-center gap-2 fw-semibold"><i data-lucide="download" aria-hidden="true"></i>Windows ARM64 <span class="badge" data-recommended hidden>For this PC</span></span>
+              <span class="d-block small mt-1">ARM PCs, such as Snapdragon <span data-size></span></span>
+            </a>
+          </div>
+          <p class="text-body-secondary mb-0">Extract the zip and run <strong>Adobe Camera Profiles Unlocker.exe</strong>. Needs Windows 10 or 11 and <a href="https://www.adobe.com/go/acr_installer_win">Camera Raw</a> 15 or later.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="first-run" class="container pb-5" aria-labelledby="first-run-title">
+      <h2 id="first-run-title" class="mb-3">Windows shows a warning?</h2>
+      <div class="card">
+        <div class="card-body row g-4 align-items-center">
+          <div class="col-md-6">
+            <p>The app isn't code-signed yet, so SmartScreen may block the first run.</p>
+            <ol class="d-grid gap-2 ps-3 mb-0">
+              <li>Select <strong>More info</strong>.</li>
+              <li>Select <strong>Run anyway</strong>.</li>
+            </ol>
+          </div>
+          <div class="col-md-6">
+            <div class="smartscreen p-4 text-white" aria-hidden="true">
+              <p class="fs-5 mb-3">Windows protected your PC</p>
+              <p class="mb-4"><span class="cue">More info</span><span class="cue-num">1</span></p>
+              <div class="d-flex justify-content-end align-items-center gap-2">
+                <span class="cue-num">2</span><span class="cue cue-btn">Run anyway</span>
+                <span class="cue-btn">Don't run</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="container pb-5" aria-labelledby="how-title">
+      <h2 id="how-title" class="mb-3">How it works</h2>
+      <ol class="list-unstyled row g-2 g-md-3 mb-0 steps">
+        <li class="col-12 col-md-4">
+          <div class="card h-100 step">
+            <button type="button" class="zoom" data-zoom>
+              <span class="visually-hidden">Enlarge screenshot: </span>
+              <img class="shot" src="assets/img/camera.png" width="2334" height="1353" loading="lazy" alt="The Your camera panel with Sony ILCE-7RM5 selected.">
+            </button>
+            <h3 class="step-title mb-0">Pick your camera</h3>
+          </div>
+        </li>
+        <li class="col-12 col-md-4">
+          <div class="card h-100 step">
+            <button type="button" class="zoom" data-zoom>
+              <span class="visually-hidden">Enlarge screenshot: </span>
+              <img class="shot" src="assets/img/unlock.png" width="2333" height="1348" loading="lazy" alt="Fujifilm Film Simulations with two camera profiles ticked and an Install 2 camera profiles button.">
+            </button>
+            <h3 class="step-title mb-0">Tick camera profiles, select Install</h3>
+          </div>
+        </li>
+        <li class="col-12 col-md-4">
+          <div class="card h-100 step">
+            <button type="button" class="zoom" data-zoom>
+              <span class="visually-hidden">Enlarge screenshot: </span>
+              <img class="shot" src="assets/img/installed.png" width="2334" height="1348" loading="lazy" alt="The Installed page: three camera profiles installed for a Nikon Z f.">
+            </button>
+            <h3 class="step-title mb-0">Restart Lightroom or Photoshop</h3>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section id="brands" class="container pb-5" aria-labelledby="brands-title">
+      <h2 id="brands-title" class="mb-3">Supported brands</h2>
+      <ul class="list-unstyled row row-cols-2 row-cols-md-3 row-cols-lg-4 g-2 mb-0">
+        <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Canon</span><span class="small text-body-secondary">Picture Styles</span></div></li>
+        <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Fujifilm</span><span class="small text-body-secondary">Film Simulations</span></div></li>
+        <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Leica</span><span class="small text-body-secondary">Film Styles</span></div></li>
+        <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Nikon</span><span class="small text-body-secondary">Picture Controls</span></div></li>
+        <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Olympus</span><span class="small text-body-secondary">Picture Modes</span></div></li>
+        <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">OM Digital Solutions</span><span class="small text-body-secondary">Picture Modes</span></div></li>
+        <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Panasonic Lumix</span><span class="small text-body-secondary">Photo Styles</span></div></li>
+        <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Pentax</span><span class="small text-body-secondary">Custom Images</span></div></li>
+        <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Ricoh</span><span class="small text-body-secondary">Custom Images</span></div></li>
+        <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Sigma</span><span class="small text-body-secondary">Color Modes</span></div></li>
+        <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Sony</span><span class="small text-body-secondary">Creative Looks</span></div></li>
+      </ul>
+    </section>
+
+    <section id="faq" class="container pb-5" aria-labelledby="faq-title">
+      <h2 id="faq-title" class="mb-3">Questions</h2>
+      <div class="d-grid gap-1 faq">
+        <details class="card">
+          <summary>I can't find my new camera profiles<i data-lucide="chevron-down" aria-hidden="true"></i></summary>
+          <p>Restart Photoshop or Lightroom, open a <strong>raw</strong> photo from your camera, then open the <strong>Profile</strong> browser. They are listed as <q>Source camera: Profile name</q>. JPEGs are not supported.</p>
+        </details>
+        <details class="card">
+          <summary>The app says Camera Raw is not found<i data-lucide="chevron-down" aria-hidden="true"></i></summary>
+          <p><a href="https://www.adobe.com/go/acr_installer_win">Install Camera Raw</a>, then select <strong>Try again</strong>.</p>
+        </details>
+        <details class="card">
+          <summary>Some camera profiles are missing<i data-lucide="chevron-down" aria-hidden="true"></i></summary>
+          <p>The list comes from your Camera Raw version. <a href="https://www.adobe.com/go/acr_installer_win">Update Camera Raw</a> to get newer ones.</p>
+        </details>
+        <details class="card">
+          <summary>Does it change Adobe's files?<i data-lucide="chevron-down" aria-hidden="true"></i></summary>
+          <p>No. It writes copies into its own <code>Phan Xuan Quang</code> folders under <code>C:\ProgramData\Adobe\CameraRaw</code>.</p>
+        </details>
+        <details class="card">
+          <summary>How do I uninstall it?<i data-lucide="chevron-down" aria-hidden="true"></i></summary>
+          <p>Remove your camera profiles on the <strong>Installed</strong> page, then delete the app folder and <code>%LocalAppData%\CameraProfilesUnlocker</code>.</p>
+        </details>
+        <details class="card">
+          <summary>I used version 2 or older<i data-lucide="chevron-down" aria-hidden="true"></i></summary>
+          <p>Old camera profiles keep working but don't show on the <strong>Installed</strong> page. Old versions are on <a href="https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/releases">GitHub</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section id="support" class="container pb-5" aria-labelledby="support-title">
+      <h2 id="support-title" class="mb-1">Support the author</h2>
+      <p class="text-body-secondary mb-3">The app is free. If it helps you, a small donation keeps it going.</p>
+      <figure class="card qr-card p-3 mb-0 text-center">
+        <img class="qr mx-auto" src="assets/img/qr-vietcombank.png" width="592" height="591" loading="lazy" alt="Vietcombank QR code for Phan Xuan Quang">
+        <figcaption class="fw-semibold mt-2">Vietcombank</figcaption>
+      </figure>
+    </section>
+  </main>
+
+  <footer class="container py-4 d-flex flex-wrap align-items-center gap-3 small text-body-secondary">
+    <p class="mb-0 me-auto">© 2024 Phan Xuan Quang. <a href="https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/blob/master/LICENSE">GPL-3.0</a>. Not affiliated with Adobe.</p>
+    <nav aria-label="Project">
+      <ul class="list-unstyled d-flex gap-3 mb-0">
+        <li><a class="tap" href="https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker">GitHub</a></li>
+        <li><a class="tap" href="https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/issues/new/choose">Report a bug</a></li>
+      </ul>
+    </nav>
+  </footer>
+
+  <dialog id="lightbox" class="lightbox" aria-labelledby="lightbox-title">
+    <form method="dialog" class="lightbox-bar">
+      <h2 id="lightbox-title" class="h6 fw-semibold mb-0">Screenshot</h2>
+      <button class="btn btn-light tap" aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button>
+    </form>
+    <img alt="">
+  </dialog>
+</body>
+</html>
