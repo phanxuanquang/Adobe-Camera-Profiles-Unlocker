@@ -5,7 +5,7 @@ namespace Unlocker.Infrastructure.Installing;
 
 /// <summary>
 /// Parsed DNG Camera Profile (.dcp) = little-endian TIFF with magic "RC" instead of 42 and one IFD (DNG spec, "Camera Profiles").
-/// ponytail: only "IIRC" (every Adobe DCP); add big-endian "MMCR" if a DCP from elsewhere must load.
+/// shortcut: only "IIRC" (every Adobe DCP); add big-endian "MMCR" if a DCP from elsewhere must load.
 /// Replaces dcpTool: only the string tags change, every other entry is written back byte for byte.
 /// Entries are slices of the source buffer (no copies), so keep that buffer alive until <see cref="WriteTo"/>.
 /// </summary>
@@ -27,10 +27,15 @@ internal sealed class DcpFile
     [
         0xC621, 0xC622, // ColorMatrix1, ColorMatrix2 (50721, 50722)
         0xC65A, 0xC65B, // CalibrationIlluminant1, CalibrationIlluminant2 (50778, 50779)
+        0xCD35, 0xCD36, // IlluminantData1, IlluminantData2 (52533, 52534): the illuminant when CalibrationIlluminant is 255 (Other)
     ];
 
-    /// <summary>DNG 1.6 third illuminant (CalibrationIlluminant3, ColorMatrix3, ForwardMatrix3, IlluminantData1-3).</summary>
-    private static readonly ushort[] ThirdIlluminantTags = [0xCD31, 0xCD33, 0xCD34, 0xCD35, 0xCD36, 0xCD37];
+    /// <summary>DNG 1.6 third illuminant set (exiftool EXIF tag table): CalibrationIlluminant3, CameraCalibration3, ColorMatrix3, ForwardMatrix3,
+    /// IlluminantData3, ProfileHueSatMapData3, ReductionMatrix3 (52529-52532, 52535, 52537, 52538).</summary>
+    private static readonly ushort[] ThirdIlluminantTags = [0xCD31, 0xCD32, 0xCD33, 0xCD34, 0xCD37, 0xCD39, 0xCD3A];
+
+    /// <summary>Look tags tied to the second illuminant: ProfileHueSatMapData2 (50939), ForwardMatrix2 (50965).</summary>
+    private static readonly ushort[] SecondIlluminantLookTags = [0xC6FB, 0xC715];
 
     private readonly List<Entry> _entries;
 
@@ -106,11 +111,14 @@ internal sealed class DcpFile
     /// <summary>
     /// Takes the sensor calibration of <paramref name="calibration"/> (the target camera's Adobe Standard) and keeps this profile's look
     /// (ForwardMatrix, look table, tone curve). Its entries slice <paramref name="calibration"/>'s buffer: keep it alive until <see cref="WriteTo"/>.
+    /// A single-illuminant target also drops the source's second-illuminant look: it would have no matching calibration.
     /// shortcut: the third illuminant set is dropped, not taken from the target; take it too if Adobe Standard DCPs start shipping one.
     /// </summary>
     public void CopyCalibrationFrom(DcpFile calibration)
     {
-        _entries.RemoveAll(e => CalibrationTags.Contains(e.Tag) || ThirdIlluminantTags.Contains(e.Tag));
+        var singleIlluminant = !calibration._entries.Exists(e => e.Tag == 0xC65B); // no CalibrationIlluminant2
+        _entries.RemoveAll(e => CalibrationTags.Contains(e.Tag) || ThirdIlluminantTags.Contains(e.Tag)
+            || (singleIlluminant && SecondIlluminantLookTags.Contains(e.Tag)));
         _entries.AddRange(calibration._entries.Where(e => CalibrationTags.Contains(e.Tag)));
         _entries.Sort((a, b) => a.Tag.CompareTo(b.Tag));
     }

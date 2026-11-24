@@ -35,9 +35,17 @@ internal sealed class XmpProfileInstaller(AppPaths paths, CameraProfileRewriter 
         foreach (var li in names) li.Value = tags["Name"];
 
         Directory.CreateDirectory(paths.XmpOutputDir);
-        var path = Path.Combine(paths.XmpOutputDir, rewriter.OutputFileName(profile.Name, targetModel, CameraProfileFormat.XMP));
-        await using (var write = File.Create(path))
+        var path = Path.Combine(paths.XmpOutputDir, rewriter.OutputFileName(sourceModel, profile.Name, targetModel, CameraProfileFormat.XMP));
+        try
+        {
+            await using var write = File.Create(path);
             await doc.SaveAsync(write, SaveOptions.DisableFormatting, ct);
+        }
+        catch
+        {
+            File.Delete(path); // no half-written profile outside the manifest
+            throw;
+        }
         return path;
     }
 
@@ -46,7 +54,7 @@ internal sealed class XmpProfileInstaller(AppPaths paths, CameraProfileRewriter 
         rewriter.Rewrite(tags, sourceModel, targetModel);
         tags["UUID"] = Guid.NewGuid().ToString("N").ToUpperInvariant();
         // The look sits on a base profile Camera Raw finds by name for the target camera. Camera Standard is closest to the
-        // source's maker base (e.g. PROVIA) but only some cameras have it; every camera has Adobe Standard (owner, 2026-11-24).
+        // source's maker base (e.g. PROVIA) but only some cameras have it; every camera has Adobe Standard.
         tags["CameraProfile"] = File.Exists(paths.CameraStandardFile(targetModel)) ? "Camera Standard" : "Adobe Standard";
     }
 }

@@ -1,5 +1,5 @@
-using System.Buffers;
 using Microsoft.Extensions.Logging;
+using System.Buffers;
 using Unlocker.Core.Enums;
 using Unlocker.Core.Models;
 using Unlocker.Core.Rules;
@@ -47,7 +47,7 @@ internal sealed class DcpProfileInstaller(AppPaths paths, CameraProfileRewriter 
             dcp.WriteTo(output.AsSpan(0, size));
 
             Directory.CreateDirectory(paths.DcpOutputDir);
-            var path = Path.Combine(paths.DcpOutputDir, rewriter.OutputFileName(profile.Name, targetModel, CameraProfileFormat.DCP));
+            var path = Path.Combine(paths.DcpOutputDir, rewriter.OutputFileName(sourceModel, profile.Name, targetModel, CameraProfileFormat.DCP));
             try
             {
                 await using var target = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 0, FileOptions.Asynchronous);

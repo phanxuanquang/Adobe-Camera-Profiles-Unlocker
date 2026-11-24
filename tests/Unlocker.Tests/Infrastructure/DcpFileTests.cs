@@ -8,7 +8,8 @@ public sealed class DcpFileTests
 {
     /// <summary>Little-endian DCP ("IIRC") like Adobe ships: restriction, name, ColorMatrix1 (9 x SRATIONAL, out of line),
     /// CalibrationIlluminant1 (SHORT, inline), a look table stand-in (6 x FLOAT). Seeds make matrix and look bytes differ between samples.</summary>
-    internal static byte[] Sample(string name = "Camera Portrait", string restriction = "Canon EOS R5", byte matrixSeed = 0, byte lookSeed = 0)
+    internal static byte[] Sample(string name = "Camera Portrait", string restriction = "Canon EOS R5", byte matrixSeed = 0, byte lookSeed = 0,
+        params DcpFile.Entry[] extra)
     {
         var matrix = new byte[72];
         for (var i = 0; i < matrix.Length; i++) matrix[i] = (byte)(i + matrixSeed);
@@ -21,7 +22,9 @@ public sealed class DcpFileTests
             new DcpFile.Entry(0xC6F4, 2, 10, Ascii("com.adobe")),
             new DcpFile.Entry(0xC6F8, 2, (uint)name.Length + 1, Ascii(name)),
             new DcpFile.Entry(0xC726, 11, 6, look),
+            .. extra,
         ];
+        entries.Sort((a, b) => a.Tag.CompareTo(b.Tag));
         // Header + IFD + out-of-line data: restriction, matrix, signature, name (inline when <= 4 bytes).
         var bytes = new byte[8 + 2 + entries.Count * 12 + 4];
         "IIRC"u8.CopyTo(bytes);
@@ -110,6 +113,59 @@ public sealed class DcpFileTests
         var output = Rewrite(Sample(), s => s["Name"] = "abc");
 
         Assert.AreEqual("abc", ReadStrings(output)["Name"]);
+    }
+
+    [TestMethod]
+    public void Rewrite_without_edits_is_byte_identical()
+        => CollectionAssert.AreEqual(Sample(), Rewrite(Sample(), _ => { }));
+
+    private static DcpFile.Entry Short(ushort tag, byte value) => new(tag, 3, 1, new byte[] { value, 0 });
+
+    private static ushort[] CalibratedTags(byte[] source, byte[] calibration)
+    {
+        var dcp = DcpFile.Parse(source);
+        dcp.CopyCalibrationFrom(DcpFile.Parse(calibration));
+        return dcp.Entries.Select(e => e.Tag).ToArray();
+    }
+
+    [TestMethod]
+    public void Calibration_drops_every_source_third_illuminant_tag()
+    {
+        ushort[] third = [0xCD31, 0xCD32, 0xCD33, 0xCD34, 0xCD37, 0xCD39, 0xCD3A];
+
+        var tags = CalibratedTags(Sample(extra: [.. third.Select(t => Short(t, 1))]), Sample());
+
+        CollectionAssert.AreEqual(Array.Empty<ushort>(), tags.Intersect(third).ToArray());
+    }
+
+    [TestMethod]
+    public void Calibration_takes_target_illuminant_data()
+    {
+        var tags = CalibratedTags(Sample(extra: Short(0xCD36, 1)), Sample(extra: Short(0xCD35, 2)));
+
+        CollectionAssert.Contains(tags, (ushort)0xCD35);
+        CollectionAssert.DoesNotContain(tags, (ushort)0xCD36);
+    }
+
+    [TestMethod]
+    public void Single_illuminant_calibration_drops_source_second_illuminant_look()
+    {
+        // ColorMatrix2, CalibrationIlluminant2, ProfileHueSatMapData2, ForwardMatrix2
+        var source = Sample(extra: [Short(0xC622, 1), Short(0xC65B, 21), Short(0xC6FB, 1), Short(0xC715, 1)]);
+
+        var tags = CalibratedTags(source, Sample());
+
+        CollectionAssert.AreEqual(Array.Empty<ushort>(), tags.Intersect(new ushort[] { 0xC622, 0xC65B, 0xC6FB, 0xC715 }).ToArray());
+    }
+
+    [TestMethod]
+    public void Dual_illuminant_calibration_keeps_source_second_illuminant_look()
+    {
+        var source = Sample(extra: [Short(0xC622, 1), Short(0xC65B, 21), Short(0xC6FB, 1), Short(0xC715, 1)]);
+
+        var tags = CalibratedTags(source, Sample(extra: [Short(0xC622, 2), Short(0xC65B, 21)]));
+
+        CollectionAssert.IsSubsetOf(new ushort[] { 0xC622, 0xC65B, 0xC6FB, 0xC715 }, tags);
     }
 
     [TestMethod]

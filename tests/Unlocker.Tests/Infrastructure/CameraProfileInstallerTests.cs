@@ -1,5 +1,5 @@
-using System.Xml.Linq;
 using Microsoft.Extensions.Logging.Abstractions;
+using System.Xml.Linq;
 using Unlocker.Core.Enums;
 using Unlocker.Core.Models;
 using Unlocker.Core.Rules;
@@ -29,14 +29,14 @@ public sealed class CameraProfileInstallerTests : TempFolderTest
 
         var result = await Installer().InstallAsync(profile, "Canon EOS R5", "Sony ILCE-7M4");
 
-        var output = Path.Combine(Paths.DcpOutputDir, "Portrait (for Sony ILCE-7M4).dcp");
+        var output = Path.Combine(Paths.DcpOutputDir, "Canon EOS R5 Portrait (for Sony ILCE-7M4).dcp");
         CollectionAssert.AreEqual(new[] { output }, result.Files.ToArray());
         CollectionAssert.AreEqual(DcpFileTests.Rewrite(before, t => Dcp().Rewrite(t, "Canon EOS R5", "Sony ILCE-7M4")), File.ReadAllBytes(output));
         var strings = DcpFileTests.ReadStrings(File.ReadAllBytes(output));
         Assert.AreEqual("Sony ILCE-7M4", strings["CameraModelRestriction"]);
         Assert.AreEqual("Canon EOS R5: Portrait", strings["Name"]);
         CollectionAssert.AreEqual(before, File.ReadAllBytes(src));
-        Assert.AreEqual(("Portrait", "Canon EOS R5", "Sony ILCE-7M4", false), (result.Name, result.SourceModel, result.TargetModel, result.IsLegacy));
+        Assert.AreEqual(("Portrait", "Canon EOS R5", "Sony ILCE-7M4"), (result.Name, result.SourceModel, result.TargetModel));
     }
 
     [TestMethod]
@@ -81,7 +81,7 @@ public sealed class CameraProfileInstallerTests : TempFolderTest
 
         var result = await Installer().InstallAsync(profile, "Fujifilm X-T5", "Sony ILCE-7M4");
 
-        var output = Path.Combine(Paths.XmpOutputDir, "CLASSIC Neg (for Sony ILCE-7M4).xmp");
+        var output = Path.Combine(Paths.XmpOutputDir, "Fujifilm X-T5 CLASSIC Neg (for Sony ILCE-7M4).xmp");
         CollectionAssert.AreEqual(new[] { output }, result.Files.ToArray());
         var (crs, rdf) = (XmpProfileInstaller.Crs, XmpProfileInstaller.Rdf);
         var desc = XDocument.Load(output).Descendants(rdf + "Description").Single();
@@ -97,5 +97,17 @@ public sealed class CameraProfileInstallerTests : TempFolderTest
             oldDesc.Elements().Skip(1).Select(e => e.ToString()).ToList(),
             desc.Elements().Skip(1).Select(e => e.ToString()).ToList());
         CollectionAssert.AreEqual(before, File.ReadAllBytes(src));
+    }
+
+    [TestMethod]
+    public async Task Xmp_failing_mid_write_leaves_no_partial_file()
+    {
+        var src = WriteXmp(@"Fujifilm\Fujifilm X-T5\Fujifilm X-T5 Camera CLASSIC Neg.xmp", "Fujifilm X-T5");
+
+        // U+0001 is not valid XML: the writer throws after the output file was created.
+        await Assert.ThrowsAsync<ArgumentException>(() => Installer().InstallAsync(
+            new CameraProfile("CLASSIC Neg", src, CameraProfileFormat.XMP), "Fujifilm\u0001X-T5", "Sony ILCE-7M4"));
+
+        Assert.AreEqual(0, Directory.EnumerateFiles(Paths.XmpOutputDir).Count());
     }
 }

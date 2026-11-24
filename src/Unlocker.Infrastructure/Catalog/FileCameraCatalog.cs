@@ -1,5 +1,5 @@
-using System.Xml;
 using Microsoft.Extensions.Logging;
+using System.Xml;
 using Unlocker.Core.Abstractions;
 using Unlocker.Core.Enums;
 using Unlocker.Core.Models;
@@ -30,9 +30,22 @@ internal sealed class FileCameraCatalog(AppPaths paths, ILogger<FileCameraCatalo
         ["Sigma"] = "Color Modes"
     };
 
-    private readonly Lazy<Task<IReadOnlyList<Brand>>> _cache = new(() => Task.Run(() => Scan(paths, logger)));
+    /// <summary>Skips folders the user cannot read (a locked subfolder must not crash startup).</summary>
+    private static readonly EnumerationOptions Recursive = new() { IgnoreInaccessible = true, RecurseSubdirectories = true };
+    private static readonly EnumerationOptions TopLevel = new() { IgnoreInaccessible = true };
 
-    public Task<IReadOnlyList<Brand>> LoadAsync(CancellationToken ct = default) => _cache.Value.WaitAsync(ct);
+    private readonly Lock _lock = new();
+    private Task<IReadOnlyList<Brand>>? _scan;
+
+    /// <summary>Scans once; a failed scan is not cached, so "Try again" rescans.</summary>
+    public Task<IReadOnlyList<Brand>> LoadAsync(CancellationToken ct = default)
+    {
+        lock (_lock)
+        {
+            if (_scan is null || _scan.IsFaulted) _scan = Task.Run(() => Scan(paths, logger));
+            return _scan.WaitAsync(ct);
+        }
+    }
 
     private static IReadOnlyList<Brand> Scan(AppPaths paths, ILogger logger)
     {
@@ -41,10 +54,10 @@ internal sealed class FileCameraCatalog(AppPaths paths, ILogger<FileCameraCatalo
         // DCP: <dir>\<Model>\<Model> Camera <Name>.dcp. The folder name is the model.
         if (Directory.Exists(paths.DcpProfilesDir))
         {
-            foreach (var dir in Directory.EnumerateDirectories(paths.DcpProfilesDir))
+            foreach (var dir in Directory.EnumerateDirectories(paths.DcpProfilesDir, "*", TopLevel))
             {
                 var model = Path.GetFileName(dir);
-                foreach (var file in Directory.EnumerateFiles(dir, "*.dcp"))
+                foreach (var file in Directory.EnumerateFiles(dir, "*.dcp", TopLevel))
                 {
                     if (ParseProfileName(file, model) is not { } name) continue;
                     Add(models, model, new CameraProfile(name, file, CameraProfileFormat.DCP));
@@ -55,7 +68,7 @@ internal sealed class FileCameraCatalog(AppPaths paths, ILogger<FileCameraCatalo
         // XMP: <dir>\<Brand>[\<Model>]\<Model> Camera <Name>.xmp. The folder can be brand or model, so the model comes from crs:CameraModelRestriction. XMP wins over DCP on a duplicate name.
         if (Directory.Exists(paths.XmpProfilesDir))
         {
-            foreach (var file in Directory.EnumerateFiles(paths.XmpProfilesDir, "*.xmp", SearchOption.AllDirectories))
+            foreach (var file in Directory.EnumerateFiles(paths.XmpProfilesDir, "*.xmp", Recursive))
             {
                 if (ReadXmpModel(file, logger) is not { } model) continue;
                 if (ParseProfileName(file, model) is not { } name) continue;
@@ -92,13 +105,14 @@ internal sealed class FileCameraCatalog(AppPaths paths, ILogger<FileCameraCatalo
         }
     }
 
-    /// <summary>"Canon EOS R5 Camera Portrait.dcp" + "Canon EOS R5" -> "Portrait". Null when the pattern does not match.</summary>
+    /// <summary>"Canon EOS R5 Camera Portrait.dcp" + "Canon EOS R5" -> "Portrait". Adobe also uses '_' ("Leica D-Lux 7 Camera_Monochrome.dcp").
+    /// Null when the pattern does not match.</summary>
     private static string? ParseProfileName(string fileName, string model)
     {
         var stem = Path.GetFileNameWithoutExtension(fileName);
-        var prefix = model + " Camera ";
-        return stem.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && stem.Length > prefix.Length
-            ? stem[prefix.Length..]
+        var prefix = model + " Camera";
+        return stem.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && stem.Length > prefix.Length + 1 && stem[prefix.Length] is ' ' or '_'
+            ? stem[(prefix.Length + 1)..]
             : null;
     }
 

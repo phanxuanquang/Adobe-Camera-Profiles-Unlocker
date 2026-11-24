@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Reflection;
 using Unlocker.Core.Enums;
 
@@ -5,6 +6,7 @@ namespace Unlocker.Core.Rules;
 
 public sealed class CameraProfileRewriter
 {
+    private static readonly SearchValues<char> Invalid = SearchValues.Create(Path.GetInvalidFileNameChars());
     private static readonly Assembly Self = typeof(CameraProfileRewriter).Assembly;
     public static string AuthorCredit { get; } = Self.GetCustomAttribute<AssemblyCopyrightAttribute>()?.Copyright
         ?? throw new InvalidOperationException("Copyright missing in Directory.Build.props.");
@@ -20,9 +22,13 @@ public sealed class CameraProfileRewriter
         if (tags.ContainsKey("CameraModelRestriction")) tags["CameraModelRestriction"] = targetModel;
     }
 
-    public string OutputFileName(string profileName, string targetModel, CameraProfileFormat format)
+    /// <summary>"Canon EOS R5 Portrait (for Sony ILCE-7M4).xmp". Invalid file name chars become '-'.</summary>
+    public string OutputFileName(string sourceModel, string profileName, string targetModel, CameraProfileFormat format)
     {
-        var name = $"{profileName} (for {targetModel}).{format.ToString().ToLowerInvariant()}";
-        return string.Concat(name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '-' : c));
+        var name = $"{sourceModel} {profileName} (for {targetModel}).{format.ToString().ToLowerInvariant()}";
+        return string.Create(name.Length, name, (dest, src) =>
+        {
+            for (var i = 0; i < src.Length; i++) dest[i] = Invalid.Contains(src[i]) ? '-' : src[i];
+        });
     }
 }

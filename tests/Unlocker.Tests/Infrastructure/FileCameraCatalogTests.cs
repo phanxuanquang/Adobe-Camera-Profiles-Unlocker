@@ -1,4 +1,7 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using Unlocker.Core.Enums;
 using Unlocker.Infrastructure.Catalog;
 using Unlocker.Tests.Support;
@@ -46,5 +49,76 @@ public sealed class FileCameraCatalogTests : TempFolderTest
         var brands = await new FileCameraCatalog(Paths, NullLogger<FileCameraCatalog>.Instance).LoadAsync();
 
         Assert.AreEqual(0, brands.Count);
+    }
+
+    [TestMethod]
+    [DataRow("Leica D-Lux 7 Camera Monochrome.dcp")]
+    [DataRow("Leica D-Lux 7 Camera_Monochrome.dcp")]
+    public async Task Reads_dcp_name_after_space_or_underscore(string file)
+    {
+        Touch(Path.Combine(Paths.DcpProfilesDir, "Leica D-Lux 7", file));
+
+        var brands = await new FileCameraCatalog(Paths, NullLogger<FileCameraCatalog>.Instance).LoadAsync();
+
+        Assert.AreEqual("Monochrome", brands.Single().Models.Single().Profiles.Single().Name);
+    }
+
+    [TestMethod]
+    public async Task Skips_inaccessible_subfolder()
+    {
+        Touch(Path.Combine(Paths.DcpProfilesDir, "Fujifilm X-T5", "Fujifilm X-T5 Camera PROVIA.dcp"));
+        WriteXmp(@"Fujifilm\Fujifilm X-T5\Fujifilm X-T5 Camera CLASSIC Neg.xmp", "Fujifilm X-T5");
+        var locked = new[] { Path.Combine(Paths.DcpProfilesDir, "Locked"), Path.Combine(Paths.XmpProfilesDir, "Locked") };
+        var deny = new FileSystemAccessRule(WindowsIdentity.GetCurrent().User!, FileSystemRights.ListDirectory, AccessControlType.Deny);
+        foreach (var dir in locked)
+        {
+            var info = Directory.CreateDirectory(dir);
+            var acl = info.GetAccessControl();
+            acl.AddAccessRule(deny);
+            info.SetAccessControl(acl);
+        }
+        try
+        {
+            var brands = await new FileCameraCatalog(Paths, NullLogger<FileCameraCatalog>.Instance).LoadAsync();
+
+            Assert.AreEqual(2, brands.Single().Models.Single().Profiles.Count);
+        }
+        finally
+        {
+            foreach (var dir in locked)
+            {
+                var info = new DirectoryInfo(dir);
+                var acl = info.GetAccessControl();
+                acl.RemoveAccessRule(deny);
+                info.SetAccessControl(acl);
+            }
+        }
+    }
+
+    [TestMethod]
+    public async Task Failed_scan_is_retried_on_next_load()
+    {
+        var catalog = new FileCameraCatalog(Paths, new FailOnceLogger());
+
+        await Assert.ThrowsAsync<IOException>(() => catalog.LoadAsync());
+
+        Assert.AreEqual(0, (await catalog.LoadAsync()).Count);
+    }
+
+    /// <summary>Throws on the first log call: stands in for any scan failure.</summary>
+    private sealed class FailOnceLogger : ILogger<FileCameraCatalog>
+    {
+        private bool _failed;
+
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            if (_failed) return;
+            _failed = true;
+            throw new IOException("disk gone");
+        }
     }
 }
