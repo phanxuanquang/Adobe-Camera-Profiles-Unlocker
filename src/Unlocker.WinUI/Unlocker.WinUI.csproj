@@ -1,0 +1,88 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>Unlocker.WinUI</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon Condition="Exists('Assets\AppIcon.ico')">Assets\AppIcon.ico</ApplicationIcon>
+    <Platforms>x64;ARM64</Platforms>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(Platform)' == 'ARM64'">win-arm64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
+    <UseWinUI>true</UseWinUI>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks> 
+    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled> 
+    <AssemblyName>Adobe Camera Profiles Unlocker</AssemblyName>
+    <Description>A tool to unlock hidden Camera Profiles in Adobe Lightroom and Adobe Camera Raw, enabling enhanced color matching for a wide range of camera brands.</Description>
+    <PackageProjectUrl></PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker</RepositoryUrl>
+    <PackageTags>adobe,dcp,xmp,profile,preset,lightroom,acr,pts</PackageTags>
+  </PropertyGroup>
+  <!-- Release = zip of the publish folder on GitHub Releases: no .NET install needed. No trimming: WinUI/Toolkit use reflection. -->
+  <PropertyGroup Condition="'$(_IsPublishing)' == 'true'">
+    <SelfContained>true</SelfContained>
+    <WindowsPackageType>None</WindowsPackageType>
+    <PublishReadyToRun>true</PublishReadyToRun>
+  </PropertyGroup>
+  <Target Name="RemoveFoldersWithMuiFiles" AfterTargets="Build">
+    <ItemGroup>
+      <RemovingFiles Include="$(OutDir)*\*.mui" Exclude="$(OutDir)en-us\*.mui" />
+      <RemovingFolders Include="@(RemovingFiles->'%(RootDir)%(Directory)')" />
+    </ItemGroup>
+    <RemoveDir Directories="@(RemovingFolders)" />
+  </Target>
+  <Target Name="RemovePublishedMuiFolders" AfterTargets="Publish">
+    <ItemGroup>
+      <PublishedMui Include="$(PublishDir)*\*.mui" Exclude="$(PublishDir)en-us\*.mui" />
+    </ItemGroup>
+    <RemoveDir Directories="@(PublishedMui->'%(RootDir)%(Directory)'->Distinct())" />
+  </Target>
+  <ItemGroup>
+    <Content Include="Assets\SplashScreen.scale-200.png" />
+    <Content Include="Assets\LockScreenLogo.scale-200.png" />
+    <Content Include="Assets\Square150x150Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-48_altform-lightunplated.png" />
+    <Content Include="Assets\StoreLogo.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\AppIcon.ico" CopyToPublishDirectory="PreserveNewest" />
+    <Manifest Include="$(ApplicationManifest)" />
+  </ItemGroup>
+
+  <!-- Visual Studio needs these to deploy and debug as an MSIX package. Without them F5 runs unpackaged: REGDB_E_CLASSNOTREG. -->
+  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <ProjectCapability Include="Msix" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+  </PropertyGroup>
+
+  <!-- BuildTools.WinApp: `winapp run` / `dotnet run` with package identity. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools.WinApp" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools.WinUIAnalyzer" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Logging.EventLog" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
+    <PackageReference Include="CommunityToolkit.WinUI.Converters" />
+    <PackageReference Include="CommunityToolkit.WinUI.Triggers" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" />
+    <PackageReference Include="CommunityToolkit.Labs.WinUI.TokenView" />
+  </ItemGroup>
+
+  <!-- Composition root: references Infrastructure only to call AddInfrastructure(). -->
+  <ItemGroup>
+    <ProjectReference Include="..\Unlocker.Infrastructure\Unlocker.Infrastructure.csproj" />
+    <ProjectReference Include="..\Unlocker.Presentation\Unlocker.Presentation.csproj" />
+  </ItemGroup>
+
+</Project>

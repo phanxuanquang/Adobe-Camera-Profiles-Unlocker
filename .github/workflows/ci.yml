@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: src
+
+jobs:
+  build-test:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Build (x64)
+        run: dotnet build Unlocker.slnx -c Release
+
+      - name: Test
+        run: dotnet test ../tests/Unlocker.Tests -c Release --no-build
+
+      - name: Build app (ARM64)
+        run: dotnet build Unlocker.WinUI -c Release -p:Platform=ARM64 -p:RuntimeIdentifier=win-arm64

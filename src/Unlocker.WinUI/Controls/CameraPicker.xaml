@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="Unlocker.WinUI.Controls.CameraPicker"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Unlocker.WinUI.Controls"
+    x:DefaultBindMode="OneWay">
+
+    <UserControl.Resources>
+        <CollectionViewSource x:Name="Groups" IsSourceGrouped="True" />
+    </UserControl.Resources>
+
+    <Grid RowSpacing="{StaticResource ItemSpacing}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" ColumnSpacing="{StaticResource ItemSpacing}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" MinWidth="120" />
+            </Grid.ColumnDefinitions>
+            <AutoSuggestBox
+                x:Name="Filter"
+                Grid.Column="0"
+                AutomationProperties.AutomationId="CameraSearchBox"
+                AutomationProperties.Name="Search camera models"
+                PlaceholderText="Search camera models"
+                QueryIcon="Find"
+                TextChanged="Filter_TextChanged" />
+            <ComboBox
+                x:Name="BrandFilter"
+                Grid.Column="1"
+                HorizontalAlignment="Stretch"
+                AutomationProperties.AutomationId="CameraBrandFilter"
+                AutomationProperties.Name="Filter by brand"
+                SelectionChanged="BrandFilter_SelectionChanged" />
+        </Grid>
+        <ListView
+            x:Name="List"
+            Grid.Row="2"
+            AutomationProperties.AutomationId="CameraModelList"
+            AutomationProperties.Name="Camera models"
+            IsItemClickEnabled="True"
+            ItemClick="List_ItemClick"
+            ItemsSource="{x:Bind Groups.View}"
+            SelectionMode="Single"
+            SingleSelectionFollowsFocus="False">
+            <ListView.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate x:DataType="controls:CameraPickerGroup">
+                            <TextBlock Style="{StaticResource SecondaryCaptionTextStyle}" Text="{x:Bind Key, Mode=OneTime}" />
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </ListView.GroupStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                    <TextBlock Text="{x:Bind Mode=OneTime}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <TextBlock
+            x:Name="Empty"
+            Grid.Row="2"
+            Margin="12"
+            Style="{StaticResource SecondaryTextStyle}"
+            TextWrapping="Wrap"
+            Visibility="Collapsed" />
+    </Grid>
+</UserControl>

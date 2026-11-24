@@ -1,0 +1,55 @@
+name: Bug report
+description: Something does not work as expected.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Set your camera to ...
+        2. Select camera profiles ...
+        3. Select Install
+    validations:
+      required: true
+  - type: input
+    id: camera
+    attributes:
+      label: Your camera and source camera
+      placeholder: "Your camera: Sony ILCE-7M4. Copied from: Fujifilm X-T5"
+  - type: input
+    id: app-version
+    attributes:
+      label: App version
+      description: Shown on the Settings page.
+    validations:
+      required: true
+  - type: input
+    id: windows-version
+    attributes:
+      label: Windows version
+      placeholder: Windows 11 24H2
+    validations:
+      required: true
+  - type: input
+    id: camera-raw-version
+    attributes:
+      label: Camera Raw version
+      placeholder: "17.0"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Event Viewer details
+      description: Event Viewer > Windows Logs > Application, source ".NET Runtime". Paste the related entries.
+      render: text
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots

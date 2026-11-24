@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Unlocker.WinUI.Pages.InstalledPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:common="using:Unlocker.Presentation.Common"
+    xmlns:core="using:Unlocker.Core.Models"
+    xmlns:installed="using:Unlocker.Presentation.Installed"
+    xmlns:pages="using:Unlocker.WinUI.Pages"
+    xmlns:tk="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
+    x:DefaultBindMode="OneWay"
+    NavigationCacheMode="Disabled"
+    Unloaded="Page_Unloaded">
+
+    <!--  The padding Grid between ScrollViewer and the MaxWidth content keeps the page from measuring wider than the window.  -->
+    <ScrollViewer>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="StatusError">
+                    <VisualState.StateTriggers>
+                        <ui:IsEqualStateTrigger To="Error" Value="{x:Bind ViewModel.Status.Severity, FallbackValue={x:Null}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="StatusBar.Severity" Value="Error" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        <Grid Padding="{StaticResource PagePadding}">
+            <Grid MaxWidth="{StaticResource PageMaxWidth}" RowSpacing="{StaticResource PageSpacing}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="4">
+                        <TextBlock Style="{StaticResource PageTitleTextStyle}" Text="Installed" />
+                        <TextBlock
+                            Style="{StaticResource SecondaryTextStyle}"
+                            Text="Camera profiles this app added, grouped by the camera that uses them."
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+                    <StackPanel
+                        Grid.Column="1"
+                        VerticalAlignment="Bottom"
+                        Orientation="Horizontal"
+                        Spacing="{StaticResource ItemSpacing}">
+                        <Button
+                            AutomationProperties.AutomationId="OpenFolderButton"
+                            Command="{x:Bind ViewModel.OpenFolderCommand, Mode=OneTime}"
+                            ToolTipService.ToolTip="Open the Camera Raw profiles folder in File Explorer">
+                            <StackPanel Orientation="Horizontal" Spacing="{StaticResource ItemSpacing}">
+                                <FontIcon FontSize="16" Glyph="&#xE838;" />
+                                <TextBlock Text="Open folder" />
+                            </StackPanel>
+                        </Button>
+                        <Button AutomationProperties.AutomationId="RemoveAllButton" Command="{x:Bind ViewModel.RemoveAllCommand, Mode=OneTime}">
+                            <StackPanel Orientation="Horizontal" Spacing="{StaticResource ItemSpacing}">
+                                <FontIcon
+                                    FontSize="16"
+                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                    Glyph="&#xE74D;" />
+                                <TextBlock Text="Remove all" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <InfoBar
+                    x:Name="StatusBar"
+                    Title="{x:Bind ViewModel.Status.Title, FallbackValue=''}"
+                    Grid.Row="1"
+                    Closed="StatusBar_Closed"
+                    IsOpen="{x:Bind ViewModel.Status, Converter={StaticResource TrueWhenNotNull}}"
+                    Message="{x:Bind ViewModel.Status.Message, FallbackValue=''}">
+                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.Status.Actions, FallbackValue={x:Null}}">
+                        <ItemsRepeater.Layout>
+                            <StackLayout Orientation="Horizontal" Spacing="{StaticResource ItemSpacing}" />
+                        </ItemsRepeater.Layout>
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="common:StatusAction">
+                                <Button
+                                    Margin="0,0,0,12"
+                                    AutomationProperties.AutomationId="{x:Bind Label, Mode=OneTime}"
+                                    Command="{x:Bind Command, Mode=OneTime}"
+                                    Content="{x:Bind Label, Mode=OneTime}" />
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </InfoBar>
+
+                <ItemsRepeater
+                    x:Name="GroupsRepeater"
+                    Grid.Row="2"
+                    ItemsSource="{x:Bind ViewModel.Groups, Mode=OneTime}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="{StaticResource ItemSpacing}" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="installed:InstalledGroup">
+                            <tk:SettingsExpander
+                                AutomationProperties.AutomationId="CameraGroup"
+                                AutomationProperties.HeadingLevel="Level2"
+                                Description="{x:Bind common:Text.Profiles(Items.Count), Mode=OneTime}"
+                                Header="{x:Bind TargetModel, Mode=OneTime}"
+                                HeaderIcon="{ui:FontIcon Glyph=&#xE722;}"
+                                IsExpanded="True"
+                                ItemsSource="{x:Bind Items, Mode=OneTime}">
+                                <Button
+                                    AutomationProperties.AutomationId="RemoveGroupButton"
+                                    Click="RemoveGroup_Click"
+                                    Content="Remove all for this camera"
+                                    Tag="{x:Bind Mode=OneTime}" />
+                                <tk:SettingsExpander.ItemTemplate>
+                                    <!--  DataContext is null inside this template, so buttons carry their item in Tag.  -->
+                                    <DataTemplate x:DataType="core:InstalledCameraProfile">
+                                        <tk:SettingsCard
+                                            AutomationProperties.AutomationId="InstalledProfileCard"
+                                            Description="{x:Bind pages:InstalledPage.Origin(SourceModel), Mode=OneTime}"
+                                            Header="{x:Bind Name, Mode=OneTime}">
+                                            <Button
+                                                AutomationProperties.AutomationId="RemoveProfileButton"
+                                                AutomationProperties.Name="{x:Bind pages:InstalledPage.RemoveName(Name, TargetModel), Mode=OneTime}"
+                                                Click="RemoveItem_Click"
+                                                Style="{StaticResource IconButtonStyle}"
+                                                Tag="{x:Bind Mode=OneTime}"
+                                                ToolTipService.ToolTip="Remove">
+                                                <FontIcon FontSize="16" Glyph="&#xE74D;" />
+                                            </Button>
+                                        </tk:SettingsCard>
+                                    </DataTemplate>
+                                </tk:SettingsExpander.ItemTemplate>
+                            </tk:SettingsExpander>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+
+                <StackPanel
+                    Grid.Row="2"
+                    Margin="0,64"
+                    HorizontalAlignment="Center"
+                    Spacing="{StaticResource ItemSpacing}"
+                    Visibility="{x:Bind ViewModel.IsEmpty}">
+                    <FontIcon
+                        HorizontalAlignment="Center"
+                        FontSize="40"
+                        Glyph="&#xE7AA;" />
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        Text="No camera profiles installed yet" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</Page>

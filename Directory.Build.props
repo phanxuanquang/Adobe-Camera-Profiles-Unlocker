@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- Authors + Copyright are also written into every copied camera profile (CameraProfileRewriter). -->
+    <Authors>Phan Xuan Quang</Authors>
+    <Company>github.com/phanxuanquang</Company>
+    <Copyright>© 2024 Phan Xuan Quang / Github: @phanxuanquang</Copyright>
+    <Product>Adobe Camera Profiles Unlocker</Product>
+    <Version>3.0.0</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <AssemblyMetadata Include="Author" Value="$(Authors)" />
+  </ItemGroup>
+</Project>
