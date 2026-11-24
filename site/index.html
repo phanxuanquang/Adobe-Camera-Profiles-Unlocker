@@ -4,13 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>Adobe Camera Profiles Unlocker: use other brands' camera profiles on your camera</title>
-  <meta name="description" content="Free Windows app that copies camera profiles such as Fujifilm Classic Chrome or Canon Portrait to your camera, so Lightroom Classic, Photoshop and Camera Raw show them. No admin rights needed.">
+  <title>Fujifilm, Canon and Nikon profiles on any camera in Lightroom</title>
+  <meta name="description" content="Free Windows app: use Fujifilm Film Simulations, Canon Picture Styles and other brands' camera profiles on your camera in Lightroom Classic and Photoshop.">
   <link rel="canonical" href="https://phanxuanquang.github.io/Adobe-Camera-Profiles-Unlocker/">
   <link rel="icon" href="assets/img/favicon.ico" sizes="any">
   <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
 
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Adobe Camera Profiles Unlocker">
+  <meta property="og:locale" content="en_US">
   <meta property="og:title" content="Adobe Camera Profiles Unlocker">
   <meta property="og:description" content="Use Fujifilm, Canon, Nikon and other camera profiles on your camera in Lightroom and Photoshop. Free Windows app.">
   <meta property="og:url" content="https://phanxuanquang.github.io/Adobe-Camera-Profiles-Unlocker/">
@@ -20,10 +22,33 @@
   <meta property="og:image:alt" content="Adobe Camera Profiles Unlocker logo and the app window">
   <meta name="twitter:card" content="summary_large_image">
 
-  <!-- Segoe UI Variable is used on Windows; Roboto is only downloaded where it is missing -->
+  <!-- Structured data for search engines: https://schema.org/SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Adobe Camera Profiles Unlocker",
+    "description": "Free Windows app: use Fujifilm Film Simulations, Canon Picture Styles and other brands' camera profiles on your camera in Lightroom Classic and Photoshop.",
+    "url": "https://phanxuanquang.github.io/Adobe-Camera-Profiles-Unlocker/",
+    "image": "https://phanxuanquang.github.io/Adobe-Camera-Profiles-Unlocker/assets/img/social.png",
+    "screenshot": "https://phanxuanquang.github.io/Adobe-Camera-Profiles-Unlocker/assets/img/unlock.png",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Windows 10 version 1809 or later",
+    "softwareRequirements": "Adobe Camera Raw (comes with Lightroom Classic and Photoshop)",
+    "downloadUrl": "https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/releases/latest",
+    "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": "Phan Xuan Quang", "url": "https://github.com/phanxuanquang" },
+    "sameAs": ["https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker"]
+  }
+  </script>
+
+  <!-- Segoe UI Variable is used on Windows; Roboto is only downloaded where it is missing.
+       media="print" + onload loads it without blocking the first paint. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600&display=swap" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
   <link rel="stylesheet" href="assets/css/site.css">
 
@@ -71,7 +96,7 @@
         <div class="card-body">
           <p id="release-status" class="d-flex align-items-center gap-2 mb-3" role="status">
             <span class="spinner-border spinner-border-sm text-primary flex-shrink-0" aria-hidden="true"></span>
-            <span>Checking the latest version…</span>
+            <span>Latest version from GitHub.</span>
           </p>
           <div class="downloads mb-3" id="downloads">
             <a class="btn btn-light text-start p-3 tap" data-download="x64" href="https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/releases/latest">
@@ -149,8 +174,8 @@
     <section id="brands" class="container pb-5" aria-labelledby="brands-title">
       <h2 id="brands-title" class="mb-3">Supported brands</h2>
       <ul class="list-unstyled row row-cols-2 row-cols-md-3 row-cols-lg-4 g-2 mb-0">
-        <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Canon</span><span class="small text-body-secondary">Picture Styles</span></div></li>
-        <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Fujifilm</span><span class="small text-body-secondary">Film Simulations</span></div></li>
+        <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Canon</span><span class="small text-body-secondary">Picture Styles, such as Portrait and Landscape</span></div></li>
+        <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Fujifilm</span><span class="small text-body-secondary">Film Simulations, such as Classic Chrome, Velvia and Acros</span></div></li>
         <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Leica</span><span class="small text-body-secondary">Film Styles</span></div></li>
         <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Nikon</span><span class="small text-body-secondary">Picture Controls</span></div></li>
         <li class="col"><div class="card h-100 px-3 py-2"><span class="fw-semibold">Olympus</span><span class="small text-body-secondary">Picture Modes</span></div></li>

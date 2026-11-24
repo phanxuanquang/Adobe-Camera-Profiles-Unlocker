@@ -2,6 +2,8 @@
 
 A Windows app that copies camera profiles (camera-matching color profiles such as Fujifilm *Classic Chrome* or Canon *Portrait*) from one camera model to another, so Adobe Camera Raw, Lightroom Classic and Photoshop show them for **your** camera.
 
+**Website and download:** https://phanxuanquang.github.io/Adobe-Camera-Profiles-Unlocker/
+
 ![Pick camera profiles from other brands and install them for your camera](site/assets/img/unlock.png)
 
 ## Features
