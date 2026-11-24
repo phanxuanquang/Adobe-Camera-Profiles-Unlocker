@@ -27,6 +27,12 @@ Windows app (WinUI 3, .NET 10) that copies Camera Raw camera profiles from one c
 - Output file change: the owner checks the Camera Raw Profile Browser.
 - A fact changed -> update the doc that owns it. A choice made -> add it to `docs/decisions.md`.
 
+## Release (details: `docs/development.md`, "Release")
+1. Owner pushes a tag `vX.Y.Z`. `release.yml` tests, publishes x64 + ARM64 zips and creates a **draft** release with notes from `.github/release-notes.ps1`.
+2. "Write release notes for vX.Y.Z": read the draft (`gh release view vX.Y.Z`) and the commits since the previous `v*` tag. Rewrite it per `.github/release-notes-template.md`: replace the top comment with one sentence for photographers, turn "What's new" into plain user-facing bullets (what changed for them, no class names), keep Install and Full changelog. Commit subjects only: never invent changes.
+3. Show the owner the text, then `gh release edit vX.Y.Z --notes-file <file>`. The owner publishes. Never publish or edit a published release without asking.
+4. Commit messages follow conventional commits (`feat:`, `fix:`, ...): the notes depend on them.
+
 ## Commands
 ```powershell
 cd src
