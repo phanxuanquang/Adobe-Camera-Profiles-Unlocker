@@ -110,6 +110,7 @@ Public page for photographers at <https://phanxuanquang.github.io/Adobe-Camera-P
 ```
 site/
   index.html, 404.html          # one page; 404 uses absolute /Adobe-Camera-Profiles-Unlocker/ paths
+  sitemap.xml                   # the one URL, for Google Search Console
   assets/css/site.css           # Fluent (WinUI 3) light tokens mapped onto Bootstrap variables
   assets/js/main.js             # wires the modules below
   assets/js/release.js          # latest release from the GitHub API, download buttons
@@ -122,6 +123,7 @@ site/
 - Plain HTML, ES modules, no build and no npm. Bootstrap 5.3, Anime.js 4 and Lucide come from jsDelivr with exact versions and SRI hashes; Roboto from Google Fonts (no SRI possible: the CSS differs per browser). To bump a library, change the version and recompute the hash: `curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A`.
 - Every download link points at `/releases/latest` in the HTML; `release.js` only upgrades them to the zip for the visitor's CPU. If the API fails or is rate-limited, the page still works.
 - New app screenshots: replace the files in `.github/assets`, copy them to `site/assets/img`, update `width`/`height` and `alt` in `index.html`.
+- Search: `<title>`, meta description, Open Graph tags and the JSON-LD `SoftwareApplication` block in `index.html` say the same thing; change them together (description under 160 characters). No `robots.txt`: crawlers only read it at the domain root, which this project site does not own. Check with <https://search.google.com/test/rich-results>.
 - Wording follows [ui.md](ui.md#wording): always **camera profile(s)**. No tracking or analytics.
 - Preview: `python -m http.server -d site 8000`, then open <http://localhost:8000/>. Look at it in a browser (not just the code) at 375, 768 and 1280 px, with reduced motion and keyboard only.
 - Deploy: `.github/workflows/pages.yml` uploads `site/` on every push to `master` that touches it (or run it by hand). One-time setup: repo **Settings > Pages > Source: GitHub Actions**.
