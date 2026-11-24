@@ -12,7 +12,7 @@ Users: photographers, mostly non-technical, on Windows 10 1809+ or Windows 11 wi
 | [camera-profiles.md](camera-profiles.md) | touch the catalog, installers or storage: Adobe folders, DCP and XMP formats, rewrite rules |
 | [ui.md](ui.md) | change a screen: navigation, page behavior, wording, accessibility |
 | [development.md](development.md) | build, test, review, release, or need the coding conventions |
-| [decisions.md](decisions.md) | wonder "why is it like this?" before changing it |
+| [development.md#website](development.md#website) | change the public website in `site/` |
 
 ## How it works
 
@@ -52,7 +52,7 @@ flowchart LR
 | Term | Meaning |
 |---|---|
 | **Camera profile** | One camera-matching color profile, e.g. Fujifilm `CLASSIC CHROME`. The only word used in UI and code (never "look", never bare "profile"). |
-| **Brand** | Camera maker. Each has a family name: Fujifilm *Film Simulations*, Canon *Picture Styles*, Nikon *Picture Controls*, Sony *Creative Looks*, Panasonic *Photo Styles*, Leica *Film Styles*; others *Camera Profiles*. |
+| **Brand** | Camera maker. Each has a family name: Fujifilm *Film Simulations*, Canon *Picture Styles*, Nikon *Picture Controls*, Sony *Creative Looks*, Panasonic *Photo Styles*, Leica *Film Styles*, Olympus and OM *Picture Modes*, Pentax and Ricoh *Custom Images*, Sigma *Color Modes*; any other brand *Camera Profiles*. |
 | **Source model** | The camera whose camera profiles are copied ("Copied from"). Default: the brand's model with the most camera profiles. |
 | **Target / Your camera** | The user's camera. Set once, saved in settings. |
 | **DCP** | DNG Camera Profile. Binary, TIFF-based. |

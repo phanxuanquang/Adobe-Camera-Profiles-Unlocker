@@ -1,6 +1,10 @@
+<img src="tools/icon/app-icon.svg" width="96" height="96" alt="Adobe Camera Profiles Unlocker logo">
+
 # © 2024 Phan Xuan Quang / Adobe Camera Profiles Unlocker
 
 A Windows app that copies camera profiles (camera-matching color profiles such as Fujifilm *Classic Chrome* or Canon *Portrait*) from one camera model to another, so Adobe Camera Raw, Lightroom Classic and Photoshop show them for **your** camera.
+
+Website: <https://phanxuanquang.github.io/Adobe-Camera-Profiles-Unlocker/>
 
 ![Pick camera profiles from other brands and install them for your camera](.github/assets/unlock.png)
 
@@ -64,12 +68,6 @@ Bug reports, ideas and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIB
 
 ## Support me
 
-<a href="https://i.imgur.com/9YpRPQs.jpeg" target="_blank">
-  <img src="https://i.imgur.com/IUK9CFo.png" height=72 alt="Vietcombank" />
-</a>
-<a href="https://me.momo.vn/phanxuanquang" target="_blank">
-  <img src="https://i.imgur.com/0r18xHl.png" height=72 alt="Momo" />
-</a>
-<a href="https://i.imgur.com/00NqiL8.jpeg" target="_blank">
-  <img src="https://i.imgur.com/PSCoduQ.png" height=72 alt="ZaloPay" />
+<a href="https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/blob/master/site/assets/img/qr-vietcombank.png" target="_blank">
+  <img src="https://i.imgur.com/IUK9CFo.png" height=96 alt="Vietcombank QR code" />
 </a>

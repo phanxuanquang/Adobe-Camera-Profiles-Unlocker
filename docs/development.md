@@ -99,6 +99,33 @@ flowchart LR
 - Not code-signed yet: SmartScreen warns on first run. Signing would be one step before zipping (SignPath Foundation, free for open source, or Azure Artifact Signing).
 - CI (`ci.yml`) builds x64 + ARM64 and runs the tests on every push and PR to `master`. Dependabot updates NuGet packages and Actions.
 
+## App icon
+
+The logo is drawn in SVG: `tools/icon/app-icon.svg` (48 px and up) and `tools/icon/app-icon-small.svg` (simplified, 32 px and below). After editing either, run `./tools/generate-icons.ps1` (headless Edge, no other tools): it rewrites `AppIcon.ico`, the PNGs that `Unlocker.WinUI.csproj` and `Package.appxmanifest` reference, `site/assets/img/favicon.ico` and `site/assets/img/logo.svg` (site header and SVG favicon). Check the result in the title bar and taskbar.
+
+## Website
+
+Public page for photographers at <https://phanxuanquang.github.io/Adobe-Camera-Profiles-Unlocker/>: download, SmartScreen help, how it works, brands, FAQ, donations. The maintainer docs here are not its content; reuse facts from the root README.
+
+```
+site/
+  index.html, 404.html          # one page; 404 uses absolute /Adobe-Camera-Profiles-Unlocker/ paths
+  assets/css/site.css           # Fluent (WinUI 3) light tokens mapped onto Bootstrap variables
+  assets/js/main.js             # wires the modules below
+  assets/js/release.js          # latest release from the GitHub API, download buttons
+  assets/js/lightbox.js         # screenshots open full size in a native <dialog>
+  assets/js/motion.js           # Anime.js dialog open, skipped under prefers-reduced-motion
+  assets/img/                   # app screenshots (copies of .github/assets), donation QR code (also used by README), logo.svg + favicon.ico (from tools/generate-icons.ps1), social.png (1280x640: og:image and the GitHub social preview)
+```
+
+- Look: follows the [Windows design guidelines](https://learn.microsoft.com/windows/apps/design), light theme only. Colors are WinUI theme resources (names in `site.css` comments), accent `#0078D4`, 4 px control and 8 px card corners, Segoe UI Variable type ramp (Roboto where Segoe is missing).
+- Plain HTML, ES modules, no build and no npm. Bootstrap 5.3, Anime.js 4 and Lucide come from jsDelivr with exact versions and SRI hashes; Roboto from Google Fonts (no SRI possible: the CSS differs per browser). To bump a library, change the version and recompute the hash: `curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A`.
+- Every download link points at `/releases/latest` in the HTML; `release.js` only upgrades them to the zip for the visitor's CPU. If the API fails or is rate-limited, the page still works.
+- New app screenshots: replace the files in `.github/assets`, copy them to `site/assets/img`, update `width`/`height` and `alt` in `index.html`.
+- Wording follows [ui.md](ui.md#wording): always **camera profile(s)**. No tracking or analytics.
+- Preview: `python -m http.server -d site 8000`, then open <http://localhost:8000/>. Look at it in a browser (not just the code) at 375, 768 and 1280 px, with reduced motion and keyboard only.
+- Deploy: `.github/workflows/pages.yml` uploads `site/` on every push to `master` that touches it (or run it by hand). One-time setup: repo **Settings > Pages > Source: GitHub Actions**.
+
 ## AI assistants
 
 [CLAUDE.md](../CLAUDE.md) holds the rules for AI coding assistants. Useful skills when working with Claude Code:
