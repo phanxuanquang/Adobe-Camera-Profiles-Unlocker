@@ -8,6 +8,18 @@ namespace Unlocker.Tests.Infrastructure;
 public sealed class JsonSettingsTests : TempFolderTest
 {
     [TestMethod]
+    public void Locked_settings_file_starts_with_defaults()
+    {
+        Directory.CreateDirectory(Paths.AppDataDir);
+        File.WriteAllText(Paths.SettingsFile, """{"TargetCamera":"Nikon Z f"}""");
+        using var locked = new FileStream(Paths.SettingsFile, FileMode.Open, FileAccess.Read, FileShare.None);
+
+        var settings = new JsonSettings(Paths, NullLogger<JsonSettings>.Instance);
+
+        Assert.IsNull(settings.TargetCamera);
+    }
+
+    [TestMethod]
     public async Task Cancelled_save_keeps_previous_settings()
     {
         var settings = new JsonSettings(Paths, NullLogger<JsonSettings>.Instance) { TargetCamera = "Sony ILCE-7M4" };

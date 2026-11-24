@@ -19,10 +19,10 @@ internal sealed class JsonSettings : ISettings
             var data = JsonSerializer.Deserialize(File.ReadAllText(paths.SettingsFile), UnlockerJsonContext.Default.SettingsData);
             TargetCamera = data?.TargetCamera;
         }
-        catch (JsonException e)
+        catch (Exception e) when (e is JsonException or IOException or UnauthorizedAccessException)
         {
-            // Corrupt file: start fresh. The next save overwrites it.
-            logger.LogWarning(e, "Corrupt settings file {File}, using defaults", paths.SettingsFile);
+            // Corrupt or locked file: start fresh. The next save overwrites it.
+            logger.LogWarning(e, "Corrupt or unreadable settings file {File}, using defaults", paths.SettingsFile);
         }
     }
 
