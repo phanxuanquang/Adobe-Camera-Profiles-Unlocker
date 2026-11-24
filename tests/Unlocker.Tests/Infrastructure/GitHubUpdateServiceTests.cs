@@ -23,15 +23,20 @@ public sealed class GitHubUpdateServiceTests
 
         Assert.IsNotNull(info);
         Assert.AreEqual(new Version(3, 1, 0), info.Version);
-        Assert.AreEqual("https://github.com/x/y/a.zip", info.DownloadUrl.AbsoluteUri);
+        Assert.AreEqual("https://github.com/x/y/releases/tag/v3.1.0", info.PageUrl.AbsoluteUri);
     }
 
     [TestMethod]
-    public async Task Returns_null_when_not_newer_or_on_error()
+    public async Task Returns_null_when_not_newer()
     {
         Assert.IsNull(await Updates(HttpStatusCode.OK, Release).GetNewerAsync(new Version(3, 1, 0)));
-        Assert.IsNull(await Updates(HttpStatusCode.InternalServerError, "").GetNewerAsync(new Version(1, 0)));
-        Assert.IsNull(await Updates(HttpStatusCode.OK, "not json").GetNewerAsync(new Version(1, 0)));
         Assert.IsNull(await Updates(HttpStatusCode.OK, Release.Replace("v3.1.0\"", "latest\"")).GetNewerAsync(new Version(1, 0)));
+    }
+
+    [TestMethod]
+    public async Task Throws_on_failed_check()
+    {
+        await Assert.ThrowsAsync<HttpRequestException>(() => Updates(HttpStatusCode.InternalServerError, "").GetNewerAsync(new Version(1, 0)));
+        await Assert.ThrowsAsync<System.Text.Json.JsonException>(() => Updates(HttpStatusCode.OK, "not json").GetNewerAsync(new Version(1, 0)));
     }
 }

@@ -8,6 +8,7 @@
     xmlns:tk="using:CommunityToolkit.WinUI.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
     x:DefaultBindMode="OneWay"
+    Loaded="Page_Loaded"
     NavigationCacheMode="Disabled">
 
     <Page.Resources>
@@ -33,14 +34,11 @@
                 Description="{x:Bind ViewModel.UpdateStatus}"
                 Header="{x:Bind pages:SettingsPage.VersionText(ViewModel.AppVersion), Mode=OneTime}"
                 HeaderIcon="{ui:FontIcon Glyph=&#xE895;}">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <Button AutomationProperties.AutomationId="DownloadButton"
-                        Command="{x:Bind ViewModel.DownloadCommand, Mode=OneTime}"
-                        Content="{x:Bind pages:SettingsPage.DownloadText(ViewModel.LatestRelease)}"
-                        Style="{StaticResource AccentButtonStyle}"
-                        Visibility="{x:Bind ViewModel.IsUpdateAvailable}" />
-                    <Button AutomationProperties.AutomationId="CheckUpdatesButton" Command="{x:Bind ViewModel.CheckForUpdatesCommand, Mode=OneTime}" Content="Check again" />
-                </StackPanel>
+                <Button AutomationProperties.AutomationId="DownloadButton"
+                    Command="{x:Bind ViewModel.OpenDownloadPageCommand, Mode=OneTime}"
+                    Content="Go to download page"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Visibility="{x:Bind ViewModel.IsUpdateAvailable}" />
             </tk:SettingsCard>
 
             <TextBlock

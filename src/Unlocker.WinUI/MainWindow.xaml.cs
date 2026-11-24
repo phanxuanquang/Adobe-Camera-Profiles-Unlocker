@@ -1,11 +1,9 @@
-using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using Unlocker.Presentation.Settings;
 using Unlocker.Presentation.Shell;
 using Unlocker.Presentation.Unlock;
 using Unlocker.WinUI.Pages;
@@ -19,8 +17,6 @@ public sealed partial class MainWindow : Window
 
     [LibraryImport("user32.dll")]
     private static partial uint GetDpiForWindow(nint hwnd);
-
-    private readonly InfoBadge _updateDot = new() { Visibility = Visibility.Collapsed };
 
     public MainWindow(ShellViewModel viewModel, UnlockViewModel unlock)
     {
@@ -40,8 +36,7 @@ public sealed partial class MainWindow : Window
             presenter.PreferredMinimumWidth = (int)(MinWidthDip * scale);
             presenter.PreferredMinimumHeight = (int)(MinHeightDip * scale);
         }
-
-        ViewModel.Settings.PropertyChanged += OnSettingsChanged;
+
         // Window is not a FrameworkElement: x:Bind here cannot use resource converters, so badges are set in code.
         ViewModel.PropertyChanged += (_, e) =>
         {
@@ -58,14 +53,7 @@ public sealed partial class MainWindow : Window
     private async void OnFirstActivated(object sender, WindowActivatedEventArgs args)
     {
         Activated -= OnFirstActivated; // The old app re-ran init on every activation.
-        if (NavView.SettingsItem is NavigationViewItem settings) settings.InfoBadge = _updateDot;
         await ViewModel.InitializeAsync();
-    }
-
-    private void OnSettingsChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(SettingsViewModel.IsUpdateAvailable))
-            _updateDot.Visibility = ViewModel.Settings.IsUpdateAvailable ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void TitleBar_PaneToggleRequested(TitleBar sender, object args) => NavView.IsPaneOpen = !NavView.IsPaneOpen;

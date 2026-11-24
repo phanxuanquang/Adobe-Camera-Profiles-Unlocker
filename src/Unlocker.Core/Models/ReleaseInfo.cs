@@ -1,3 +1,4 @@
 namespace Unlocker.Core.Models;
 
-public sealed record ReleaseInfo(Version Version, Uri DownloadUrl);
+/// <summary>PageUrl is the release page. Users download from there themselves.</summary>
+public sealed record ReleaseInfo(Version Version, Uri PageUrl);

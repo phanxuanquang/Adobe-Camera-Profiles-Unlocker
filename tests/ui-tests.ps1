@@ -1,7 +1,7 @@
 # UI smoke tests for Unlocker.WinUI (winui-ui-testing skill template).
 # Target: local by default. Windows Sandbox has no Adobe Camera Raw, so only the "Camera Raw missing" screen is testable there.
 # Preconditions (local): Camera Raw installed, "Your camera" already set, no profiles installed by this app.
-# Side effects: installs 1 Fujifilm camera profile into C:\ProgramData\Adobe\CameraRaw\Settings\Unlocker, then removes it.
+# Side effects: installs 1 Fujifilm camera profile into C:\ProgramData\Adobe\CameraRaw\Settings\Phan Xuan Quang, then removes it.
 # Usage: .\tests\ui-tests.ps1 -Target local (any working directory)
 param(
     [ValidateSet('sandbox', 'local')][string]$Target = 'local',
@@ -19,7 +19,7 @@ $env:WINAPP_UI_WORKFLOW_ID = $WorkflowId
 $results = [Collections.Generic.List[object]]::new()
 $screenshots = [Collections.Generic.List[string]]::new()
 $uiStarted = $false
-$XmpOut = 'C:\ProgramData\Adobe\CameraRaw\Settings\Unlocker'
+$XmpOut = 'C:\ProgramData\Adobe\CameraRaw\Settings\Phan Xuan Quang'
 
 function Invoke-WinAppChecked {
     param([string[]]$Arguments)
@@ -175,7 +175,7 @@ try {
 
     Test-UI 'Settings shows update and folders' {
         Invoke-Ui @('invoke', 'Settings')
-        Invoke-Ui @('wait-for', 'CheckUpdatesButton', '-t', '3000')
+        Invoke-Ui @('wait-for', 'UpdateCard', '-t', '3000')
         Invoke-Ui @('wait-for', 'DcpCard', '-t', '3000')
         Invoke-Ui @('wait-for', 'XmpCard', '-t', '3000')
         Save-Screenshot '09-settings.png'

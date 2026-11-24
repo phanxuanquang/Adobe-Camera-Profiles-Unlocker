@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using Unlocker.Core.Abstractions;
 using Unlocker.Core.Models;
 using Unlocker.Presentation.Common;
+using Unlocker.Presentation.Ports;
+using Unlocker.Presentation.Settings;
 
 namespace Unlocker.Presentation.Unlock;
 
@@ -18,17 +20,21 @@ public sealed partial class UnlockViewModel : ObservableObject
     private readonly ICameraProfileInstaller _installer;
     private readonly IInstalledStore _store;
     private readonly ISettings _settings;
+    private readonly IDialogService _dialogs;
+    private readonly ILauncher _launcher;
     private readonly ILogger<UnlockViewModel> _logger;
 
     /// <summary>Tiles per brand for its current source model. Reusing instances keeps IsSelected and focus across filters.</summary>
     private readonly Dictionary<BrandItemViewModel, List<CameraProfileItemViewModel>> _items = [];
 
-    public UnlockViewModel(ICameraCatalog catalog, ICameraProfileInstaller installer, IInstalledStore store, ISettings settings, ILogger<UnlockViewModel> logger)
+    public UnlockViewModel(ICameraCatalog catalog, ICameraProfileInstaller installer, IInstalledStore store, ISettings settings, IDialogService dialogs, ILauncher launcher, ILogger<UnlockViewModel> logger)
     {
         _catalog = catalog;
         _installer = installer;
         _store = store;
         _settings = settings;
+        _dialogs = dialogs;
+        _launcher = launcher;
         _logger = logger;
         TargetCamera = settings.TargetCamera;
         _store.Changed += (_, _) => RefreshInstalledFlags();
@@ -175,7 +181,7 @@ public sealed partial class UnlockViewModel : ObservableObject
         IsSearchEmpty = IsSearching && total == 0;
         ProfilesTitle = !IsSearching ? (SelectedBrand is { } s ? $"{s.Name} {s.Family}" : "")
             : total > 0 ? $"{Text.Profiles(total)} match \"{Query}\"" : $"No camera profiles match \"{Query}\"";
-        ToggleAllLabel = Profiles.All(p => p.IsSelected) ? "Clear choices" : "Select all";
+        ToggleAllLabel = Selectable.All(p => p.IsSelected) ? "Clear choices" : "Select all";
     }
 
     /// <summary>Removes and inserts in place instead of resetting, so the list keeps its selection and scroll.</summary>
@@ -222,7 +228,11 @@ public sealed partial class UnlockViewModel : ObservableObject
     {
         var installed = InstalledNames();
         foreach (var item in _items.Values.SelectMany(l => l)) item.IsInstalled = installed.Contains(item.Name);
+        UpdateCounts(); // the "Select all" label skips installed tiles
     }
+
+    /// <summary>Installed tiles are locked in the view, so "Select all" leaves them alone.</summary>
+    private IEnumerable<CameraProfileItemViewModel> Selectable => Profiles.Where(p => !p.IsInstalled);
 
     [RelayCommand]
     private async Task SetTargetAsync(string model, CancellationToken ct)
@@ -252,8 +262,8 @@ public sealed partial class UnlockViewModel : ObservableObject
     [RelayCommand]
     private void ToggleAllVisible()
     {
-        var select = !Profiles.All(p => p.IsSelected);
-        foreach (var p in Profiles.ToList()) p.IsSelected = select;
+        var select = !Selectable.All(p => p.IsSelected);
+        foreach (var p in Selectable.ToList()) p.IsSelected = select;
     }
 
     [RelayCommand]
@@ -282,6 +292,7 @@ public sealed partial class UnlockViewModel : ObservableObject
         var target = TargetCamera!;
         var added = new List<InstalledCameraProfile>();
         CameraProfileItemViewModel? current = null;
+        var done = false;
         IsBusy = true;
         Status = null;
         try
@@ -296,14 +307,18 @@ public sealed partial class UnlockViewModel : ObservableObject
                 added.Add(installed);
             }
             foreach (var p in list) p.IsSelected = false;
-            Status = new StatusMessage(StatusSeverity.Success, $"Installed {Text.Profiles(list.Count)} for {target}.",
-                "Restart Lightroom or Photoshop to use them.",
+            done = true;
+            // The dialog carries the details; the InfoBar stays as a short record with the follow-up actions.
+            Status = new StatusMessage(StatusSeverity.Success, "Install finished.", "",
             [
                 new StatusAction("View installed", new RelayCommand(() => ViewInstalledRequested?.Invoke(this, EventArgs.Empty))),
                 new StatusAction("Undo", new AsyncRelayCommand(async () =>
                 {
-                    Status = await RollbackAsync(added)
-                        ? new StatusMessage(StatusSeverity.Info, "Install undone.", $"Removed {Text.Profiles(added.Count)}.")
+                    // Some may be gone already: removed on the Installed page since.
+                    var left = added.Where(_store.All.Contains).ToList();
+                    if (left.Count == 0) { Status = null; return; }
+                    Status = await RollbackAsync(left)
+                        ? new StatusMessage(StatusSeverity.Info, "Install undone.", $"Removed {Text.Profiles(left.Count)}.")
                         : new StatusMessage(StatusSeverity.Error, "Couldn't undo the install.", RollbackFailed);
                 })),
             ]);
@@ -327,6 +342,9 @@ public sealed partial class UnlockViewModel : ObservableObject
             IsBusy = false;
             ProgressText = null;
         }
+        if (done && await _dialogs.InformAsync("Camera profiles installed",
+                $"Installed {Text.Profiles(list.Count)} for {target}. Restart Lightroom or Photoshop to use them.", "Buy me a coffee"))
+            await _launcher.OpenUrlAsync(SettingsViewModel.DonateUrl, CancellationToken.None);
     }
 
     private const string RollbackFailed = "Some installed camera profiles could not be removed. Remove them on the Installed page.";

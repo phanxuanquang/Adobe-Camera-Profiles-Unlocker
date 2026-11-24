@@ -8,7 +8,7 @@ public sealed record CameraModel(string Name, IReadOnlyList<CameraProfile> Profi
 public sealed record Brand(string Name, string Family, IReadOnlyList<CameraModel> Models);
 public sealed record InstalledCameraProfile(string Name, string SourceModel, string TargetModel,
     IReadOnlyList<string> Files, bool IsLegacy);
-public sealed record ReleaseInfo(Version Version, Uri DownloadUrl);
+public sealed record ReleaseInfo(Version Version, Uri PageUrl); // release page, not an asset
 public enum EnvironmentIssue { CameraRawMissing, ProfilesMissing }
 ```
 
@@ -27,7 +27,7 @@ public interface IInstalledStore
     Task RestoreAsync(IEnumerable<InstalledCameraProfile> items, CancellationToken ct = default); // undo
 }
 public interface IEnvironmentProbe { IReadOnlyList<EnvironmentIssue> Check(); }
-public interface IUpdateService    { Task<ReleaseInfo?> GetNewerAsync(Version current, CancellationToken ct = default); }
+public interface IUpdateService    { Task<ReleaseInfo?> GetNewerAsync(Version current, CancellationToken ct = default); } // null = up to date, throws when the check fails
 public interface ISettings         { string? TargetCamera { get; set; } Task SaveAsync(CancellationToken ct = default); }
 ```
 Installer does NOT touch store; UnlockViewModel adds results (single place for Undo/rollback).
@@ -35,7 +35,7 @@ Per format: `DcpProfileInstaller` / `XmpProfileInstaller` (Infrastructure-intern
 
 ## Presentation ports (`Unlocker.Presentation/Ports`, each UI implements)
 ```csharp
-public interface IDialogService { Task<bool> ConfirmAsync(string title, string body, string confirmText); }
+public interface IDialogService { Task<bool> ConfirmAsync(string title, string body, string confirmText); Task<bool> InformAsync(string title, string body, string primaryText); }
 public interface ILauncher      { Task OpenUrlAsync(Uri uri, CancellationToken ct = default); Task OpenFolderAsync(string path, CancellationToken ct = default); }
 ```
 InfoBar, progress, errors = VM observable state (`Common/StatusMessage`) bound to a plain WinUI `InfoBar` in the page. No notification service, no custom InfoBar control.

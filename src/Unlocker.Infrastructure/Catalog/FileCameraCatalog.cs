@@ -27,7 +27,7 @@ internal sealed class FileCameraCatalog(AppPaths paths, ILogger<FileCameraCatalo
         ["OM"] = "Picture Modes",
         ["Pentax"] = "Custom Images",
         ["Ricoh"] = "Custom Images",
-        ["Sigma"] = "Color Modes",
+        ["Sigma"] = "Color Modes"
     };
 
     private readonly Lazy<Task<IReadOnlyList<Brand>>> _cache = new(() => Task.Run(() => Scan(paths, logger)));
@@ -52,21 +52,18 @@ internal sealed class FileCameraCatalog(AppPaths paths, ILogger<FileCameraCatalo
             }
         }
 
-        // XMP: <dir>\<Brand>[\<Model>]\<Model> Camera <Name>.xmp. The folder can be brand or model,
-        // so the model comes from crs:CameraModelRestriction. XMP wins over DCP on a duplicate name.
+        // XMP: <dir>\<Brand>[\<Model>]\<Model> Camera <Name>.xmp. The folder can be brand or model, so the model comes from crs:CameraModelRestriction. XMP wins over DCP on a duplicate name.
         if (Directory.Exists(paths.XmpProfilesDir))
         {
             foreach (var file in Directory.EnumerateFiles(paths.XmpProfilesDir, "*.xmp", SearchOption.AllDirectories))
             {
                 if (ReadXmpModel(file, logger) is not { } model) continue;
                 if (ParseProfileName(file, model) is not { } name) continue;
-                if (models.TryGetValue(model, out var existing))
-                    existing.RemoveAll(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+                if (models.TryGetValue(model, out var existing)) existing.RemoveAll(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
                 Add(models, model, new CameraProfile(name, file, CameraProfileFormat.XMP));
             }
         }
 
-        // ponytail: brand = first word of the model ("OM Digital Solutions OM-1" -> "OM"). Add an alias map if a brand groups wrong.
         var brands = models
             .Select(m => new CameraModel(m.Key, m.Value.OrderBy(p => p.Name).ToList()))
             .GroupBy(m => m.Name.Split(' ', 2)[0], StringComparer.OrdinalIgnoreCase)

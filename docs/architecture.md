@@ -17,7 +17,7 @@ src/
     Catalog/                  FileCameraCatalog
     Installing/               CameraProfileInstaller (picks by format) -> DcpProfileInstaller (+ DcpFile), XmpProfileInstaller; each has Rewrite (shared + format tags)
     Storage/                  JsonInstalledStore, JsonSettings, SettingsData
-    Updates/                  GitHubUpdateService, GitHubRelease, GitHubAsset
+    Updates/                  GitHubUpdateService, GitHubRelease
     Platform/                 AppPaths, EnvironmentProbe
     Serialization/            UnlockerJsonContext
   Unlocker.Presentation/      net10.0 + CommunityToolkit.Mvvm. AddPresentation() at root.

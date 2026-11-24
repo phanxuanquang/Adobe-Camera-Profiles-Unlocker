@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Unlocker.Core.Enums;
 using Unlocker.Core.Models;
 using Unlocker.Presentation.Common;
+using Unlocker.Presentation.Settings;
 using Unlocker.Presentation.Unlock;
 using Unlocker.Tests.Fakes;
 
@@ -25,10 +26,12 @@ public sealed class UnlockViewModelTests
     private readonly FakeInstaller _installer = new();
     private readonly FakeStore _store = new();
     private readonly FakeSettings _settings = new() { TargetCamera = "Sony ILCE-7M4" };
+    private readonly FakeDialogs _dialogs = new() { Answer = false };
+    private readonly FakeLauncher _launcher = new();
 
     private async Task<UnlockViewModel> Unlock()
     {
-        var vm = new UnlockViewModel(new FakeCatalog(Fujifilm, Sony), _installer, _store, _settings, NullLogger<UnlockViewModel>.Instance);
+        var vm = new UnlockViewModel(new FakeCatalog(Fujifilm, Sony), _installer, _store, _settings, _dialogs, _launcher, NullLogger<UnlockViewModel>.Instance);
         await vm.LoadAsync();
         return vm;
     }
@@ -183,6 +186,19 @@ public sealed class UnlockViewModelTests
     }
 
     [TestMethod]
+    public async Task Buy_me_a_coffee_in_success_dialog_opens_donate_page()
+    {
+        _dialogs.Answer = true;
+        var vm = await Unlock();
+        Tile(vm, "ACROS").IsSelected = true;
+
+        await vm.InstallCommand.ExecuteAsync(null);
+
+        Assert.AreEqual("Buy me a coffee", _dialogs.LastConfirm);
+        CollectionAssert.AreEqual(new[] { SettingsViewModel.DonateUrl.AbsoluteUri }, _launcher.Opened);
+    }
+
+    [TestMethod]
     public async Task Install_adds_to_store_clears_selection_and_undo_removes()
     {
         var vm = await Unlock();
@@ -197,13 +213,43 @@ public sealed class UnlockViewModelTests
         Assert.IsTrue(Tile(vm, "ACROS").IsInstalled);
         Assert.IsFalse(vm.IsBusy);
         Assert.AreEqual(StatusSeverity.Success, vm.Status!.Severity);
-        Assert.AreEqual("Installed 2 camera profiles for Sony ILCE-7M4.", vm.Status.Title);
+        Assert.AreEqual("Install finished.", vm.Status.Title);
+        Assert.AreEqual("Camera profiles installed", _dialogs.LastTitle);
+        StringAssert.StartsWith(_dialogs.LastBody, "Installed 2 camera profiles for Sony ILCE-7M4.");
+        Assert.AreEqual(0, _launcher.Opened.Count);
 
         await ((IAsyncRelayCommand)vm.Status.Actions!.Single(a => a.Label == "Undo").Command).ExecuteAsync(null);
 
         Assert.AreEqual(0, _store.All.Count);
         Assert.IsFalse(Tile(vm, "ACROS").IsInstalled);
         Assert.AreEqual("Install undone.", vm.Status!.Title);
+    }
+
+    [TestMethod]
+    public async Task Select_all_skips_installed_profiles()
+    {
+        var vm = await Unlock();
+        Tile(vm, "ACROS").IsSelected = true;
+        await vm.InstallCommand.ExecuteAsync(null);
+
+        vm.ToggleAllVisibleCommand.Execute(null);
+
+        CollectionAssert.AreEquivalent(new[] { "CLASSIC CHROME", "Velvia" }, vm.Selected.Select(p => p.Name).ToArray());
+        Assert.AreEqual("Clear choices", vm.ToggleAllLabel);
+    }
+
+    [TestMethod]
+    public async Task Undo_after_removal_elsewhere_removes_nothing_and_clears_status()
+    {
+        var vm = await Unlock();
+        Tile(vm, "ACROS").IsSelected = true;
+        await vm.InstallCommand.ExecuteAsync(null);
+        var undo = (IAsyncRelayCommand)vm.Status!.Actions!.Single(a => a.Label == "Undo").Command;
+        await _store.RemoveAsync(_store.All.ToList()); // the Installed page removed it
+
+        await undo.ExecuteAsync(null);
+
+        Assert.IsNull(vm.Status);
     }
 
     [TestMethod]

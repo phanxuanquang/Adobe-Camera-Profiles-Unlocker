@@ -34,12 +34,6 @@
                 AutomationProperties.HeadingLevel="Level1"
                 Style="{StaticResource SubtitleTextBlockStyle}"
                 Text="Getting ready" />
-            <TextBlock
-                HorizontalAlignment="Center"
-                Style="{StaticResource SecondaryTextStyle}"
-                Text="Finding camera models installed with Camera Raw…"
-                TextAlignment="Center"
-                TextWrapping="Wrap" />
         </StackPanel>
 
         <StackPanel

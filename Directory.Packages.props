@@ -16,6 +16,8 @@
     <PackageVersion Include="CommunityToolkit.WinUI.Converters" Version="8.2.251219" />
     <PackageVersion Include="CommunityToolkit.WinUI.Triggers" Version="8.2.251219" />
     <PackageVersion Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
+    <!-- Labs preview, Labs feed (NuGet.config): tray chips. -->
+    <PackageVersion Include="CommunityToolkit.Labs.WinUI.TokenView" Version="0.1.250828-build.2223" />
     <!-- Tests -->
     <PackageVersion Include="MSTest" Version="4.2.3" />
   </ItemGroup>

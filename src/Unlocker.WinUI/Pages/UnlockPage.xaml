@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:common="using:Unlocker.Presentation.Common"
     xmlns:controls="using:Unlocker.WinUI.Controls"
+    xmlns:labs="using:CommunityToolkit.Labs.WinUI"
     xmlns:pages="using:Unlocker.WinUI.Pages"
     xmlns:startup="using:Unlocker.Presentation.Startup"
     xmlns:ui="using:CommunityToolkit.WinUI"
@@ -26,14 +27,15 @@
                     AutomationProperties.AutomationId="ProfileCheckBox"
                     AutomationProperties.HelpText="{x:Bind pages:UnlockPage.InstalledHelp(IsInstalled)}"
                     Content="{x:Bind Name}"
-                    IsChecked="{x:Bind IsSelected, Mode=TwoWay}" />
+                    IsChecked="{x:Bind IsSelected, Mode=TwoWay}" 
+                    IsEnabled="{x:Bind IsInstalled, Mode=OneWay, Converter={StaticResource Not}}"/>
                 <!--  FontIcon has no automation peer: screen readers get this from the CheckBox HelpText.  -->
                 <FontIcon
                     Grid.Column="1"
-                    FontSize="16"
+                    FontSize="{StaticResource BodyStrongTextBlockFontSize}"
                     Foreground="{ThemeResource SystemFillColorSuccessBrush}"
-                    Glyph="&#xEC61;"
-                    ToolTipService.ToolTip="Already installed for your camera. Installing again replaces it."
+                    Glyph="&#xE930;"
+                    ToolTipService.ToolTip="Already installed for your camera."
                     Visibility="{x:Bind IsInstalled}" />
             </Grid>
         </DataTemplate>
@@ -352,18 +354,8 @@
                                 Grid.ColumnSpan="2"
                                 ColumnSpacing="{StaticResource ItemSpacing}"
                                 Visibility="{x:Bind ViewModel.IsSearching, Converter={StaticResource CollapsedWhenTrue}}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource SecondaryCaptionTextStyle}"
-                                    Text="Copied from" />
-                                <!--  ItemsSource before SelectedItem: the selection must apply to the new list.  -->
                                 <ComboBox
                                     x:Name="ModelBox"
-                                    Grid.Column="1"
                                     AutomationProperties.AutomationId="ModelBox"
                                     AutomationProperties.Name="Copy camera profiles from model"
                                     IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource Not}}"
@@ -454,42 +446,20 @@
                         Orientation="Horizontal"
                         Spacing="8"
                         Visibility="{x:Bind ViewModel.TrayChips, Converter={StaticResource VisibleWhenAny}}">
-                        <ItemsRepeater AutomationProperties.Name="Selected camera profiles" ItemsSource="{x:Bind ViewModel.TrayChips}">
-                            <ItemsRepeater.Layout>
-                                <StackLayout Orientation="Horizontal" Spacing="8" />
-                            </ItemsRepeater.Layout>
-                            <ItemsRepeater.ItemTemplate>
+                        <labs:TokenView
+                            AutomationProperties.AutomationId="TrayChips"
+                            AutomationProperties.Name="Selected camera profiles"
+                            CanRemoveTokens="True"
+                            IsWrapped="False"
+                            ItemsSource="{x:Bind ViewModel.TrayChips}"
+                            SelectionMode="None"
+                            TokenItemRemoving="TrayChips_TokenItemRemoving">
+                            <labs:TokenView.ItemTemplate>
                                 <DataTemplate x:DataType="unlock:CameraProfileItemViewModel">
-                                    <Grid
-                                        Padding="12,0,4,0"
-                                        Background="{ThemeResource ControlFillColorDefaultBrush}"
-                                        BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
-                                        BorderThickness="1"
-                                        ColumnSpacing="4"
-                                        CornerRadius="{StaticResource ControlCornerRadius}"
-                                        ToolTipService.ToolTip="{x:Bind Brand.Name}">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock VerticalAlignment="Center" Text="{x:Bind Name}" />
-                                        <Button
-                                            Grid.Column="1"
-                                            Width="36"
-                                            Height="36"
-                                            AutomationProperties.AutomationId="ChipRemoveButton"
-                                            AutomationProperties.Name="{x:Bind pages:UnlockPage.RemoveChipName(Name)}"
-                                            Click="ChipRemove_Click"
-                                            CornerRadius="{StaticResource ControlCornerRadius}"
-                                            Style="{StaticResource IconButtonStyle}"
-                                            Tag="{x:Bind Mode=OneTime}"
-                                            ToolTipService.ToolTip="Remove from selection">
-                                            <FontIcon FontSize="12" Glyph="&#xE711;" />
-                                        </Button>
-                                    </Grid>
+                                    <TextBlock Text="{x:Bind Name}" ToolTipService.ToolTip="{x:Bind Brand.Name}" />
                                 </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
+                            </labs:TokenView.ItemTemplate>
+                        </labs:TokenView>
                         <TextBlock
                             VerticalAlignment="Center"
                             Style="{StaticResource SecondaryTextStyle}"

@@ -1,3 +1,4 @@
+using CommunityToolkit.Labs.WinUI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -16,9 +17,8 @@ public sealed partial class UnlockPage : Page
 
     public static string CountText(int selected, int visible) => selected > 0 ? $"{selected}/{visible}" : $"{visible}";
     public static string CountName(int selected, int visible) => selected > 0 ? $"{selected} selected of {visible} profiles" : $"{visible} profiles";
-    public static string RemoveChipName(string name) => $"Remove {name} from selection";
     public static string TargetButtonName(string? model) => $"Your camera: {model}. Change";
-    public static string InstalledHelp(bool installed) => installed ? "Already installed for your camera. Installing again replaces it." : "";
+    public static string InstalledHelp(bool installed) => installed ? "Already installed for your camera." : "";
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
@@ -47,9 +47,9 @@ public sealed partial class UnlockPage : Page
         ProfileSearch.Focus(FocusState.Programmatic);
     }
 
-    private void ChipRemove_Click(object sender, RoutedEventArgs e)
+    private void TrayChips_TokenItemRemoving(object? sender, TokenItemRemovingEventArgs e)
     {
-        ViewModel.ToggleProfileCommand.Execute((CameraProfileItemViewModel)((FrameworkElement)sender).Tag);
+        ViewModel.ToggleProfileCommand.Execute((CameraProfileItemViewModel)e.Item);
         // The removed chip had focus.
         if (InstallButton.IsEnabled) InstallButton.Focus(FocusState.Keyboard);
         else ProfileSearch.Focus(FocusState.Keyboard);

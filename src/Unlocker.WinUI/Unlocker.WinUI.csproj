@@ -67,6 +67,7 @@
     <PackageReference Include="CommunityToolkit.WinUI.Converters" />
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" />
+    <PackageReference Include="CommunityToolkit.Labs.WinUI.TokenView" />
   </ItemGroup>
 
   <!-- Composition root: references Infrastructure only to call AddInfrastructure(). -->
