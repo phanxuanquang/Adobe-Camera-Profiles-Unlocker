@@ -49,3 +49,22 @@ Choices that look odd without context. Read the relevant entry before "fixing" o
 | ReadyToRun on, trimming off, no single file. | ReadyToRun: faster start for +15 MB zip. Trimming breaks WinUI/Toolkit reflection. WinUI does not support single-file. |
 | `Microsoft.WindowsAppSDK` metapackage kept although it ships ~40 MB of unused AI/ML runtimes. | Switching to `Microsoft.WindowsAppSDK.WinUI` lets CommunityToolkit pull Windows App SDK 1.6 and breaks the build. Retry when the Toolkit moves to 2.x. |
 | Not code-signed yet. | Cost. README tells users "More info > Run anyway". |
+
+## Website
+
+| Decision | Why |
+|---|---|
+| Static `site/` on GitHub Pages, libraries from CDNs (pinned + SRI), no build step or npm. | One page that changes rarely; nothing to install or update locally, and the Pages workflow just uploads the folder. |
+| Download data read live from the GitHub API, with every link defaulting to `/releases/latest`. | No version to bump on the site at release time; an API failure never blocks a download. |
+| FAQ uses native `<details>` styled as WinUI Expanders; screenshots zoom in a native `<dialog>`. No Bootstrap JS. | Keyboard, Esc, focus return and find-in-page work with no extra script. |
+| Fluent (WinUI 3) look, light theme only, accent `#0078D4`. | Owner: the site should look like the app and Windows. |
+| No macOS section. | Owner: the app is Windows only; the manual Mac steps stay in the README. |
+| One donation QR code, `site/assets/img/qr-vietcombank.png`, used by both the site and the README. | Owner: Vietcombank only. One copy to replace; no third-party image hosting. |
+| English only. | Same as the app. |
+
+## App icon
+
+| Decision | Why |
+|---|---|
+| Logo: one landscape split by a tilted gap, violet on the left, coral on the right (same photo, two camera profiles). iOS-style continuous corners, no baked shadows. | Owner's pick after rounds against the Windows and Apple app-icon guidelines; at least half the pixels pass 3:1 on light and dark taskbars. |
+| Only the icon files the repo references are generated, not the full MSIX `targetsize-*` set. | The app ships as an unpackaged zip; extra MSIX assets would never be used. |
