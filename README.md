@@ -4,7 +4,7 @@ A Windows app that copies camera profiles (camera-matching color profiles such a
 
 ![Pick camera profiles from other brands and install them for your camera](.github/assets/unlock.png)
 
-## :sparkles: Features
+## Features
 - Pick your camera once. The app remembers it.
 - Browse camera profiles by brand, or search across all brands.
 - Choose which model to copy from ("Copied from"). The model with the most camera profiles is picked by default.
@@ -13,12 +13,12 @@ A Windows app that copies camera profiles (camera-matching color profiles such a
 - No install and no admin rights needed. Adobe's original files are never changed.
 - Follows the Windows light or dark theme.
 
-## :pushpin: Supported camera brands
+## Supported camera brands
 Canon, Fujifilm, Leica, Nikon, Olympus, OM Digital Solutions, Panasonic Lumix, Pentax, Ricoh, Sigma and Sony.
 
 What you see in the app depends on the Camera Raw version installed on your PC.
 
-## :computer: System requirements
+## System requirements
 
 | | Minimum | Recommended |
 |---|---|---|
@@ -26,7 +26,7 @@ What you see in the app depends on the Camera Raw version installed on your PC.
 | Adobe Camera Raw | 15.0 | [Latest version](https://www.adobe.com/go/acr_installer_win) |
 | Adobe Photoshop or Lightroom Classic | 2022 | Latest version |
 
-## :blue_book: How to use
+## How to use
 
 ### Windows
 1. Download the zip for your PC from the [Releases page](https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/releases/latest): `win-x64` for most PCs, `win-arm64` for ARM PCs (for example Snapdragon).
@@ -50,19 +50,19 @@ The app runs on Windows only. To use the camera profiles on a Mac:
 3. Copy `C:\ProgramData\Adobe\CameraRaw\Settings\Phan Xuan Quang` to `/Library/Application Support/Adobe/CameraRaw/Settings/` on the Mac.
 4. Restart Photoshop or Lightroom.
 
-## :exclamation: Important notes
+## Important notes
 - Camera profiles apply to **raw** files only (for example `.ARW` for Sony, `.NEF` for Nikon).
 - You **must** restart Adobe apps after you install or remove camera profiles.
 - Installed files go to the `Phan Xuan Quang` subfolders of `C:\ProgramData\Adobe\CameraRaw\CameraProfiles` and `C:\ProgramData\Adobe\CameraRaw\Settings`, named `<Source camera> <Profile name> (for <Your camera>)`.
 - To uninstall: remove your camera profiles on the **Installed** page first, then delete the app folder and `%LocalAppData%\CameraProfilesUnlocker`.
 
-## :handshake: Contributing
+## Contributing
 Bug reports, ideas and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first; maintainer docs are in [docs/](docs/README.md).
 
-## :page_facing_up: License
+## License
 [GPL-3.0](LICENSE). You may use, change and share this app; shared changes must stay open source under the same license.
 
-## :gift: Support me
+## Support me
 
 <a href="https://i.imgur.com/9YpRPQs.jpeg" target="_blank">
   <img src="https://i.imgur.com/IUK9CFo.png" height=72 alt="Vietcombank" />
