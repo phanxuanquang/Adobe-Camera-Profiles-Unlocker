@@ -10,7 +10,8 @@
     xmlns:tk="using:CommunityToolkit.WinUI.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
     x:DefaultBindMode="OneWay"
-    NavigationCacheMode="Disabled">
+    NavigationCacheMode="Disabled"
+    Unloaded="Page_Unloaded">
 
     <!--  The padding Grid between ScrollViewer and the MaxWidth content keeps the page from measuring wider than the window.  -->
     <ScrollViewer>
@@ -50,18 +51,18 @@
                         Grid.Column="1"
                         VerticalAlignment="Bottom"
                         Orientation="Horizontal"
-                        Spacing="8">
+                        Spacing="{StaticResource ItemSpacing}">
                         <Button
                             AutomationProperties.AutomationId="OpenFolderButton"
                             Command="{x:Bind ViewModel.OpenFolderCommand, Mode=OneTime}"
                             ToolTipService.ToolTip="Open the Camera Raw profiles folder in File Explorer">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="{StaticResource ItemSpacing}">
                                 <FontIcon FontSize="16" Glyph="&#xE838;" />
                                 <TextBlock Text="Open folder" />
                             </StackPanel>
                         </Button>
                         <Button AutomationProperties.AutomationId="RemoveAllButton" Command="{x:Bind ViewModel.RemoveAllCommand, Mode=OneTime}">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="{StaticResource ItemSpacing}">
                                 <FontIcon
                                     FontSize="16"
                                     Foreground="{ThemeResource SystemFillColorCriticalBrush}"
@@ -81,7 +82,7 @@
                     Message="{x:Bind ViewModel.Status.Message, FallbackValue=''}">
                     <ItemsRepeater ItemsSource="{x:Bind ViewModel.Status.Actions, FallbackValue={x:Null}}">
                         <ItemsRepeater.Layout>
-                            <StackLayout Orientation="Horizontal" Spacing="8" />
+                            <StackLayout Orientation="Horizontal" Spacing="{StaticResource ItemSpacing}" />
                         </ItemsRepeater.Layout>
                         <ItemsRepeater.ItemTemplate>
                             <DataTemplate x:DataType="common:StatusAction">
@@ -95,7 +96,10 @@
                     </ItemsRepeater>
                 </InfoBar>
 
-                <ItemsRepeater Grid.Row="2" ItemsSource="{x:Bind ViewModel.Groups, Mode=OneTime}">
+                <ItemsRepeater
+                    x:Name="GroupsRepeater"
+                    Grid.Row="2"
+                    ItemsSource="{x:Bind ViewModel.Groups, Mode=OneTime}">
                     <ItemsRepeater.Layout>
                         <StackLayout Spacing="{StaticResource ItemSpacing}" />
                     </ItemsRepeater.Layout>
@@ -142,7 +146,7 @@
                     Grid.Row="2"
                     Margin="0,64"
                     HorizontalAlignment="Center"
-                    Spacing="8"
+                    Spacing="{StaticResource ItemSpacing}"
                     Visibility="{x:Bind ViewModel.IsEmpty}">
                     <FontIcon
                         HorizontalAlignment="Center"
@@ -152,19 +156,6 @@
                         HorizontalAlignment="Center"
                         Style="{StaticResource BodyStrongTextBlockStyle}"
                         Text="No camera profiles installed yet" />
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        Style="{StaticResource SecondaryTextStyle}"
-                        Text="Camera profiles you install show up here, ready to remove anytime."
-                        TextAlignment="Center"
-                        TextWrapping="Wrap" />
-                    <Button
-                        Margin="0,8,0,0"
-                        HorizontalAlignment="Center"
-                        AutomationProperties.AutomationId="EmptyUnlockButton"
-                        Click="Unlock_Click"
-                        Content="Unlock camera profiles"
-                        Style="{StaticResource AccentButtonStyle}" />
                 </StackPanel>
             </Grid>
         </Grid>

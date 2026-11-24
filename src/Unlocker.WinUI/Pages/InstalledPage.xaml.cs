@@ -23,5 +23,5 @@ public sealed partial class InstalledPage : Page
 
     private void StatusBar_Closed(InfoBar sender, InfoBarClosedEventArgs args) => ViewModel.Status = null;
 
-    private void Unlock_Click(object sender, RoutedEventArgs e) => Frame.Navigate(typeof(UnlockPage));
+    private void Page_Unloaded(object sender, RoutedEventArgs e) => GroupsRepeater.ItemsSource = null;
 }
