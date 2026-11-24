@@ -1,12 +1,8 @@
-<img src="tools/icon/app-icon.svg" width="96" height="96" alt="Adobe Camera Profiles Unlocker logo">
-
 # © 2024 Phan Xuan Quang / Adobe Camera Profiles Unlocker
 
 A Windows app that copies camera profiles (camera-matching color profiles such as Fujifilm *Classic Chrome* or Canon *Portrait*) from one camera model to another, so Adobe Camera Raw, Lightroom Classic and Photoshop show them for **your** camera.
 
-Website: <https://phanxuanquang.github.io/Adobe-Camera-Profiles-Unlocker/>
-
-![Pick camera profiles from other brands and install them for your camera](.github/assets/unlock.png)
+![Pick camera profiles from other brands and install them for your camera](site/assets/img/unlock.png)
 
 ## Features
 - Pick your camera once. The app remembers it.
@@ -33,9 +29,9 @@ What you see in the app depends on the Camera Raw version installed on your PC.
 ## How to use
 
 ### Windows
-1. Download the zip for your PC from the [Releases page](https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/releases/latest): `win-x64` for most PCs, `win-arm64` for ARM PCs (for example Snapdragon).
-2. Extract the zip to a folder and run `Adobe Camera Profiles Unlocker.exe`. No install needed.
-   The app is not code-signed, so Windows SmartScreen may warn on first run: select **More info**, then **Run anyway**.
+1. Download the zip for from the [Releases page](https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/releases/latest).
+2. Extract the zip to a folder and run `Adobe Camera Profiles Unlocker.exe`. 
+   Windows SmartScreen may warn on first run: select **More info**, then **Run anyway**.
 3. Pick **your camera**.
 4. Pick a brand, tick the camera profiles you want, then select **Install**.
 5. Restart Photoshop or Lightroom.
@@ -43,7 +39,7 @@ What you see in the app depends on the Camera Raw version installed on your PC.
 
 | Pick your camera | Manage installed camera profiles |
 |---|---|
-| ![Your camera pane with search and brand filter](.github/assets/camera.png) | ![Installed page grouped by camera](.github/assets/installed.png) |
+| ![Your camera pane with search and brand filter](site/assets/img/camera.png) | ![Installed page grouped by camera](site/assets/img/installed.png) |
 
 To remove camera profiles, open the **Installed** page.
 
