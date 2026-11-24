@@ -5,7 +5,7 @@ Both formats = same flow: installer reads file -> tag dictionary -> `Rewrite(tag
 - Format rules: `Rewrite` method of `DcpProfileInstaller` / `XmpProfileInstaller` (Infrastructure/Installing) = shared rules + own tags. `CameraProfileInstaller` picks by format.
 - Shared key names (`Name`, `Copyright`, `CameraModelRestriction`); each installer maps its own tags to them. Never line-based string replace (old bug). Source never modified; output always new file.
 
-Author credit = assembly `Copyright` (`© 2024 Phan Xuan Quang / Github: @phanxuanquang`), signature = `AssemblyMetadata("Author")` = `Authors`. Both set once in root `Directory.Build.props` (also the app's file properties). Owner decision: keep legacy branding (Copyright + signature overwrite).
+Author credit = assembly `Copyright` (`© 2024 Phan Xuan Quang / Github: @phanxuanquang`), signature = `AssemblyMetadata("Author")` = `Authors`. Both set once in root `Directory.Build.props` (also the app's file properties). Owner decision: keep branding (Copyright + signature overwrite).
 
 ## DCP (binary)
 Format (DNG spec "Camera Profiles"; checked on all 2936 Adobe DCPs here): TIFF, header `IIRC` (little endian, magic 0x4352 "RC" instead of 42),

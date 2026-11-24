@@ -28,8 +28,7 @@ ACL `ProgramData\Adobe\CameraRaw\CameraProfiles`:
 Rules:
 - App runs as normal user. No `requireAdministrator`.
 - Never write Adobe originals. Copy then rewrite copy.
-- Legacy files (old app, ran as admin) owned by Administrators -> user cannot delete. Installed page lists them as "Created by older version". Delete via one elevated call (`ProcessStartInfo { Verb = "runas" }`). Only elevation point in app.
-- Legacy detection: `*.dcp` in `CameraProfiles` root matching `* (for *).dcp`, not in manifest.
+- No elevation. Old-app files (admin-owned `* (for *).dcp` in `CameraProfiles` root) are not detected or deleted: owner decision 2026-11-24, assume first install.
 
 ## App-own data
 - `%LocalAppData%\CameraProfilesUnlocker\settings.json`: target camera

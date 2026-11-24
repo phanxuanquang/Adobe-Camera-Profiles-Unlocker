@@ -1,6 +1,6 @@
 # Adobe Camera Profiles Unlocker: Claude instructions
 
-Rewrite of Windows app that copies camera profiles (Camera Raw) between camera models. Code `src/`. Old app removed (git history on `master`, commit `cc278d2`); its bugs are in `docs/legacy-bugs.md`. UI spec = `docs/ux-flow.md` (HTML mock removed).
+Rewrite of Windows app that copies camera profiles (Camera Raw) between camera models. Code `src/`. Old app removed (git history on `master`, commit `cc278d2`). UI spec = `docs/ux-flow.md` (HTML mock removed).
 
 ## Start every session
 1. Read `docs/plan.md`: find current step.
@@ -15,7 +15,7 @@ Rewrite of Windows app that copies camera profiles (Camera Raw) between camera m
 ## Hard rules
 - Never modify Adobe originals under `C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Camera\` or `...\Settings\Adobe\`. Copy, rewrite copy.
 - Never delete files not in app manifest.
-- App runs non-admin. Only elevation = deleting legacy admin-owned files.
+- App runs non-admin. No elevation. Assume first install: no old-app files handled.
 - Layering per `docs/architecture.md`: Presentation never refs UI framework or Infrastructure.
 - DI lifetimes per `docs/di-lifetimes.md`.
 - Before writing XAML: `winapp find-ui` / `winapp find-api` (no guessed APIs). Unknown .NET API: Microsoft Learn MCP.

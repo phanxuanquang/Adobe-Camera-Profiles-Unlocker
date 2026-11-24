@@ -24,7 +24,7 @@ Wording: always "camera profile(s)", never "look" or bare "profile" (owner, 2026
 - Install: tray text "Installing i of N: <name>", Install button shows `ProgressRing` + "Installing…", Cancel. No tray hint text when nothing selected (owner). Success: `ContentDialog` "Camera profiles installed" (count, target, restart Lightroom/Photoshop, donation ask), primary "Buy me a coffee" opens the donate link, Close. Then a short success `InfoBar` "Install finished." (View installed, Undo) so the text is not repeated (owner, 2026-11-24). Failure: rollback done items, error `InfoBar` with the exception message + "Try again". Full details go to Windows Event Log (no "Copy details").
 
 ## Installed page
-One `SettingsExpander` per target camera, one `SettingsCard` per camera profile. Per item delete = instant + Undo InfoBar. Bulk (per camera / Remove all) = `ContentDialog` confirm listing names, verb button "Remove N". "Open folder". Empty state with "Unlock camera profiles". Legacy items labeled, delete triggers UAC once.
+One `SettingsExpander` per target camera, one `SettingsCard` per camera profile. Per item delete = instant + Undo InfoBar. Bulk (per camera / Remove all) = `ContentDialog` confirm listing names, verb button "Remove N". "Open folder". Empty state with "Unlock camera profiles".
 
 ## Settings
 Updates (version + status: checking / up to date / version X available / couldn't check; "Go to download page" opens the GitHub release page, user downloads by hand; owner, 2026-11-24), Profile folders (open), About (GitHub, Donate).

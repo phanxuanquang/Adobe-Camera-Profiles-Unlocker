@@ -40,7 +40,7 @@ winapp run Unlocker.WinUI        # or F5 in Visual Studio
 These rules protect users' Adobe installs. Pull requests that break them are not merged.
 - **Never modify Adobe originals** under `C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Camera\` or `C:\ProgramData\Adobe\CameraRaw\Settings\Adobe\`. Copy, then change the copy.
 - **Never delete files** that the app did not create (files not in the app manifest).
-- The app runs **without admin rights**. The only elevation is removing camera profiles installed by old app versions.
+- The app runs **without admin rights** and never asks for elevation.
 - Presentation never references WinUI or Infrastructure.
 - Build for `x64` and `ARM64`. Never `AnyCPU`.
 

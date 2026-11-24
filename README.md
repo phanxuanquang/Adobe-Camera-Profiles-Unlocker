@@ -54,7 +54,6 @@ The app runs on Windows only. To use the camera profiles on a Mac:
 - Camera profiles apply to **raw** files only (for example `.ARW` for Sony, `.NEF` for Nikon).
 - You **must** restart Adobe apps after you install or remove camera profiles.
 - Installed files go to the `Phan Xuan Quang` subfolders of `C:\ProgramData\Adobe\CameraRaw\CameraProfiles` and `C:\ProgramData\Adobe\CameraRaw\Settings`.
-- Camera profiles installed by older versions of this app are detected on the **Installed** page. Removing them asks for admin permission once.
 
 ## :handshake: Contributing
 Bug reports, ideas and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first.

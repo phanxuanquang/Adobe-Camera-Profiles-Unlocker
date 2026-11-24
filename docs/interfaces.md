@@ -7,7 +7,7 @@ public sealed record CameraProfile(string Name, string SourcePath, CameraProfile
 public sealed record CameraModel(string Name, IReadOnlyList<CameraProfile> Profiles);
 public sealed record Brand(string Name, string Family, IReadOnlyList<CameraModel> Models);
 public sealed record InstalledCameraProfile(string Name, string SourceModel, string TargetModel,
-    IReadOnlyList<string> Files, bool IsLegacy);
+    IReadOnlyList<string> Files);
 public sealed record ReleaseInfo(Version Version, Uri PageUrl); // release page, not an asset
 public enum EnvironmentIssue { CameraRawMissing, ProfilesMissing }
 ```
@@ -21,10 +21,10 @@ public interface IInstalledStore
     IReadOnlyList<InstalledCameraProfile> All { get; }
     IReadOnlyList<string> Folders { get; }            // [DCP output dir, XMP output dir]
     event EventHandler? Changed;
-    Task LoadAsync(CancellationToken ct = default);   // manifest + legacy detect, once at startup
+    Task LoadAsync(CancellationToken ct = default);   // manifest, once at startup
     Task AddAsync(InstalledCameraProfile item, CancellationToken ct = default);
-    Task RemoveAsync(IEnumerable<InstalledCameraProfile> items, CancellationToken ct = default);  // move to trash
-    Task RestoreAsync(IEnumerable<InstalledCameraProfile> items, CancellationToken ct = default); // undo
+    Task RemoveAsync(IEnumerable<InstalledCameraProfile> items);   // move to trash, not cancellable
+    Task RestoreAsync(IEnumerable<InstalledCameraProfile> items);  // undo, not cancellable
 }
 public interface IEnvironmentProbe { IReadOnlyList<EnvironmentIssue> Check(); }
 public interface IUpdateService    { Task<ReleaseInfo?> GetNewerAsync(Version current, CancellationToken ct = default); } // null = up to date, throws when the check fails
