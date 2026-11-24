@@ -59,6 +59,9 @@ The app runs on Windows only. To use the camera profiles on a Mac:
 ## :handshake: Contributing
 Bug reports, ideas and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first; maintainer docs are in [docs/](docs/README.md).
 
+## :page_facing_up: License
+[GPL-3.0](LICENSE). You may use, change and share this app; shared changes must stay open source under the same license.
+
 ## :gift: Support me
 
 <a href="https://i.imgur.com/9YpRPQs.jpeg" target="_blank">
