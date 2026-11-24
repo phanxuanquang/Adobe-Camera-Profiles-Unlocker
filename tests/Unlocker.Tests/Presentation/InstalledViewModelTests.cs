@@ -12,8 +12,8 @@ public sealed class InstalledViewModelTests
 {
     private readonly FakeStore _store = new();
 
-    private static InstalledCameraProfile Installed(string name, string target, bool legacy = false)
-        => new(name, "Fujifilm X-T5", target, [$@"C:\out\{name}"], legacy);
+    private static InstalledCameraProfile Installed(string name, string target)
+        => new(name, "Fujifilm X-T5", target, [$@"C:\out\{name}"]);
 
     [TestMethod]
     public async Task Single_remove_is_instant_with_undo()
@@ -79,22 +79,6 @@ public sealed class InstalledViewModelTests
         await vm.RemoveAllCommand.ExecuteAsync(null);
         Assert.IsTrue(vm.IsEmpty);
         Assert.IsFalse(vm.RemoveAllCommand.CanExecute(null));
-    }
-
-    [TestMethod]
-    public async Task Legacy_remove_has_no_undo_and_uac_cancel_is_silent()
-    {
-        await _store.AddAsync(Installed("Old", "Sony ILCE-7M4", legacy: true));
-        var vm = new InstalledViewModel(_store, new FakeDialogs(), new FakeLauncher(), NullLogger<InstalledViewModel>.Instance);
-
-        _store.FailRemoveWith = new OperationCanceledException();
-        await vm.RemoveCommand.ExecuteAsync(_store.All[0]);
-        Assert.IsNull(vm.Status);
-        Assert.AreEqual(1, _store.All.Count);
-
-        _store.FailRemoveWith = null;
-        await vm.RemoveCommand.ExecuteAsync(_store.All[0]);
-        Assert.IsNull(vm.Status!.Actions);
     }
 
     [TestMethod]

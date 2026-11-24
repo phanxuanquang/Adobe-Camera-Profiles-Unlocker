@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Unlocker.Core.Models;
+using Unlocker.Presentation.Common;
 
 namespace Unlocker.Presentation.Unlock;
 
@@ -44,6 +45,6 @@ public sealed partial class BrandItemViewModel(Brand brand) : ObservableObject
     [ObservableProperty]
     public partial bool IsYourBrand { get; set; }
 
-    /// <summary>Screen readers read ListView items through ToString.</summary>
-    public override string ToString() => $"{Name}, {Family}";
+    /// <summary>Screen readers read ListView items through ToString; the count column is visual only.</summary>
+    public override string ToString() => $"{Name}, {Family}, " + (SelectedCount > 0 ? $"{SelectedCount} selected of {Text.Profiles(VisibleCount)}" : Text.Profiles(VisibleCount));
 }

@@ -1,5 +1,5 @@
-using System.Net;
 using Microsoft.Extensions.Logging.Abstractions;
+using System.Net;
 using Unlocker.Infrastructure.Updates;
 using Unlocker.Tests.Fakes;
 
@@ -31,6 +31,18 @@ public sealed class GitHubUpdateServiceTests
     {
         Assert.IsNull(await Updates(HttpStatusCode.OK, Release).GetNewerAsync(new Version(3, 1, 0)));
         Assert.IsNull(await Updates(HttpStatusCode.OK, Release.Replace("v3.1.0\"", "latest\"")).GetNewerAsync(new Version(1, 0)));
+    }
+
+    [TestMethod]
+    [DataRow("http://github.com/x/y/releases/tag/v3.1.0")]
+    [DataRow("https://evil.example/releases/tag/v3.1.0")]
+    [DataRow("javascript:alert(1)")]
+    [DataRow("releases/tag/v3.1.0")]
+    public async Task Returns_null_when_page_url_is_not_https_github(string url)
+    {
+        var body = Release.Replace("https://github.com/x/y/releases/tag/v3.1.0", url);
+
+        Assert.IsNull(await Updates(HttpStatusCode.OK, body).GetNewerAsync(new Version(3, 0, 0)));
     }
 
     [TestMethod]

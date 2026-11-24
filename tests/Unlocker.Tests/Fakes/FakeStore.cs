@@ -17,7 +17,13 @@ internal sealed class FakeStore : IInstalledStore
 
     public event EventHandler? Changed;
 
-    public Task LoadAsync(CancellationToken ct = default) => Task.CompletedTask;
+    public int LoadCount { get; private set; }
+
+    public Task LoadAsync(CancellationToken ct = default)
+    {
+        LoadCount++;
+        return Task.CompletedTask;
+    }
 
     public Task AddAsync(InstalledCameraProfile item, CancellationToken ct = default)
     {
@@ -26,7 +32,7 @@ internal sealed class FakeStore : IInstalledStore
         return Task.CompletedTask;
     }
 
-    public Task RemoveAsync(IEnumerable<InstalledCameraProfile> items, CancellationToken ct = default)
+    public Task RemoveAsync(IEnumerable<InstalledCameraProfile> items)
     {
         if (FailRemoveWith is { } ex) throw ex;
         foreach (var i in items.ToList()) _items.Remove(i);
@@ -34,7 +40,7 @@ internal sealed class FakeStore : IInstalledStore
         return Task.CompletedTask;
     }
 
-    public Task RestoreAsync(IEnumerable<InstalledCameraProfile> items, CancellationToken ct = default)
+    public Task RestoreAsync(IEnumerable<InstalledCameraProfile> items)
     {
         if (FailRestoreWith is { } ex) throw ex;
         _items.AddRange(items);

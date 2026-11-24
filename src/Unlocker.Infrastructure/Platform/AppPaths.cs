@@ -8,7 +8,6 @@ internal sealed record AppPaths(
     string XmpProfilesDir,
     string DcpOutputDir,
     string XmpOutputDir,
-    string LegacyDcpDir,
     string AppDataDir)
 {
     public string SettingsFile => Path.Combine(AppDataDir, "settings.json");
@@ -38,7 +37,6 @@ internal sealed record AppPaths(
             XmpProfilesDir: Path.Combine(acr, "Settings", "Adobe", "Profiles", "Camera"),
             DcpOutputDir: Path.Combine(acr, "CameraProfiles", OutputFolder),
             XmpOutputDir: Path.Combine(acr, "Settings", OutputFolder),
-            LegacyDcpDir: Path.Combine(acr, "CameraProfiles"),
             AppDataDir: Path.Combine(localAppData, "CameraProfilesUnlocker"));
     }
 }

@@ -1,7 +1,7 @@
-using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using System.Collections.ObjectModel;
 using Unlocker.Core.Abstractions;
 using Unlocker.Core.Models;
 using Unlocker.Presentation.Common;
@@ -67,16 +67,11 @@ public sealed partial class InstalledViewModel : ObservableObject
         + string.Join("\n", list.Select(p => $"{p.Name} for {p.TargetModel}")),
         $"Remove {list.Count}");
 
-    // No CancellationToken: a cancel between the file moves and the manifest save would leave them out of sync.
     private async Task RemoveWithUndoAsync(IReadOnlyList<InstalledCameraProfile> list)
     {
         try
         {
             await _store.RemoveAsync(list);
-        }
-        catch (OperationCanceledException)
-        {
-            return; // UAC declined for legacy files: nothing changed.
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -85,9 +80,7 @@ public sealed partial class InstalledViewModel : ObservableObject
             return;
         }
         var title = list.Count == 1 ? $"Removed {list[0].Name} for {list[0].TargetModel}." : $"Removed {Text.Profiles(list.Count)}.";
-        // Legacy files are deleted for real, so they cannot be restored.
-        IReadOnlyList<StatusAction>? actions = list.Any(p => p.IsLegacy) ? null :
-            [new StatusAction("Undo", new AsyncRelayCommand(() => RestoreAsync(list)))];
+        IReadOnlyList<StatusAction> actions = [new StatusAction("Undo", new AsyncRelayCommand(() => RestoreAsync(list)))];
         Status = new StatusMessage(StatusSeverity.Info, title, "Restart Lightroom or Photoshop to apply.", actions);
     }
 

@@ -12,7 +12,8 @@
     xmlns:unlock="using:Unlocker.Presentation.Unlock"
     x:DefaultBindMode="OneWay"
     Loaded="Page_Loaded"
-    NavigationCacheMode="Disabled">
+    NavigationCacheMode="Disabled"
+    Unloaded="Page_Unloaded">
 
     <Page.Resources>
         <DataTemplate x:Key="ProfileTile" x:DataType="unlock:CameraProfileItemViewModel">
@@ -43,7 +44,7 @@
         <DataTemplate x:Key="StatusActionTemplate" x:DataType="common:StatusAction">
             <Button
                 Margin="0,0,0,12"
-                AutomationProperties.AutomationId="StatusActionButton"
+                AutomationProperties.AutomationId="{x:Bind Label, Mode=OneTime}"
                 Command="{x:Bind Command, Mode=OneTime}"
                 Content="{x:Bind Label, Mode=OneTime}" />
         </DataTemplate>
@@ -293,7 +294,8 @@
                             IsItemClickEnabled="True"
                             ItemClick="BrandList_ItemClick"
                             ItemsSource="{x:Bind ViewModel.VisibleBrands}"
-                            SelectedItem="{x:Bind ViewModel.SelectedBrand}">
+                            SelectedItem="{x:Bind ViewModel.SelectedBrand}"
+                            SingleSelectionFollowsFocus="False">
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="unlock:BrandItemViewModel">
                                     <Grid Padding="0,8" ColumnSpacing="8">
@@ -315,7 +317,6 @@
                                         <TextBlock
                                             Grid.Column="1"
                                             VerticalAlignment="Center"
-                                            AutomationProperties.Name="{x:Bind pages:UnlockPage.CountName(SelectedCount, VisibleCount)}"
                                             Style="{StaticResource SecondaryCaptionTextStyle}"
                                             Text="{x:Bind pages:UnlockPage.CountText(SelectedCount, VisibleCount)}" />
                                     </Grid>
@@ -379,11 +380,15 @@
                                 IsTabStop="False">
                                 <StackPanel Spacing="16">
                                     <ItemsRepeater
+                                        x:Name="ProfilesRepeater"
                                         ItemTemplate="{StaticResource ProfileTile}"
                                         ItemsSource="{x:Bind ViewModel.Profiles}"
                                         Layout="{StaticResource TileLayout}"
                                         Visibility="{x:Bind ViewModel.IsSearching, Converter={StaticResource CollapsedWhenTrue}}" />
-                                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.SearchResults}" Visibility="{x:Bind ViewModel.IsSearching}">
+                                    <ItemsRepeater
+                                        x:Name="SearchResultsRepeater"
+                                        ItemsSource="{x:Bind ViewModel.SearchResults}"
+                                        Visibility="{x:Bind ViewModel.IsSearching}">
                                         <ItemsRepeater.Layout>
                                             <StackLayout Spacing="16" />
                                         </ItemsRepeater.Layout>

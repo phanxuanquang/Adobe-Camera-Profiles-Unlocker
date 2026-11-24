@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Unlocker.Core.Enums;
-using Unlocker.Core.Models;
 using Unlocker.Presentation.Unlock;
 
 namespace Unlocker.WinUI.Pages;
@@ -16,7 +15,6 @@ public sealed partial class UnlockPage : Page
     public UnlockViewModel ViewModel { get; } = App.Services.GetRequiredService<UnlockViewModel>();
 
     public static string CountText(int selected, int visible) => selected > 0 ? $"{selected}/{visible}" : $"{visible}";
-    public static string CountName(int selected, int visible) => selected > 0 ? $"{selected} selected of {visible} profiles" : $"{visible} profiles";
     public static string TargetButtonName(string? model) => $"Your camera: {model}. Change";
     public static string InstalledHelp(bool installed) => installed ? "Already installed for your camera." : "";
 
@@ -33,6 +31,14 @@ public sealed partial class UnlockPage : Page
             InlinePicker.Show(ViewModel.Catalog, null);
             InlinePicker.FocusSearch();
         }
+    }
+
+    // Page is not cached but the VM is a singleton: detach its collections or each visit leaks a page.
+    private void Page_Unloaded(object sender, RoutedEventArgs e)
+    {
+        BrandList.ItemsSource = null;
+        ProfilesRepeater.ItemsSource = null;
+        SearchResultsRepeater.ItemsSource = null;
     }
 
     private void BrandList_ItemClick(object sender, ItemClickEventArgs e)

@@ -30,6 +30,62 @@ public sealed class JsonInstalledStoreTests : TempFolderTest
     }
 
     [TestMethod]
+    public async Task Add_keeps_same_name_from_different_source()
+    {
+        var store = new JsonInstalledStore(Paths, NullLogger<JsonInstalledStore>.Instance);
+
+        await store.AddAsync(Installed("A", "Sony", "a1.xmp"));
+        await store.AddAsync(Installed("A", "Sony", "a2.xmp") with { SourceModel = "Fujifilm X-H2" });
+
+        Assert.AreEqual(2, store.All.Count);
+    }
+
+    [TestMethod]
+    public async Task Load_skips_null_and_incomplete_entries()
+    {
+        Directory.CreateDirectory(Paths.AppDataDir);
+        File.WriteAllText(Paths.ManifestFile, """[null, {"Name":"X"}, {"Name":"Y","SourceModel":"S","TargetModel":"T"}]""");
+        var store = new JsonInstalledStore(Paths, NullLogger<JsonInstalledStore>.Instance);
+
+        await store.LoadAsync();
+
+        Assert.AreEqual(0, store.All.Count);
+    }
+
+    [TestMethod]
+    public async Task Restore_skips_item_already_reinstalled()
+    {
+        var store = new JsonInstalledStore(Paths, NullLogger<JsonInstalledStore>.Instance);
+        var a = Installed("A", "Sony", "a.xmp");
+        await store.AddAsync(a);
+        await store.RemoveAsync([a]);
+        File.WriteAllText(a.Files[0], "new");
+        await store.AddAsync(a with { Files = [a.Files[0]] });
+
+        await store.RestoreAsync([a]);
+
+        Assert.AreEqual(1, store.All.Count);
+        Assert.AreEqual("new", File.ReadAllText(a.Files[0]));
+        Assert.AreEqual(1, Directory.GetFiles(Paths.TrashDir).Length);
+    }
+
+    [TestMethod]
+    public async Task Restore_never_overwrites_existing_file()
+    {
+        var store = new JsonInstalledStore(Paths, NullLogger<JsonInstalledStore>.Instance);
+        var a = Installed("A", "Sony", "a.xmp");
+        await store.AddAsync(a);
+        await store.RemoveAsync([a]);
+        File.WriteAllText(a.Files[0], "someone else");
+
+        await store.RestoreAsync([a]);
+
+        Assert.AreEqual(0, store.All.Count);
+        Assert.AreEqual("someone else", File.ReadAllText(a.Files[0]));
+        Assert.AreEqual(1, Directory.GetFiles(Paths.TrashDir).Length);
+    }
+
+    [TestMethod]
     public async Task Cancelled_save_keeps_previous_manifest()
     {
         var store = new JsonInstalledStore(Paths, NullLogger<JsonInstalledStore>.Instance);
@@ -76,7 +132,7 @@ public sealed class JsonInstalledStoreTests : TempFolderTest
     }
 
     [TestMethod]
-    public async Task Load_drops_missing_files_and_detects_legacy_dcp()
+    public async Task Load_drops_entries_whose_files_are_gone()
     {
         var first = new JsonInstalledStore(Paths, NullLogger<JsonInstalledStore>.Instance);
         var kept = Installed("Kept", "Sony", "kept.xmp");
@@ -84,16 +140,11 @@ public sealed class JsonInstalledStoreTests : TempFolderTest
         await first.AddAsync(kept);
         await first.AddAsync(gone);
         File.Delete(gone.Files[0]);
-        Touch(Path.Combine(Paths.LegacyDcpDir, "CLASSIC CHROME (for Sony ILCE-7M4).dcp"));
-        Touch(Path.Combine(Paths.LegacyDcpDir, "Someone else.dcp"));
 
         var store = new JsonInstalledStore(Paths, NullLogger<JsonInstalledStore>.Instance);
         await store.LoadAsync();
 
-        Assert.AreEqual(2, store.All.Count);
-        Assert.IsTrue(store.All.Any(p => p.Name == "Kept" && !p.IsLegacy));
-        var legacy = store.All.Single(p => p.IsLegacy);
-        Assert.AreEqual(("CLASSIC CHROME", "Sony ILCE-7M4"), (legacy.Name, legacy.TargetModel));
+        Assert.AreEqual("Kept", store.All.Single().Name);
     }
 
     [TestMethod]

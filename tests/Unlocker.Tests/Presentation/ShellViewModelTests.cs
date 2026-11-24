@@ -16,6 +16,7 @@ public sealed class ShellViewModelTests
 
         await shell.InitializeAsync();
 
+        Assert.AreEqual(1, store.LoadCount);
         Assert.AreEqual(1, shell.InstalledCount);
     }
 }

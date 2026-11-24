@@ -1,5 +1,5 @@
-using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
+using System.Net.Http.Json;
 using Unlocker.Core.Abstractions;
 using Unlocker.Core.Models;
 using Unlocker.Infrastructure.Serialization;
@@ -14,8 +14,14 @@ internal sealed class GitHubUpdateService(HttpClient http, ILogger<GitHubUpdateS
     {
         var release = await http.GetFromJsonAsync(LatestRelease, UnlockerJsonContext.Default.GitHubRelease, ct);
         if (release is null || ParseVersion(release.TagName) is not { } version || version <= current) return null;
-        logger.LogInformation("Newer version {Version} available (current {Current}): {Url}", version, current, release.HtmlUrl);
-        return new ReleaseInfo(version, new Uri(release.HtmlUrl));
+        // The page opens in the browser: only trust a GitHub https link.
+        if (!Uri.TryCreate(release.HtmlUrl, UriKind.Absolute, out var page) || page.Scheme != Uri.UriSchemeHttps || page.Host != "github.com")
+        {
+            logger.LogWarning("Ignoring release {Version} with untrusted page URL '{Url}'", version, release.HtmlUrl);
+            return null;
+        }
+        logger.LogInformation("Newer version {Version} available (current {Current}): {Url}", version, current, page);
+        return new ReleaseInfo(version, page);
     }
 
     /// <summary>"v3.1.0" and "Neo 2.0" parse; anything without a version gives null.</summary>

@@ -1,7 +1,7 @@
-using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 using Unlocker.Core.Abstractions;
 using Unlocker.Core.Models;
 using Unlocker.Presentation.Ports;

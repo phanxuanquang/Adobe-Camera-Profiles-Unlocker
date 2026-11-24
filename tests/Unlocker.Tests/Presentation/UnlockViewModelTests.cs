@@ -72,6 +72,15 @@ public sealed class UnlockViewModelTests
     }
 
     [TestMethod]
+    public async Task Brand_accessible_name_includes_selected_count()
+    {
+        var vm = await Unlock();
+        Tile(vm, "ACROS").IsSelected = true;
+
+        Assert.AreEqual("Fujifilm, Film Simulations, 1 selected of 3 camera profiles", vm.SelectedBrand!.ToString());
+    }
+
+    [TestMethod]
     public async Task Toggle_all_selects_visible_then_clears_them()
     {
         var vm = await Unlock();
@@ -223,6 +232,44 @@ public sealed class UnlockViewModelTests
         Assert.AreEqual(0, _store.All.Count);
         Assert.IsFalse(Tile(vm, "ACROS").IsInstalled);
         Assert.AreEqual("Install undone.", vm.Status!.Title);
+    }
+
+    [TestMethod]
+    public async Task Installed_flag_needs_same_source_model()
+    {
+        await _store.AddAsync(new InstalledCameraProfile("ACROS", "Fujifilm X-T1", "Sony ILCE-7M4", []));
+        await _store.AddAsync(new InstalledCameraProfile("CLASSIC CHROME", "Fujifilm X-T5", "Nikon Z 8", []));
+
+        var vm = await Unlock();
+
+        Assert.IsFalse(Tile(vm, "ACROS").IsInstalled);
+        Assert.IsFalse(Tile(vm, "CLASSIC CHROME").IsInstalled);
+    }
+
+    [TestMethod]
+    public async Task Profile_that_becomes_installed_leaves_the_selection()
+    {
+        var vm = await Unlock();
+        Tile(vm, "ACROS").IsSelected = true;
+
+        await _store.AddAsync(new InstalledCameraProfile("ACROS", "Fujifilm X-T5", "Sony ILCE-7M4", []));
+
+        Assert.IsTrue(Tile(vm, "ACROS").IsInstalled);
+        Assert.IsFalse(Tile(vm, "ACROS").IsSelected);
+        Assert.AreEqual(0, vm.Selected.Count);
+    }
+
+    [TestMethod]
+    public async Task Success_dialog_failure_keeps_install_and_status()
+    {
+        _dialogs.FailWith = new InvalidOperationException("Only a single ContentDialog can be open at any time.");
+        var vm = await Unlock();
+        Tile(vm, "ACROS").IsSelected = true;
+
+        await vm.InstallCommand.ExecuteAsync(null);
+
+        Assert.AreEqual(1, _store.All.Count);
+        Assert.AreEqual("Install finished.", vm.Status!.Title);
     }
 
     [TestMethod]

@@ -1,8 +1,8 @@
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using Unlocker.Core.Abstractions;
 using Unlocker.Core.Models;
 using Unlocker.Presentation.Common;
@@ -136,10 +136,10 @@ public sealed partial class UnlockViewModel : ObservableObject
     private List<CameraProfileItemViewModel> ItemsOf(BrandItemViewModel brand)
     {
         if (_items.TryGetValue(brand, out var list)) return list;
-        var installed = InstalledNames();
         list = brand.SourceModel.Profiles.Select(p =>
         {
-            var item = new CameraProfileItemViewModel(brand.Brand, brand.SourceModel, p) { IsInstalled = installed.Contains(p.Name) };
+            var item = new CameraProfileItemViewModel(brand.Brand, brand.SourceModel, p);
+            item.IsInstalled = IsInstalled(item);
             item.PropertyChanged += OnProfileChanged;
             return item;
         }).ToList();
@@ -221,13 +221,18 @@ public sealed partial class UnlockViewModel : ObservableObject
         InstallCommand.NotifyCanExecuteChanged();
     }
 
-    private HashSet<string> InstalledNames() =>
-        _store.All.Where(i => i.TargetModel == TargetCamera).Select(i => i.Name).ToHashSet();
+    /// <summary>Same name from another source model is a different look.</summary>
+    private bool IsInstalled(CameraProfileItemViewModel item) => _store.All.Any(i =>
+        i.TargetModel == TargetCamera && i.Name == item.Name && i.SourceModel == item.Source.Name);
 
     private void RefreshInstalledFlags()
     {
-        var installed = InstalledNames();
-        foreach (var item in _items.Values.SelectMany(l => l)) item.IsInstalled = installed.Contains(item.Name);
+        foreach (var item in _items.Values.SelectMany(l => l))
+        {
+            item.IsInstalled = IsInstalled(item);
+            // Else Install would reinstall it and its Undo would delete the earlier install. While busy, a failed run keeps the selection.
+            if (item.IsInstalled && !IsBusy) item.IsSelected = false;
+        }
         UpdateCounts(); // the "Select all" label skips installed tiles
     }
 
@@ -341,9 +346,18 @@ public sealed partial class UnlockViewModel : ObservableObject
             IsBusy = false;
             ProgressText = null;
         }
-        if (done && await _dialogs.InformAsync("Camera profiles installed",
-                $"Installed {Text.Profiles(list.Count)} for {target}. Restart Lightroom or Photoshop to use them.", "Buy me a coffee"))
-            await _launcher.OpenUrlAsync(SettingsViewModel.DonateUrl, CancellationToken.None);
+        if (!done) return;
+        try
+        {
+            if (await _dialogs.InformAsync("Camera profiles installed",
+                    $"Installed {Text.Profiles(list.Count)} for {target}. Restart Lightroom or Photoshop to use them.", "Buy me a coffee"))
+                await _launcher.OpenUrlAsync(SettingsViewModel.DonateUrl, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            // The success InfoBar already shows; a dialog failure must not crash the command.
+            _logger.LogError(ex, "Showing the install summary failed");
+        }
     }
 
     private const string RollbackFailed = "Some installed camera profiles could not be removed. Remove them on the Installed page.";
@@ -353,8 +367,7 @@ public sealed partial class UnlockViewModel : ObservableObject
     {
         try
         {
-            // No token: a cancel between the file moves and the manifest save would leave them out of sync.
-            await _store.RemoveAsync(added, CancellationToken.None);
+            await _store.RemoveAsync(added);
             return true;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)

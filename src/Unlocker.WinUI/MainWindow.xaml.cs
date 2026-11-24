@@ -1,9 +1,11 @@
-using System.Runtime.InteropServices;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using System.Runtime.InteropServices;
+using Unlocker.Presentation.Common;
 using Unlocker.Presentation.Shell;
 using Unlocker.Presentation.Unlock;
 using Unlocker.WinUI.Pages;
@@ -26,7 +28,7 @@ public sealed partial class MainWindow : Window
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
-        AppWindow.SetIcon("Assets/AppIcon.ico");
+        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "AppIcon.ico"));
 
         // AppWindow sizes are physical pixels: scale DIPs by monitor DPI.
         var scale = GetDpiForWindow(Win32Interop.GetWindowFromWindowId(AppWindow.Id)) / 96.0;
@@ -40,8 +42,11 @@ public sealed partial class MainWindow : Window
         // Window is not a FrameworkElement: x:Bind here cannot use resource converters, so badges are set in code.
         ViewModel.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(ShellViewModel.InstalledCount))
-                InstalledBadge.Visibility = ViewModel.InstalledCount > 0 ? Visibility.Visible : Visibility.Collapsed;
+            if (e.PropertyName != nameof(ShellViewModel.InstalledCount)) return;
+            var n = ViewModel.InstalledCount;
+            InstalledBadge.Visibility = n > 0 ? Visibility.Visible : Visibility.Collapsed;
+            // The badge is visual only: put the count in the item's accessible name.
+            AutomationProperties.SetName(InstalledItem, n > 0 ? $"Installed, {Text.Profiles(n)}" : "Installed");
         };
         unlock.ViewInstalledRequested += (_, _) => Navigate(typeof(InstalledPage));
         NavFrame.Navigate(typeof(StartupPage));
@@ -52,7 +57,7 @@ public sealed partial class MainWindow : Window
 
     private async void OnFirstActivated(object sender, WindowActivatedEventArgs args)
     {
-        Activated -= OnFirstActivated; // The old app re-ran init on every activation.
+        Activated -= OnFirstActivated;
         await ViewModel.InitializeAsync();
     }
 
@@ -78,6 +83,7 @@ public sealed partial class MainWindow : Window
     private void NavFrame_Navigated(object sender, NavigationEventArgs e)
     {
         NavView.IsPaneVisible = e.SourcePageType != typeof(StartupPage);
+        AppTitleBar.IsPaneToggleButtonVisible = NavView.IsPaneVisible; // a toggle for a hidden pane does nothing
         NavView.SelectedItem = e.SourcePageType == typeof(SettingsPage) ? NavView.SettingsItem
             : NavView.MenuItems.OfType<NavigationViewItem>().FirstOrDefault(i => (string)i.Tag == (e.SourcePageType == typeof(InstalledPage) ? "installed" : "unlock"));
     }

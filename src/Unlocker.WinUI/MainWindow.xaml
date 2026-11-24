@@ -42,7 +42,7 @@
                         <FontIcon Glyph="&#xE785;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem AutomationProperties.AutomationId="NavInstalled" Content="Installed" Tag="installed">
+                <NavigationViewItem x:Name="InstalledItem" AutomationProperties.AutomationId="NavInstalled" Content="Installed" Tag="installed">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE8B9;" />
                     </NavigationViewItem.Icon>

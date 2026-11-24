@@ -12,7 +12,7 @@ public sealed partial class InstalledPage : Page
 
     public InstalledViewModel ViewModel { get; } = App.Services.GetRequiredService<InstalledViewModel>();
 
-    public static string Origin(string source, bool legacy) => legacy ? "Created by older version" : $"From {source}";
+    public static string Origin(string source) => $"From {source}";
     public static string RemoveName(string name, string target) => $"Remove {name} for {target}";
 
     private async void RemoveItem_Click(object sender, RoutedEventArgs e)

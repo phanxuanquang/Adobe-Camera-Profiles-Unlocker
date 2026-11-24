@@ -1,5 +1,5 @@
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 using Unlocker.Core.Abstractions;
 using Unlocker.Infrastructure.Platform;
 using Unlocker.Infrastructure.Serialization;

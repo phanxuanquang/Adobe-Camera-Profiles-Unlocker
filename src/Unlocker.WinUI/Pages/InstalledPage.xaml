@@ -88,7 +88,7 @@
                             <DataTemplate x:DataType="common:StatusAction">
                                 <Button
                                     Margin="0,0,0,12"
-                                    AutomationProperties.AutomationId="StatusActionButton"
+                                    AutomationProperties.AutomationId="{x:Bind Label, Mode=OneTime}"
                                     Command="{x:Bind Command, Mode=OneTime}"
                                     Content="{x:Bind Label, Mode=OneTime}" />
                             </DataTemplate>
@@ -123,7 +123,7 @@
                                     <DataTemplate x:DataType="core:InstalledCameraProfile">
                                         <tk:SettingsCard
                                             AutomationProperties.AutomationId="InstalledProfileCard"
-                                            Description="{x:Bind pages:InstalledPage.Origin(SourceModel, IsLegacy), Mode=OneTime}"
+                                            Description="{x:Bind pages:InstalledPage.Origin(SourceModel), Mode=OneTime}"
                                             Header="{x:Bind Name, Mode=OneTime}">
                                             <Button
                                                 AutomationProperties.AutomationId="RemoveProfileButton"

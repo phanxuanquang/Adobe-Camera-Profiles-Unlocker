@@ -13,6 +13,7 @@ internal sealed class Launcher(ILogger<Launcher> logger) : ILauncher
 
     public async Task OpenFolderAsync(string path, CancellationToken ct = default)
     {
+        Directory.CreateDirectory(path);
         if (!await Windows.System.Launcher.LaunchFolderPathAsync(path))
             logger.LogWarning("Could not open the folder '{Path}'", path);
     }

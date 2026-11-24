@@ -31,6 +31,7 @@
                 Style="{StaticResource SectionHeader}"
                 Text="Updates" />
             <tk:SettingsCard AutomationProperties.AutomationId="UpdateCard"
+                AutomationProperties.LiveSetting="Polite"
                 Description="{x:Bind ViewModel.UpdateStatus}"
                 Header="{x:Bind pages:SettingsPage.VersionText(ViewModel.AppVersion), Mode=OneTime}"
                 HeaderIcon="{ui:FontIcon Glyph=&#xE895;}">

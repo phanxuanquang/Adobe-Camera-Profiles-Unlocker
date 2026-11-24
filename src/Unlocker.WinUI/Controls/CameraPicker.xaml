@@ -45,7 +45,8 @@
             IsItemClickEnabled="True"
             ItemClick="List_ItemClick"
             ItemsSource="{x:Bind Groups.View}"
-            SelectionMode="Single">
+            SelectionMode="Single"
+            SingleSelectionFollowsFocus="False">
             <ListView.GroupStyle>
                 <GroupStyle>
                     <GroupStyle.HeaderTemplate>

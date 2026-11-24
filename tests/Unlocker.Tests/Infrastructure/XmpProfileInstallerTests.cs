@@ -1,6 +1,5 @@
 using Unlocker.Core.Rules;
 using Unlocker.Infrastructure.Installing;
-using Unlocker.Infrastructure.Platform;
 using Unlocker.Tests.Support;
 
 namespace Unlocker.Tests.Infrastructure;
