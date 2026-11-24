@@ -1,39 +1,38 @@
 # Adobe Camera Profiles Unlocker: Claude instructions
 
-Rewrite of Windows app that copies camera profiles (Camera Raw) between camera models. Code `src/`. Old app removed (git history on `master`, commit `cc278d2`). UI spec = `docs/ux-flow.md` (HTML mock removed).
+Windows app (WinUI 3, .NET 10) that copies Camera Raw camera profiles from one camera model to another. Maintenance mode: fix bugs, keep dependencies current, small features. Code in `src/`, tests in `tests/`, docs in `docs/` (start at `docs/README.md`).
 
-## Start every session
-1. Read `docs/plan.md`: find current step.
-2. Read only docs that step needs (index `docs/README.md`).
-3. Invoke matching skills BEFORE acting (`docs/tooling.md`). Skills are mandatory, not optional.
+## Every task
+1. Read only the docs the task needs: `docs/README.md` has the map.
+2. Before changing something that looks odd, check `docs/decisions.md`.
+3. Use the matching skills (table in `docs/development.md`, "AI assistants").
 
 ## Communication
-- Reply to owner in Vietnamese. Code, comments, commits, docs in English.
-- Caveman terse (caveman skill on). Ponytail scope (ponytail skill on): smallest correct change, stdlib/platform first, no speculative abstractions.
-- Ask only for owner-level decisions (listed in plan.md "Open questions"). Otherwise pick sensible default, state it, continue.
+- Reply to the owner in Vietnamese. Code, comments, commits and docs in English.
+- Ask only for owner-level choices (product behavior, release, cost). Otherwise pick a sensible default, say so, continue.
+- Smallest correct change: standard library / platform first, no speculative abstractions.
 
 ## Hard rules
-- Never modify Adobe originals under `C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Camera\` or `...\Settings\Adobe\`. Copy, rewrite copy.
-- Never delete files not in app manifest.
-- App runs non-admin. No elevation. Assume first install: no old-app files handled.
-- Layering per `docs/architecture.md`: Presentation never refs UI framework or Infrastructure.
-- DI lifetimes per `docs/di-lifetimes.md`.
-- Before writing XAML: `winapp find-ui` / `winapp find-api` (no guessed APIs). Unknown .NET API: Microsoft Learn MCP.
-- Never `AnyCPU`. Keep `Package.appxmanifest`.
-- No commit / push unless owner asks. Branch off `master` first.
+- Never modify Adobe originals under `C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Camera\`, `...\Adobe Standard\` or `...\Settings\Adobe\`. Copy, then rewrite the copy.
+- Never delete files that are not in the app manifest.
+- No admin rights, no elevation. Assume a first install: old-app files are not handled.
+- Layering (`docs/architecture.md`): Presentation never references a UI framework or Infrastructure. DI lifetimes per the same file.
+- Before writing XAML: `winapp find-ui` / `winapp find-api`, no guessed APIs. Unknown .NET API: Microsoft Learn MCP.
+- x64 + ARM64 only, never `AnyCPU`. Keep `Package.appxmanifest`.
+- Commit or push only when the owner asks. Work on a branch, PR to `master`.
 
 ## Verify before "done"
 - `dotnet build` 0 warnings, `dotnet test` green.
-- UI: run app (`winapp run`), screenshot, check against `docs/ux-flow.md`. Judge visually, never from code alone. Light, dark, narrow, High Contrast.
-- Profile output: check Camera Raw Profile Browser shows look (ask owner to confirm when needed).
-- Update `docs/plan.md` status + decisions. New durable fact -> correct docs file (one topic per file), caveman English.
+- UI change: run the app, screenshot, compare with `docs/ui.md`. Light, dark, narrow, High Contrast. Never judge UI from code alone.
+- Output file change: the owner checks the Camera Raw Profile Browser.
+- A fact changed -> update the doc that owns it. A choice made -> add it to `docs/decisions.md`.
 
 ## Commands
 ```powershell
 cd src
-dotnet build Unlocker.slnx                      # builds tests too
+dotnet build Unlocker.slnx                       # builds tests too
 dotnet test ../tests/Unlocker.Tests
-winapp run Unlocker.WinUI --detach --json        # then: winapp ui screenshot -a <pid> -o shot.png
-grep -rn "TODO(step 2)" .                         # work items of current step
-..\tests\ui-tests.ps1 -Target local            # UI smoke batch, look at every PNG
+winapp run Unlocker.WinUI --detach --json         # then: winapp ui screenshot -a <pid> -o shot.png
+..\tests\ui-tests.ps1 -Target local               # UI smoke batch, look at every PNG
+dotnet publish Unlocker.WinUI -c Release -p:Platform=x64 -o out\x64   # release folder (CI does this per tag)
 ```

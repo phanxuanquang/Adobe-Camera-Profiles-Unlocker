@@ -10,7 +10,7 @@ using Unlocker.Infrastructure.Updates;
 
 namespace Unlocker.Infrastructure;
 
-/// <summary>Lifetimes: docs/di-lifetimes.md.</summary>
+/// <summary>Lifetimes: docs/architecture.md.</summary>
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)

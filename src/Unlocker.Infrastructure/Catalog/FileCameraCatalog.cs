@@ -8,7 +8,7 @@ using Unlocker.Infrastructure.Platform;
 
 namespace Unlocker.Infrastructure.Catalog;
 
-/// <summary>Scans Camera Raw once and caches names and paths only (layout: docs/adobe-paths.md).</summary>
+/// <summary>Scans Camera Raw once and caches names and paths only (layout: docs/camera-profiles.md).</summary>
 internal sealed class FileCameraCatalog(AppPaths paths, ILogger<FileCameraCatalog> logger) : ICameraCatalog
 {
     private static readonly string RdfNs = XmpProfileInstaller.Rdf.NamespaceName;

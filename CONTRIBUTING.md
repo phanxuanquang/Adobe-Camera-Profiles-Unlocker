@@ -26,15 +26,14 @@ dotnet test ../tests/Unlocker.Tests
 winapp run Unlocker.WinUI        # or F5 in Visual Studio
 ```
 
-### Project layout
-| Project | Role |
-|---|---|
-| `Unlocker.Core` | Models, abstractions, camera profile rewrite rules. No I/O. |
-| `Unlocker.Infrastructure` | File system, catalog scan, installer, JSON storage, update check. |
-| `Unlocker.Presentation` | ViewModels (CommunityToolkit.Mvvm). No UI framework references. |
-| `Unlocker.WinUI` | WinUI 3 views, DI setup, platform services. |
-| `tests/Unlocker.Tests` | MSTest unit and integration tests. |
-| `tests/ui-tests.ps1` | UI smoke tests on the running app (WinApp CLI). Installs and removes one camera profile. |
+### Release
+Push a tag such as `v3.1.0` on `master`. [release.yml](.github/workflows/release.yml) runs the tests, publishes a self-contained app for x64 and ARM64 (version taken from the tag), and attaches one zip per architecture to a new GitHub release. To build the same folder locally:
+```powershell
+dotnet publish Unlocker.WinUI -c Release -p:Platform=x64 -o out\x64
+```
+
+### How the code is organized
+Start with [docs/README.md](docs/README.md): how the app works, then one page each for the architecture, camera profile formats, UI spec, development workflow and past decisions.
 
 ## Rules for code changes
 These rules protect users' Adobe installs. Pull requests that break them are not merged.
@@ -45,11 +44,7 @@ These rules protect users' Adobe installs. Pull requests that break them are not
 - Build for `x64` and `ARM64`. Never `AnyCPU`.
 
 ## Code style
-- One type per file. Folder name = namespace.
-- Comments only where the code cannot explain itself.
-- Use the term **camera profile** in UI and code.
-- `ILogger<T>` for logging. `CancellationToken` on async methods that do I/O.
-- Use `{ThemeResource}` brushes and built-in text styles in XAML. Set `AutomationProperties` on interactive controls.
+See [docs/development.md](docs/development.md#conventions). In short: one type per file, comments only for the why, the term **camera profile** everywhere, `{ThemeResource}` brushes and `AutomationProperties` in XAML.
 
 ## Pull requests
 1. Fork the repo and create a branch from `master`.

@@ -7,7 +7,7 @@ using Unlocker.Presentation.Unlock;
 
 namespace Unlocker.Presentation;
 
-/// <summary>The UI project registers the Ports. Lifetimes: docs/di-lifetimes.md.</summary>
+/// <summary>The UI project registers the Ports. Lifetimes: docs/architecture.md.</summary>
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddPresentation(this IServiceCollection services)

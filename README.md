@@ -2,8 +2,6 @@
 
 A Windows app that copies camera profiles (camera-matching color profiles such as Fujifilm *Classic Chrome* or Canon *Portrait*) from one camera model to another, so Adobe Camera Raw, Lightroom Classic and Photoshop show them for **your** camera.
 
-Example: use Fujifilm Film Simulations on raw photos from a Sony ILCE-7M4.
-
 ![Pick camera profiles from other brands and install them for your camera](.github/assets/unlock.png)
 
 ## :sparkles: Features
@@ -12,13 +10,13 @@ Example: use Fujifilm Film Simulations on raw photos from a Sony ILCE-7M4.
 - Choose which model to copy from ("Copied from"). The model with the most camera profiles is picked by default.
 - Install many camera profiles at once, with Cancel and Undo.
 - See and remove what you installed, per camera. Removing also has Undo.
-- No admin rights needed. Adobe's original files are never changed.
+- No install and no admin rights needed. Adobe's original files are never changed.
 - Follows the Windows light or dark theme.
 
 ## :pushpin: Supported camera brands
 Canon, Fujifilm, Leica, Nikon, Olympus, OM Digital Solutions, Panasonic Lumix, Pentax, Ricoh, Sigma and Sony.
 
-The full list of camera models is in [Supported Camera Models.md](Supported%20Camera%20Models.md). What you see in the app depends on the Camera Raw version installed on your PC.
+What you see in the app depends on the Camera Raw version installed on your PC.
 
 ## :computer: System requirements
 
@@ -31,11 +29,13 @@ The full list of camera models is in [Supported Camera Models.md](Supported%20Ca
 ## :blue_book: How to use
 
 ### Windows
-1. Download the latest version from the [Releases page](https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/releases/latest).
-2. Open the app and pick **your camera**.
-3. Pick a brand, tick the camera profiles you want, then select **Install**.
-4. Restart Photoshop or Lightroom.
-5. In Camera Raw or Lightroom, open the **Profile** browser. The new camera profiles are listed as `<Source camera>: <Profile name>`.
+1. Download the zip for your PC from the [Releases page](https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker/releases/latest): `win-x64` for most PCs, `win-arm64` for ARM PCs (for example Snapdragon).
+2. Extract the zip to a folder and run `Adobe Camera Profiles Unlocker.exe`. No install needed.
+   The app is not code-signed, so Windows SmartScreen may warn on first run: select **More info**, then **Run anyway**.
+3. Pick **your camera**.
+4. Pick a brand, tick the camera profiles you want, then select **Install**.
+5. Restart Photoshop or Lightroom.
+6. In Camera Raw or Lightroom, open the **Profile** browser. The new camera profiles are listed as `<Source camera>: <Profile name>`.
 
 | Pick your camera | Manage installed camera profiles |
 |---|---|
@@ -53,10 +53,11 @@ The app runs on Windows only. To use the camera profiles on a Mac:
 ## :exclamation: Important notes
 - Camera profiles apply to **raw** files only (for example `.ARW` for Sony, `.NEF` for Nikon).
 - You **must** restart Adobe apps after you install or remove camera profiles.
-- Installed files go to the `Phan Xuan Quang` subfolders of `C:\ProgramData\Adobe\CameraRaw\CameraProfiles` and `C:\ProgramData\Adobe\CameraRaw\Settings`.
+- Installed files go to the `Phan Xuan Quang` subfolders of `C:\ProgramData\Adobe\CameraRaw\CameraProfiles` and `C:\ProgramData\Adobe\CameraRaw\Settings`, named `<Source camera> <Profile name> (for <Your camera>)`.
+- To uninstall: remove your camera profiles on the **Installed** page first, then delete the app folder and `%LocalAppData%\CameraProfilesUnlocker`.
 
 ## :handshake: Contributing
-Bug reports, ideas and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+Bug reports, ideas and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first; maintainer docs are in [docs/](docs/README.md).
 
 ## :gift: Support me
 

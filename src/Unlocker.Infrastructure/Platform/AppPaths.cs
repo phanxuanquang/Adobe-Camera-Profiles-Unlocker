@@ -1,6 +1,6 @@
 namespace Unlocker.Infrastructure.Platform;
 
-/// <summary>Every path the app reads or writes (docs/adobe-paths.md). Tests build one on temp folders.</summary>
+/// <summary>Every path the app reads or writes (docs/camera-profiles.md). Tests build one on temp folders.</summary>
 internal sealed record AppPaths(
     string CameraRawRoot,
     string DcpProfilesDir,
