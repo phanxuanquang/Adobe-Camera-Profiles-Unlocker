@@ -30,8 +30,8 @@ jobs:
 
       - name: Test
         run: |
-          dotnet build Unlocker.slnx -c Release -p:Platform=x64
-          dotnet test ../tests/Unlocker.Tests -c Release -p:Platform=x64 --no-build
+          dotnet build Unlocker.slnx -c Release
+          dotnet test ../tests/Unlocker.Tests -c Release --no-build
 
       # The tag sets the app version: the in-app update check compares it with the latest release tag.
       - name: Publish and zip
