@@ -88,12 +88,14 @@ flowchart LR
     W --> B[build + test x64]
     B --> P["publish x64 + ARM64<br/>(version from tag)"]
     P --> Z[zip per arch]
-    Z --> R[GitHub release<br/>+ generated notes]
+    Z --> R["Draft release<br/>notes from commits"]
+    R --> E["You: polish notes,<br/>Publish"]
 ```
 
 - Format: unpackaged, self-contained (no .NET install needed), one zip per architecture. Publish-only settings in `Unlocker.WinUI.csproj`: `SelfContained`, `WindowsPackageType=None`, `PublishReadyToRun`. Non-English `.mui` folders are removed after publish.
 - Local build of the same folder: `dotnet publish Unlocker.WinUI -c Release -p:Platform=x64 -o out\x64`.
-- The in-app update check compares the running version with the latest release tag, so always tag `vX.Y.Z`.
+- The in-app update check compares the running version with the latest **published** release tag, so always tag `vX.Y.Z`. Drafts are invisible to it.
+- Release notes: `.github/release-notes.ps1` groups commit subjects since the previous `v*` tag (`feat` → Features, `fix` → Fixes, the rest folded under Maintenance) into `.github/release-notes-template.md`, which also holds the fixed install instructions. Commit messages therefore follow conventional commits. Before publishing, rewrite "What's new" for photographers; with Claude Code: *"write release notes for vX.Y.Z"* (it edits the draft with `gh release edit`). Preview locally: `./.github/release-notes.ps1 -Tag HEAD`.
 - Not code-signed yet: SmartScreen warns on first run. Signing would be one step before zipping (SignPath Foundation, free for open source, or Azure Artifact Signing).
 - CI (`ci.yml`) builds x64 + ARM64 and runs the tests on every push and PR to `master`. Dependabot updates NuGet packages and Actions.
 

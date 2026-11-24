@@ -1,6 +1,7 @@
 name: Release
 
-# Push a tag like v3.0.0: tests run, then one zip per architecture goes to a new GitHub release.
+# Push a tag like v3.0.0: tests run, then one zip per architecture goes to a new draft GitHub release.
+# Polish the notes, then publish: the in-app update check ignores drafts.
 on:
   push:
     tags: ['v*']
@@ -23,6 +24,8 @@ jobs:
       TAG: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0   # tags + history for the release notes
 
       - uses: actions/setup-dotnet@v6
         with:
@@ -47,4 +50,6 @@ jobs:
       - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create $env:TAG ../out/*.zip --title $env:TAG --generate-notes
+        run: |
+          ../.github/release-notes.ps1 -Tag $env:TAG -Repo $env:GITHUB_REPOSITORY | Set-Content ../out/notes.md
+          gh release create $env:TAG ../out/*.zip --draft --verify-tag --title $env:TAG --notes-file ../out/notes.md
