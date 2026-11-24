@@ -6,19 +6,23 @@ namespace Unlocker.Tests.Infrastructure;
 [TestClass]
 public sealed class DcpFileTests
 {
-    /// <summary>Little-endian DCP ("IIRC") like Adobe ships: restriction, name, a 9 x SRATIONAL matrix (out of line), a SHORT (inline).</summary>
-    internal static byte[] Sample(string name = "Camera Portrait", string restriction = "Canon EOS R5")
+    /// <summary>Little-endian DCP ("IIRC") like Adobe ships: restriction, name, ColorMatrix1 (9 x SRATIONAL, out of line),
+    /// CalibrationIlluminant1 (SHORT, inline), a look table stand-in (6 x FLOAT). Seeds make matrix and look bytes differ between samples.</summary>
+    internal static byte[] Sample(string name = "Camera Portrait", string restriction = "Canon EOS R5", byte matrixSeed = 0, byte lookSeed = 0)
     {
         var matrix = new byte[72];
-        for (var i = 0; i < matrix.Length; i++) matrix[i] = (byte)i;
+        for (var i = 0; i < matrix.Length; i++) matrix[i] = (byte)(i + matrixSeed);
+        var look = new byte[24];
+        for (var i = 0; i < look.Length; i++) look[i] = (byte)(i + lookSeed);
         List<DcpFile.Entry> entries = [
             new DcpFile.Entry(0xC614, 2, (uint)restriction.Length + 1, Ascii(restriction)),
             new DcpFile.Entry(0xC621, 10, 9, matrix),
             new DcpFile.Entry(0xC65A, 3, 1, new byte[] { 17, 0 }),
             new DcpFile.Entry(0xC6F4, 2, 10, Ascii("com.adobe")),
             new DcpFile.Entry(0xC6F8, 2, (uint)name.Length + 1, Ascii(name)),
+            new DcpFile.Entry(0xC726, 11, 6, look),
         ];
-        // Header + IFD (5 entries) + out-of-line data: restriction, matrix, signature, name (inline when <= 4 bytes).
+        // Header + IFD + out-of-line data: restriction, matrix, signature, name (inline when <= 4 bytes).
         var bytes = new byte[8 + 2 + entries.Count * 12 + 4];
         "IIRC"u8.CopyTo(bytes);
         bytes[4] = 8;

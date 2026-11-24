@@ -22,6 +22,16 @@ internal sealed class DcpFile
         (0xC6FE, "Copyright"),                    // ProfileCopyright (50942)
     ];
 
+    /// <summary>Sensor calibration: maps the camera's raw data to XYZ. Adobe Standard and camera-matching DCPs of one camera share it.</summary>
+    private static readonly ushort[] CalibrationTags =
+    [
+        0xC621, 0xC622, // ColorMatrix1, ColorMatrix2 (50721, 50722)
+        0xC65A, 0xC65B, // CalibrationIlluminant1, CalibrationIlluminant2 (50778, 50779)
+    ];
+
+    /// <summary>DNG 1.6 third illuminant (CalibrationIlluminant3, ColorMatrix3, ForwardMatrix3, IlluminantData1-3).</summary>
+    private static readonly ushort[] ThirdIlluminantTags = [0xCD31, 0xCD33, 0xCD34, 0xCD35, 0xCD36, 0xCD37];
+
     private readonly List<Entry> _entries;
 
     private DcpFile(List<Entry> entries) => _entries = entries;
@@ -90,6 +100,18 @@ internal sealed class DcpFile
             Encoding.UTF8.GetBytes(value, data);
             _entries.Add(new Entry(tag, (ushort)(Ascii.IsValid(value) ? 2 : 1), (uint)data.Length, data));
         }
+        _entries.Sort((a, b) => a.Tag.CompareTo(b.Tag));
+    }
+
+    /// <summary>
+    /// Takes the sensor calibration of <paramref name="calibration"/> (the target camera's Adobe Standard) and keeps this profile's look
+    /// (ForwardMatrix, look table, tone curve). Its entries slice <paramref name="calibration"/>'s buffer: keep it alive until <see cref="WriteTo"/>.
+    /// shortcut: the third illuminant set is dropped, not taken from the target; take it too if Adobe Standard DCPs start shipping one.
+    /// </summary>
+    public void CopyCalibrationFrom(DcpFile calibration)
+    {
+        _entries.RemoveAll(e => CalibrationTags.Contains(e.Tag) || ThirdIlluminantTags.Contains(e.Tag));
+        _entries.AddRange(calibration._entries.Where(e => CalibrationTags.Contains(e.Tag)));
         _entries.Sort((a, b) => a.Tag.CompareTo(b.Tag));
     }
 

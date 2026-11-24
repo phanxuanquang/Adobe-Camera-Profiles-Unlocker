@@ -12,12 +12,14 @@ namespace Unlocker.Tests.Infrastructure;
 public sealed class CameraProfileInstallerTests : TempFolderTest
 {
     private CameraProfileInstaller Installer() => new(
-        new DcpProfileInstaller(Paths, new CameraProfileRewriter()),
+        Dcp(),
         new XmpProfileInstaller(Paths, new CameraProfileRewriter()),
         NullLogger<CameraProfileInstaller>.Instance);
 
+    private DcpProfileInstaller Dcp() => new(Paths, new CameraProfileRewriter(), NullLogger<DcpProfileInstaller>.Instance);
+
     [TestMethod]
-    public async Task Dcp_writes_rewritten_copy_to_output_dir()
+    public async Task Dcp_without_adobe_standard_writes_rewritten_copy_to_output_dir()
     {
         var src = Path.Combine(Paths.DcpProfilesDir, "Canon EOS R5", "Canon EOS R5 Camera Portrait.dcp");
         Directory.CreateDirectory(Path.GetDirectoryName(src)!);
@@ -29,12 +31,45 @@ public sealed class CameraProfileInstallerTests : TempFolderTest
 
         var output = Path.Combine(Paths.DcpOutputDir, "Portrait (for Sony ILCE-7M4).dcp");
         CollectionAssert.AreEqual(new[] { output }, result.Files.ToArray());
-        CollectionAssert.AreEqual(DcpFileTests.Rewrite(before, t => new DcpProfileInstaller(Paths, new CameraProfileRewriter()).Rewrite(t, "Canon EOS R5", "Sony ILCE-7M4")), File.ReadAllBytes(output));
+        CollectionAssert.AreEqual(DcpFileTests.Rewrite(before, t => Dcp().Rewrite(t, "Canon EOS R5", "Sony ILCE-7M4")), File.ReadAllBytes(output));
         var strings = DcpFileTests.ReadStrings(File.ReadAllBytes(output));
         Assert.AreEqual("Sony ILCE-7M4", strings["CameraModelRestriction"]);
         Assert.AreEqual("Canon EOS R5: Portrait", strings["Name"]);
         CollectionAssert.AreEqual(before, File.ReadAllBytes(src));
         Assert.AreEqual(("Portrait", "Canon EOS R5", "Sony ILCE-7M4", false), (result.Name, result.SourceModel, result.TargetModel, result.IsLegacy));
+    }
+
+    [TestMethod]
+    public async Task Dcp_takes_calibration_from_target_adobe_standard_and_keeps_source_look()
+    {
+        var src = Path.Combine(Paths.DcpProfilesDir, "Canon EOS R5", "Canon EOS R5 Camera Portrait.dcp");
+        Directory.CreateDirectory(Path.GetDirectoryName(src)!);
+        File.WriteAllBytes(src, DcpFileTests.Sample(matrixSeed: 0, lookSeed: 1));
+        var adobeStandard = DcpFileTests.Sample("Adobe Standard", "Sony ILCE-7M4", matrixSeed: 100, lookSeed: 2);
+        Directory.CreateDirectory(Paths.AdobeStandardDir);
+        File.WriteAllBytes(Paths.AdobeStandardFile("Sony ILCE-7M4"), adobeStandard);
+
+        var result = await Installer().InstallAsync(new CameraProfile("Portrait", src, CameraProfileFormat.DCP), "Canon EOS R5", "Sony ILCE-7M4");
+
+        var output = DcpFile.Parse(File.ReadAllBytes(result.Files[0])).Entries;
+        byte[] Data(IReadOnlyList<DcpFile.Entry> entries, ushort tag) => entries.Single(e => e.Tag == tag).Data.ToArray();
+        CollectionAssert.AreEqual(Data(DcpFile.Parse(adobeStandard).Entries, 0xC621), Data(output, 0xC621)); // ColorMatrix1 from Adobe Standard
+        CollectionAssert.AreEqual(Data(DcpFile.Parse(File.ReadAllBytes(src)).Entries, 0xC726), Data(output, 0xC726)); // look table from source
+        Assert.AreEqual("Canon EOS R5: Portrait", DcpFileTests.ReadStrings(File.ReadAllBytes(result.Files[0]))["Name"]);
+    }
+
+    [TestMethod]
+    public async Task Dcp_with_unreadable_adobe_standard_keeps_source_calibration()
+    {
+        var src = Path.Combine(Paths.DcpProfilesDir, "Canon EOS R5", "Canon EOS R5 Camera Portrait.dcp");
+        Directory.CreateDirectory(Path.GetDirectoryName(src)!);
+        var before = DcpFileTests.Sample();
+        File.WriteAllBytes(src, before);
+        Touch(Paths.AdobeStandardFile("Sony ILCE-7M4")); // "x": not a DCP
+
+        var result = await Installer().InstallAsync(new CameraProfile("Portrait", src, CameraProfileFormat.DCP), "Canon EOS R5", "Sony ILCE-7M4");
+
+        CollectionAssert.AreEqual(DcpFileTests.Rewrite(before, t => Dcp().Rewrite(t, "Canon EOS R5", "Sony ILCE-7M4")), File.ReadAllBytes(result.Files[0]));
     }
 
     [TestMethod]

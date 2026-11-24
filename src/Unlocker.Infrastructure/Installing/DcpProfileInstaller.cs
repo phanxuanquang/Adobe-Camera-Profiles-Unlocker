@@ -1,4 +1,5 @@
 using System.Buffers;
+using Microsoft.Extensions.Logging;
 using Unlocker.Core.Enums;
 using Unlocker.Core.Models;
 using Unlocker.Core.Rules;
@@ -6,22 +7,38 @@ using Unlocker.Infrastructure.Platform;
 
 namespace Unlocker.Infrastructure.Installing;
 
-internal sealed class DcpProfileInstaller(AppPaths paths, CameraProfileRewriter rewriter)
+internal sealed class DcpProfileInstaller(AppPaths paths, CameraProfileRewriter rewriter, ILogger<DcpProfileInstaller> logger)
 {
+    /// <summary>New DCP = source look + the target camera's calibration from its Adobe Standard. Source and Adobe Standard are only read.</summary>
     public async Task<string> InstallAsync(CameraProfile profile, string sourceModel, string targetModel, CancellationToken ct)
     {
-        byte[]? input = null, output = null;
+        byte[]? input = null, calibration = null, output = null;
         try
         {
             int length;
-            await using (var source = new FileStream(profile.SourcePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 0, FileOptions.Asynchronous))
+            (input, length) = await ReadAsync(profile.SourcePath, ct);
+            var dcp = DcpFile.Parse(input.AsMemory(0, length));
+
+            var adobeStandard = paths.AdobeStandardFile(targetModel);
+            if (!File.Exists(adobeStandard))
             {
-                length = checked((int)source.Length);
-                input = ArrayPool<byte>.Shared.Rent(length);
-                await source.ReadExactlyAsync(input.AsMemory(0, length), ct);
+                logger.LogWarning("No Adobe Standard for {TargetModel} at {Path}: {Profile} keeps the {SourceModel} calibration",
+                    targetModel, adobeStandard, profile.Name, sourceModel);
+            }
+            else
+            {
+                (calibration, length) = await ReadAsync(adobeStandard, ct);
+                try
+                {
+                    dcp.CopyCalibrationFrom(DcpFile.Parse(calibration.AsMemory(0, length)));
+                }
+                catch (InvalidDataException e)
+                {
+                    // A broken Adobe file must not block the install or be reported as a broken source profile.
+                    logger.LogWarning(e, "Unreadable Adobe Standard {Path}: {Profile} keeps the {SourceModel} calibration", adobeStandard, profile.Name, sourceModel);
+                }
             }
 
-            var dcp = DcpFile.Parse(input.AsMemory(0, length));
             var tags = dcp.GetStrings();
             Rewrite(tags, sourceModel, targetModel);
             dcp.SetStrings(tags);
@@ -46,6 +63,7 @@ internal sealed class DcpProfileInstaller(AppPaths paths, CameraProfileRewriter 
         finally
         {
             if (input is not null) ArrayPool<byte>.Shared.Return(input);
+            if (calibration is not null) ArrayPool<byte>.Shared.Return(calibration);
             if (output is not null) ArrayPool<byte>.Shared.Return(output);
         }
     }
@@ -55,5 +73,23 @@ internal sealed class DcpProfileInstaller(AppPaths paths, CameraProfileRewriter 
         rewriter.Rewrite(tags, sourceModel, targetModel);
         if (tags.TryGetValue("ProfileCalibrationSignature", out var signature))
             tags["ProfileCalibrationSignature"] = signature.Replace("com.adobe", CameraProfileRewriter.AuthorSignature, StringComparison.Ordinal);
+    }
+
+    /// <summary>Whole file into a pooled buffer; the caller returns it.</summary>
+    private static async Task<(byte[] Buffer, int Length)> ReadAsync(string path, CancellationToken ct)
+    {
+        await using var source = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 0, FileOptions.Asynchronous);
+        var length = checked((int)source.Length);
+        var buffer = ArrayPool<byte>.Shared.Rent(length);
+        try
+        {
+            await source.ReadExactlyAsync(buffer.AsMemory(0, length), ct);
+            return (buffer, length);
+        }
+        catch
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+            throw;
+        }
     }
 }

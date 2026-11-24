@@ -4,6 +4,7 @@ Verified 2026-11-23 on dev machine, Camera Raw latest, non-admin shell.
 
 ## Read (Adobe originals, read-only)
 - DCP camera profiles: `C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Camera\<Model>\<Model> Camera <Name>.dcp`
+- Adobe Standard DCPs (sensor calibration source, read only): `C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Adobe Standard\<Model> Adobe Standard.dcp` (1503 files, 2026-11-24)
   - ~396 model folders. Folder name = model name (`Canon EOS 1000D`).
 - XMP camera profiles: `C:\ProgramData\Adobe\CameraRaw\Settings\Adobe\Profiles\Camera\<Brand>\<Model>\<Model> Camera <Name>.xmp`
   - Mostly nested per model (533 files); a few flat in brand folder (6, e.g. `Fujifilm GFX 100`). Scan recursively. Model = `crs:CameraModelRestriction`, NOT folder name. (Old app mistook brand folder for model.)
@@ -14,7 +15,7 @@ Verified 2026-11-23 on dev machine, Camera Raw latest, non-admin shell.
 
 ## Write (app output)
 Adobe docs: DCP -> `C:\ProgramData\Adobe\CameraRaw\CameraProfiles\`, XMP -> `C:\ProgramData\Adobe\CameraRaw\Settings\`.
-App uses own subfolder: `...\CameraProfiles\Unlocker\`, `...\Settings\Unlocker\`. Verified 2026-11-23 (owner, Profile Browser, Sony ILCE-7M4 raw): both subfolders scanned, XMP + DCP copies show and apply.
+App uses own subfolder: `...\CameraProfiles\Phan Xuan Quang\`, `...\Settings\Phan Xuan Quang\` (renamed from `Unlocker` 2026-11-24, owner; files already installed under `Unlocker` stay tracked by full path in the manifest). `Unlocker` subfolders verified 2026-11-23 (owner, Profile Browser, Sony ILCE-7M4 raw): both subfolders scanned, XMP + DCP copies show and apply.
 
 NOT `%AppData%\Adobe\CameraRaw\Settings` (per-image settings DB). Old app also wrote `%AppData%\...\CameraProfiles`: drop.
 

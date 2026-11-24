@@ -45,6 +45,8 @@ internal sealed class XmpProfileInstaller(AppPaths paths, CameraProfileRewriter 
     {
         rewriter.Rewrite(tags, sourceModel, targetModel);
         tags["UUID"] = Guid.NewGuid().ToString("N").ToUpperInvariant();
-        tags["CameraProfile"] = "Camera Standard";
+        // The look sits on a base profile Camera Raw finds by name for the target camera. Camera Standard is closest to the
+        // source's maker base (e.g. PROVIA) but only some cameras have it; every camera has Adobe Standard (owner, 2026-11-24).
+        tags["CameraProfile"] = File.Exists(paths.CameraStandardFile(targetModel)) ? "Camera Standard" : "Adobe Standard";
     }
 }

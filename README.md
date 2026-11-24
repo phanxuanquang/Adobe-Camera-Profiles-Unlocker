@@ -46,14 +46,14 @@ To remove camera profiles, open the **Installed** page.
 ### macOS (manual)
 The app runs on Windows only. To use the camera profiles on a Mac:
 1. Install them on a Windows PC for the Mac user's camera.
-2. Copy `C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Unlocker` to `/Library/Application Support/Adobe/CameraRaw/CameraProfiles/` on the Mac.
-3. Copy `C:\ProgramData\Adobe\CameraRaw\Settings\Unlocker` to `/Library/Application Support/Adobe/CameraRaw/Settings/` on the Mac.
+2. Copy `C:\ProgramData\Adobe\CameraRaw\CameraProfiles\Phan Xuan Quang` to `/Library/Application Support/Adobe/CameraRaw/CameraProfiles/` on the Mac.
+3. Copy `C:\ProgramData\Adobe\CameraRaw\Settings\Phan Xuan Quang` to `/Library/Application Support/Adobe/CameraRaw/Settings/` on the Mac.
 4. Restart Photoshop or Lightroom.
 
 ## :exclamation: Important notes
 - Camera profiles apply to **raw** files only (for example `.ARW` for Sony, `.NEF` for Nikon).
 - You **must** restart Adobe apps after you install or remove camera profiles.
-- Installed files go to the `Unlocker` subfolders of `C:\ProgramData\Adobe\CameraRaw\CameraProfiles` and `C:\ProgramData\Adobe\CameraRaw\Settings`.
+- Installed files go to the `Phan Xuan Quang` subfolders of `C:\ProgramData\Adobe\CameraRaw\CameraProfiles` and `C:\ProgramData\Adobe\CameraRaw\Settings`.
 - Camera profiles installed by older versions of this app are detected on the **Installed** page. Removing them asks for admin permission once.
 
 ## :handshake: Contributing
