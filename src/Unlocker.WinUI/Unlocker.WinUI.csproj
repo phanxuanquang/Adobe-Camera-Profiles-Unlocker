@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
@@ -7,16 +7,26 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon Condition="Exists('Assets\AppIcon.ico')">Assets\AppIcon.ico</ApplicationIcon>
     <Platforms>x64;ARM64</Platforms>
-    <!-- RID follows Platform, not the dotnet process architecture (x64 dotnet on an ARM64 machine gave NETSDK1032). -->
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(Platform)' == 'ARM64'">win-arm64</RuntimeIdentifier>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
-    <PublishProfile Condition="Exists('Properties\PublishProfiles\win-$(Platform).pubxml')">win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
-    <!-- Unpackaged F5 needs the Windows App SDK runtime in the output, else REGDB_E_CLASSNOTREG. Publish settings: TODO at release (plan.md). -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <EnableMsixTooling>true</EnableMsixTooling>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks> <!-- LibraryImport GetDpiForWindow -->
-    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks> 
+    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled> 
+    <AssemblyName>Adobe Camera Profiles Unlocker</AssemblyName>
+    <Description>A tool to unlock hidden Camera Profiles in Adobe Lightroom and Adobe Camera Raw, enabling enhanced color matching for a wide range of camera brands.</Description>
+    <PackageProjectUrl></PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/phanxuanquang/Adobe-Camera-Profiles-Unlocker</RepositoryUrl>
+    <PackageTags>adobe,dcp,xmp,profile,preset,lightroom,acr,pts</PackageTags>
+  </PropertyGroup>
+  <!-- Release = zip of the publish folder on GitHub Releases: no .NET install needed. No trimming: WinUI/Toolkit use reflection. -->
+  <PropertyGroup Condition="'$(_IsPublishing)' == 'true'">
+    <SelfContained>true</SelfContained>
+    <WindowsPackageType>None</WindowsPackageType>
+    <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
   <Target Name="RemoveFoldersWithMuiFiles" AfterTargets="Build">
     <ItemGroup>
@@ -24,6 +34,12 @@
       <RemovingFolders Include="@(RemovingFiles->'%(RootDir)%(Directory)')" />
     </ItemGroup>
     <RemoveDir Directories="@(RemovingFolders)" />
+  </Target>
+  <Target Name="RemovePublishedMuiFolders" AfterTargets="Publish">
+    <ItemGroup>
+      <PublishedMui Include="$(PublishDir)*\*.mui" Exclude="$(PublishDir)en-us\*.mui" />
+    </ItemGroup>
+    <RemoveDir Directories="@(PublishedMui->'%(RootDir)%(Directory)'->Distinct())" />
   </Target>
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />

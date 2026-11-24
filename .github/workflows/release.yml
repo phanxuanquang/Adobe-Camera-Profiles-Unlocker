@@ -1,0 +1,50 @@
+name: Release
+
+# Push a tag like v3.0.0: tests run, then one zip per architecture goes to a new GitHub release.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    shell: pwsh
+    working-directory: src
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Test
+        run: |
+          dotnet build Unlocker.slnx -c Release -p:Platform=x64
+          dotnet test ../tests/Unlocker.Tests -c Release -p:Platform=x64 --no-build
+
+      # The tag sets the app version: the in-app update check compares it with the latest release tag.
+      - name: Publish and zip
+        run: |
+          $version = $env:TAG.TrimStart('v')
+          foreach ($arch in 'x64', 'ARM64') {
+            $out = "../out/$arch"
+            dotnet publish Unlocker.WinUI -c Release -p:Platform=$arch -p:Version=$version -o $out
+            if ($LASTEXITCODE) { exit $LASTEXITCODE }
+            Compress-Archive "$out/*" "../out/AdobeCameraProfilesUnlocker-$version-win-$($arch.ToLower()).zip"
+          }
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create $env:TAG ../out/*.zip --title $env:TAG --generate-notes
