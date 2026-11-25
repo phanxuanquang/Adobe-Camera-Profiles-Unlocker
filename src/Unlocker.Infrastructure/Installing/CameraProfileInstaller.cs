@@ -9,11 +9,11 @@ internal sealed class CameraProfileInstaller(DcpProfileInstaller dcp, XmpProfile
 {
     public async Task<InstalledCameraProfile> InstallAsync(CameraProfile profile, string sourceModel, string targetModel, CancellationToken ct = default)
     {
-        var output = profile.Format == CameraProfileFormat.DCP
-            ? await dcp.InstallAsync(profile, sourceModel, targetModel, ct)
+        IReadOnlyList<string> files = profile.Format == CameraProfileFormat.DCP
+            ? [await dcp.InstallAsync(profile, sourceModel, targetModel, ct)]
             : await xmp.InstallAsync(profile, sourceModel, targetModel, ct);
         logger.LogInformation("Installed profile {Profile} from {SourceModel} for {TargetModel} at {Output}",
-            profile.Name, sourceModel, targetModel, output);
-        return new InstalledCameraProfile(profile.Name, sourceModel, targetModel, [output]);
+            profile.Name, sourceModel, targetModel, string.Join(", ", files));
+        return new InstalledCameraProfile(profile.Name, sourceModel, targetModel, files);
     }
 }

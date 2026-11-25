@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using Unlocker.Core.Rules;
 using Unlocker.Infrastructure.Installing;
 using Unlocker.Tests.Support;
@@ -17,7 +18,7 @@ public sealed class XmpProfileInstallerTests : TempFolderTest
             ["CameraProfile"] = "Camera PROVIA/Standard",
         };
 
-        new XmpProfileInstaller(Paths, new CameraProfileRewriter()).Rewrite(tags, "Fujifilm X-T5", "Sony ILCE-7M4");
+        Xmp().Rewrite(tags, "Fujifilm X-T5", "Sony ILCE-7M4");
 
         Assert.AreEqual("Fujifilm X-T5: BLEACH BYPASS", tags["Name"]);
         Assert.AreEqual("Adobe Standard", tags["CameraProfile"]);
@@ -59,12 +60,21 @@ public sealed class XmpProfileInstallerTests : TempFolderTest
     }
 
     [TestMethod]
-    public void Rewrite_does_not_keep_same_brand_base_the_target_lacks_as_a_file()
+    public void Rewrite_copies_source_base_the_target_lacks()
     {
         Touch(Paths.CameraProfileFile("Nikon Z 6", "Camera Standard v2"));
         Touch(Paths.CameraProfileFile("Nikon Z f", "Camera Standard"));
 
-        Assert.AreEqual("Camera Standard", Base("Camera Standard v2", "Nikon Z 6", "Nikon Z f"));
+        Assert.AreEqual("Nikon Z 6: Standard v2", Base("Camera Standard v2", "Nikon Z 6", "Nikon Z f"));
+    }
+
+    [TestMethod]
+    public void Rewrite_copies_source_base_across_brands_even_when_target_has_the_same_name()
+    {
+        Touch(Paths.CameraProfileFile("Nikon Z f", "Camera Standard"));
+        Touch(Paths.CameraProfileFile("Canon EOS R6", "Camera Standard"));
+
+        Assert.AreEqual("Nikon Z f: Standard", Base("Camera Standard", "Nikon Z f", "Canon EOS R6"));
     }
 
     [TestMethod]
@@ -88,15 +98,18 @@ public sealed class XmpProfileInstallerTests : TempFolderTest
     {
         var tags = new Dictionary<string, string> { ["Name"] = "Camera Monochrome Soft" };
 
-        new XmpProfileInstaller(Paths, new CameraProfileRewriter()).Rewrite(tags, "RICOH GR IV Monochrome", "Sony ILCE-7M4");
+        Xmp().Rewrite(tags, "RICOH GR IV Monochrome", "Sony ILCE-7M4");
 
         Assert.IsFalse(tags.ContainsKey("CameraProfile"));
     }
 
+    private XmpProfileInstaller Xmp() => new(Paths, new CameraProfileRewriter(),
+        new DcpProfileInstaller(Paths, new CameraProfileRewriter(), NullLogger<DcpProfileInstaller>.Instance));
+
     private string Base(string sourceBase, string sourceModel, string targetModel)
     {
         var tags = new Dictionary<string, string> { ["Name"] = "Camera X", ["CameraProfile"] = sourceBase };
-        new XmpProfileInstaller(Paths, new CameraProfileRewriter()).Rewrite(tags, sourceModel, targetModel);
+        Xmp().Rewrite(tags, sourceModel, targetModel);
         return tags["CameraProfile"];
     }
 }

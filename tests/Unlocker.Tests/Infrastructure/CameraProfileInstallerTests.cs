@@ -13,7 +13,7 @@ public sealed class CameraProfileInstallerTests : TempFolderTest
 {
     private CameraProfileInstaller Installer() => new(
         Dcp(),
-        new XmpProfileInstaller(Paths, new CameraProfileRewriter()),
+        new XmpProfileInstaller(Paths, new CameraProfileRewriter(), Dcp()),
         NullLogger<CameraProfileInstaller>.Instance);
 
     private DcpProfileInstaller Dcp() => new(Paths, new CameraProfileRewriter(), NullLogger<DcpProfileInstaller>.Instance);
@@ -135,6 +135,32 @@ public sealed class CameraProfileInstallerTests : TempFolderTest
             oldDesc.Elements().Skip(1).Select(e => e.ToString()).ToList(),
             desc.Elements().Skip(1).Select(e => e.ToString()).ToList());
         CollectionAssert.AreEqual(before, File.ReadAllBytes(src));
+    }
+
+    [TestMethod]
+    public async Task Xmp_across_brands_installs_a_shared_copy_of_the_source_base()
+    {
+        File.WriteAllBytes(Touch(Paths.CameraProfileFile("Nikon Z f", "Camera Standard")), DcpFileTests.Sample("Camera Standard", "Nikon Z f"));
+        Touch(Paths.CameraProfileFile("Canon EOS R6", "Camera Standard"));
+        CameraProfile Look(string name)
+        {
+            var src = WriteXmp($@"Nikon\Nikon Z f\Nikon Z f Camera {name}.xmp", "Nikon Z f");
+            var doc = XDocument.Load(src);
+            doc.Descendants(XmpProfileInstaller.Rdf + "Description").Single().SetAttributeValue(XmpProfileInstaller.Crs + "CameraProfile", "Camera Standard");
+            doc.Save(src);
+            return new CameraProfile(name, src, CameraProfileFormat.XMP);
+        }
+
+        var bleach = await Installer().InstallAsync(Look("Bleach"), "Nikon Z f", "Canon EOS R6");
+        var toy = await Installer().InstallAsync(Look("Toy"), "Nikon Z f", "Canon EOS R6");
+
+        var basePath = Path.Combine(Paths.DcpOutputDir, "Nikon Z f Standard (for Canon EOS R6).dcp");
+        CollectionAssert.AreEqual(new[] { Path.Combine(Paths.XmpOutputDir, "Nikon Z f Bleach (for Canon EOS R6).xmp"), basePath }, bleach.Files.ToArray());
+        Assert.AreEqual(basePath, toy.Files[1]);
+        var baseStrings = DcpFileTests.ReadStrings(File.ReadAllBytes(basePath));
+        Assert.AreEqual(("Nikon Z f: Standard", "Canon EOS R6"), (baseStrings["Name"], baseStrings["CameraModelRestriction"]));
+        Assert.AreEqual("Nikon Z f: Standard",
+            (string?)XDocument.Load(bleach.Files[0]).Descendants(XmpProfileInstaller.Rdf + "Description").Single().Attribute(XmpProfileInstaller.Crs + "CameraProfile"));
     }
 
     [TestMethod]
