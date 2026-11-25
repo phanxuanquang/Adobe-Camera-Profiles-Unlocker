@@ -64,12 +64,21 @@ internal sealed class XmpProfileInstaller(AppPaths paths, CameraProfileRewriter 
     /// </summary>
     private string BaseFor(string sourceBase, string sourceModel, string targetModel)
     {
-        if (sourceBase == "Adobe Standard" || File.Exists(paths.CameraProfileFile(targetModel, sourceBase))) return sourceBase;
-        // Bases with no file (Fujifilm "Camera PROVIA/Standard") are built into Camera Raw; trust them for the same brand only.
-        // shortcut: assumes every model of the brand has the built-in base; check per model if a same-brand copy shows no base.
+        if (sourceBase == "Adobe Standard" || HasProfile(targetModel, sourceBase)) return sourceBase;
+        // Kept for the same brand only. shortcut: assumes every model of the brand has it built in; check per model if a copy shows no base.
         var sameBrand = string.Equals(sourceModel.Split(' ', 2)[0], targetModel.Split(' ', 2)[0], StringComparison.OrdinalIgnoreCase);
-        if (sameBrand && !File.Exists(paths.CameraProfileFile(sourceModel, sourceBase))) return sourceBase;
+        if (sameBrand && BuiltInBases.Contains(sourceBase)) return sourceBase;
         string[] fallbacks = ["Camera Standard v2", "Camera Standard"];
-        return fallbacks.FirstOrDefault(b => File.Exists(paths.CameraProfileFile(targetModel, b))) ?? "Adobe Standard";
+        return fallbacks.FirstOrDefault(b => HasProfile(targetModel, b)) ?? "Adobe Standard";
     }
+
+    /// <summary>
+    /// Bases built into Camera Raw, with no DCP on disk (the name is in CameraRaw.dll). Other missing bases are not trusted:
+    /// Adobe's Nikon D780 XMPs name "Camera Standard v2", which exists neither as a file nor in the DLL.
+    /// </summary>
+    private static readonly string[] BuiltInBases = ["Camera PROVIA/Standard"];
+
+    /// <summary>Some files use '_' for spaces ("Leica D-Lux 7 Camera_Standard_v2.dcp"); the profile name inside keeps the spaces.</summary>
+    private bool HasProfile(string model, string name)
+        => File.Exists(paths.CameraProfileFile(model, name)) || File.Exists(paths.CameraProfileFile(model, name.Replace(' ', '_')));
 }
