@@ -17,8 +17,8 @@ internal sealed record AppPaths(
     /// <summary>Adobe's base DCP for a camera: its sensor calibration. Nearly every supported camera has one.</summary>
     public string AdobeStandardFile(string model) => Path.Combine(AdobeStandardDir, $"{model} Adobe Standard.dcp");
 
-    /// <summary>Camera-matching "Camera Standard" DCP. Only some cameras have one.</summary>
-    public string CameraStandardFile(string model) => Path.Combine(DcpProfilesDir, model, $"{model} Camera Standard.dcp");
+    /// <summary>Camera-matching DCP by profile name ("Camera Standard", "Camera Standard v2"). Only some cameras have them.</summary>
+    public string CameraProfileFile(string model, string profileName) => Path.Combine(DcpProfilesDir, model, $"{model} {profileName}.dcp");
 
     public static AppPaths Default { get; } = Create(
         Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
