@@ -19,11 +19,11 @@ internal sealed class DcpProfileInstaller(AppPaths paths, CameraProfileRewriter 
             (input, length) = await ReadAsync(profile.SourcePath, ct);
             var dcp = DcpFile.Parse(input.AsMemory(0, length));
 
-            var adobeStandard = paths.AdobeStandardFile(targetModel);
-            if (!File.Exists(adobeStandard))
+            var adobeStandard = await FindAdobeStandardAsync(targetModel, ct);
+            if (adobeStandard is null)
             {
-                logger.LogWarning("No Adobe Standard for {TargetModel} at {Path}: {Profile} keeps the {SourceModel} calibration",
-                    targetModel, adobeStandard, profile.Name, sourceModel);
+                logger.LogWarning("No Adobe Standard for {TargetModel} in {Dir}: {Profile} keeps the {SourceModel} calibration",
+                    targetModel, paths.AdobeStandardDir, profile.Name, sourceModel);
             }
             else
             {
@@ -73,6 +73,47 @@ internal sealed class DcpProfileInstaller(AppPaths paths, CameraProfileRewriter 
         rewriter.Rewrite(tags, sourceModel, targetModel);
         if (tags.TryGetValue("ProfileCalibrationSignature", out var signature))
             tags["ProfileCalibrationSignature"] = signature.Replace("com.adobe", CameraProfileRewriter.AuthorSignature, StringComparison.Ordinal);
+    }
+
+    /// <summary>Model (UniqueCameraModel) to Adobe Standard file, built on the first name miss. Installs run one at a time.</summary>
+    private Dictionary<string, string>? _adobeStandardByModel;
+
+    /// <summary>
+    /// The target's Adobe Standard: "v2" first (Adobe's newer calibration of the same camera), then the plain name.
+    /// A few files are named differently from their camera model ("Leica D-Lux 7 Adobe_Standard.dcp"), so on a miss
+    /// every file's UniqueCameraModel is read once per session.
+    /// </summary>
+    private async Task<string?> FindAdobeStandardAsync(string model, CancellationToken ct)
+    {
+        string[] byName = [Path.Combine(paths.AdobeStandardDir, $"{model} Adobe Standard v2.dcp"), paths.AdobeStandardFile(model)];
+        if (byName.FirstOrDefault(File.Exists) is { } path) return path;
+        _adobeStandardByModel ??= await IndexAdobeStandardAsync(ct);
+        return _adobeStandardByModel.GetValueOrDefault(model);
+    }
+
+    private async Task<Dictionary<string, string>> IndexAdobeStandardAsync(CancellationToken ct)
+    {
+        var index = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (!Directory.Exists(paths.AdobeStandardDir)) return index;
+        foreach (var file in Directory.EnumerateFiles(paths.AdobeStandardDir, "*.dcp"))
+        {
+            var (buffer, length) = await ReadAsync(file, ct);
+            try
+            {
+                var strings = DcpFile.Parse(buffer.AsMemory(0, length)).GetStrings();
+                if (!strings.TryGetValue("CameraModelRestriction", out var model)) continue;
+                if (!index.ContainsKey(model) || strings.GetValueOrDefault("Name", "").EndsWith("v2", StringComparison.Ordinal)) index[model] = file;
+            }
+            catch (InvalidDataException e)
+            {
+                logger.LogWarning(e, "Skipping unreadable Adobe Standard {Path}", file);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
+        }
+        return index;
     }
 
     /// <summary>Whole file into a pooled buffer; the caller returns it.</summary>
