@@ -40,7 +40,7 @@ The app runs as a normal user and never elevates. It assumes a first install: fi
 | File | Content |
 |---|---|
 | `settings.json` | target camera |
-| `installed.json` | manifest: name, source model, target model, file paths |
+| `installed.json` | manifest: name, source model, target model, file paths (the profile first; an XMP may add its shared base DCP). Removing keeps a file another entry still lists; an entry whose first file is gone is dropped at load. |
 | `trash\` | removed files kept for Undo, emptied when the app closes |
 
 Both JSON files are written to `<file>.tmp` then renamed over the original, so a crash never leaves half-written JSON. A corrupt or unreadable manifest means starting empty (files stay on disk; untracked files are never deleted). Null or incomplete entries are skipped. Entries whose files are gone are dropped at load.
@@ -97,12 +97,12 @@ Namespace `crs` = `http://ns.adobe.com/camera-raw-settings/1.0/`. Useful attribu
 - `UUID`: a new GUID. Reusing the original UUID collides in Camera Raw.
 - `CameraProfile` (the base the look sits on, found by name for the target), first match wins:
   1. No `CameraProfile` in the source (RICOH GR IV Monochrome): none is added.
-  2. The source's base if it is `Adobe Standard` or the target has `<Target> <Base>.dcp` (e.g. Panasonic `Camera Cinelike D2`).
-  3. The source's base if it is built into Camera Raw (only Fujifilm `Camera PROVIA/Standard`: no DCP, name in `CameraRaw.dll`) and source and target share the brand (first word of the model). Not checked per model: Camera Raw's built-in list is not on disk. Other bases with no DCP are not kept: Adobe's Nikon D780 XMPs name `Camera Standard v2`, which is neither a file nor in the DLL; phone XMPs (Samsung, Google, Xiaomi) name a profile embedded in the phone's DNG.
-  4. `Camera Standard v2`, then `Camera Standard`, if the target has that DCP (Adobe's own Nikon XMPs use v2 where it exists).
-  - Checked in Lightroom (2026-11-25): a look whose named base does not exist for the camera still shows and renders, with no "Profile missing" (Nikon D780 Bleach on a Nikon Z f). PROVIA copies show on Fujifilm X-T4 (identical to Adobe's own X-T4 CLASSIC Neg) and on the older X-T3.
-  - DCP file names may use `_` for spaces (`Leica D-Lux 7 Camera_Standard_v2.dcp`); the profile name inside keeps the spaces, and that is what `crs:CameraProfile` names.
-  5. `Adobe Standard` (every supported camera has it).
+  2. `Adobe Standard`: kept.
+  3. Same brand (first word of the model) and the target has the base: kept. Either as `<Target> <Base>.dcp` (e.g. Panasonic `Camera Cinelike D2`), or built into Camera Raw: only Fujifilm `Camera PROVIA/Standard` (no DCP, name in `CameraRaw.dll`; not checked per model, Camera Raw's built-in list is not on disk). Across brands the same name is another look (Canon's `Camera Standard` is not Nikon's), so it is not reused.
+  4. The source has the base as a DCP: that DCP is installed for the target like any DCP profile (`<Source> Standard (for <Target>).dcp`, name `<Source>: Standard`) and the XMP names it. All looks on that base share the one file, which is also the file of installing that DCP profile itself.
+  5. `Camera Standard v2`, then `Camera Standard`, if the target has that DCP; else `Adobe Standard` (every supported camera has it). Reached by bases with no DCP: Fujifilm PROVIA across brands, Nikon D780 `Camera Standard v2` (referenced by Adobe's XMPs but neither a file nor in the DLL), phone XMPs (Samsung, Google, Xiaomi: a profile embedded in the phone's DNG).
+- DCP file names may use `_` for spaces (`Leica D-Lux 7 Camera_Standard_v2.dcp`); the profile name inside keeps the spaces, and that is what `crs:CameraProfile` names.
+- Checked in Lightroom (2026-11-25): a look whose named base does not exist for the camera still shows and renders, with no "Profile missing" (Nikon D780 Bleach on a Nikon Z f). PROVIA copies show on Fujifilm X-T4 (identical to Adobe's own X-T4 CLASSIC Neg) and on the older X-T3. Nikon Z f Bleach on a Canon EOS R6 looks closer to Nikon's Bleach on the copied Nikon Standard base than on Canon's Camera Standard (rule 4).
 - Bases in Adobe's XMPs (2026-11-25): Fujifilm 89 `Camera PROVIA/Standard`; Nikon 280 `Camera Standard` + 80 `Camera Standard v2`; Panasonic 34 `Camera Standard` + 4 `Camera Cinelike D2`; Ricoh 4 `Camera Standard` + 3 none; Sigma 45 `Camera Standard`.
 - A failed write deletes the partial file.
 
