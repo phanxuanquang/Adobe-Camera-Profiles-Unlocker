@@ -59,6 +59,44 @@ public sealed class CameraProfileInstallerTests : TempFolderTest
     }
 
     [TestMethod]
+    public async Task Dcp_prefers_adobe_standard_v2()
+    {
+        var src = WriteSourceDcp();
+        Directory.CreateDirectory(Paths.AdobeStandardDir);
+        File.WriteAllBytes(Paths.AdobeStandardFile("Sony ILCE-7M4"), DcpFileTests.Sample("Adobe Standard", "Sony ILCE-7M4", matrixSeed: 100));
+        var v2 = DcpFileTests.Sample("Adobe Standard v2", "Sony ILCE-7M4", matrixSeed: 200);
+        File.WriteAllBytes(Path.Combine(Paths.AdobeStandardDir, "Sony ILCE-7M4 Adobe Standard v2.dcp"), v2);
+
+        var result = await Installer().InstallAsync(new CameraProfile("Portrait", src, CameraProfileFormat.DCP), "Canon EOS R5", "Sony ILCE-7M4");
+
+        CollectionAssert.AreEqual(ColorMatrix1(v2), ColorMatrix1(File.ReadAllBytes(result.Files[0])));
+    }
+
+    [TestMethod]
+    public async Task Dcp_finds_adobe_standard_by_camera_model_when_file_name_differs()
+    {
+        var src = WriteSourceDcp();
+        Directory.CreateDirectory(Paths.AdobeStandardDir);
+        var adobeStandard = DcpFileTests.Sample("Adobe Standard", "Leica D-Lux 7", matrixSeed: 100);
+        File.WriteAllBytes(Path.Combine(Paths.AdobeStandardDir, "Leica D-Lux 7 Adobe_Standard.dcp"), adobeStandard);
+        File.WriteAllBytes(Path.Combine(Paths.AdobeStandardDir, "Other Adobe Standard.dcp"), DcpFileTests.Sample("Adobe Standard", "Other", matrixSeed: 50));
+
+        var result = await Installer().InstallAsync(new CameraProfile("Portrait", src, CameraProfileFormat.DCP), "Canon EOS R5", "Leica D-Lux 7");
+
+        CollectionAssert.AreEqual(ColorMatrix1(adobeStandard), ColorMatrix1(File.ReadAllBytes(result.Files[0])));
+    }
+
+    private string WriteSourceDcp()
+    {
+        var src = Path.Combine(Paths.DcpProfilesDir, "Canon EOS R5", "Canon EOS R5 Camera Portrait.dcp");
+        Directory.CreateDirectory(Path.GetDirectoryName(src)!);
+        File.WriteAllBytes(src, DcpFileTests.Sample());
+        return src;
+    }
+
+    private static byte[] ColorMatrix1(byte[] dcp) => DcpFile.Parse(dcp).Entries.Single(e => e.Tag == 0xC621).Data.ToArray();
+
+    [TestMethod]
     public async Task Dcp_with_unreadable_adobe_standard_keeps_source_calibration()
     {
         var src = Path.Combine(Paths.DcpProfilesDir, "Canon EOS R5", "Canon EOS R5 Camera Portrait.dcp");

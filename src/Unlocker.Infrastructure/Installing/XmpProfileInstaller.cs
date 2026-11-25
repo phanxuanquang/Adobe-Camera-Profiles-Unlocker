@@ -53,8 +53,23 @@ internal sealed class XmpProfileInstaller(AppPaths paths, CameraProfileRewriter 
     {
         rewriter.Rewrite(tags, sourceModel, targetModel);
         tags["UUID"] = Guid.NewGuid().ToString("N").ToUpperInvariant();
-        // The look sits on a base profile Camera Raw finds by name for the target camera. Camera Standard is closest to the
-        // source's maker base (e.g. PROVIA) but only some cameras have it; every camera has Adobe Standard.
-        tags["CameraProfile"] = File.Exists(paths.CameraStandardFile(targetModel)) ? "Camera Standard" : "Adobe Standard";
+        // A profile without a base (e.g. RICOH GR IV Monochrome) stays without one.
+        if (tags.TryGetValue("CameraProfile", out var sourceBase))
+            tags["CameraProfile"] = BaseFor(sourceBase, sourceModel, targetModel);
+    }
+
+    /// <summary>
+    /// The look sits on a base profile Camera Raw finds by name for the target camera. Keep the source's base when the target
+    /// has it; else the target's Camera Standard (v2 first, as Adobe's own XMPs do), else Adobe Standard (every camera has it).
+    /// </summary>
+    private string BaseFor(string sourceBase, string sourceModel, string targetModel)
+    {
+        if (sourceBase == "Adobe Standard" || File.Exists(paths.CameraProfileFile(targetModel, sourceBase))) return sourceBase;
+        // Bases with no file (Fujifilm "Camera PROVIA/Standard") are built into Camera Raw; trust them for the same brand only.
+        // shortcut: assumes every model of the brand has the built-in base; check per model if a same-brand copy shows no base.
+        var sameBrand = string.Equals(sourceModel.Split(' ', 2)[0], targetModel.Split(' ', 2)[0], StringComparison.OrdinalIgnoreCase);
+        if (sameBrand && !File.Exists(paths.CameraProfileFile(sourceModel, sourceBase))) return sourceBase;
+        string[] fallbacks = ["Camera Standard v2", "Camera Standard"];
+        return fallbacks.FirstOrDefault(b => File.Exists(paths.CameraProfileFile(targetModel, b))) ?? "Adobe Standard";
     }
 }

@@ -21,7 +21,9 @@ Choices that look odd without context. Read the relevant entry before "fixing" o
 |---|---|
 | Own C# `DcpFile` instead of dcpTool. | No native exe in the app. Rewrites only 4 string tags; every other entry byte for byte. Verified identical on all 2936 Adobe DCPs. |
 | DCP takes the target camera's calibration from its Adobe Standard; keeps the source's look. | Matches how Adobe pairs calibration and look. See [camera-profiles.md](camera-profiles.md#dcp-binary). |
+| Adobe Standard: `v2` before v1; found by `UniqueCameraModel` when the file name differs. | v2 is Adobe's newer calibration of the same camera. Some file names are not the model name, so a name-only lookup silently kept the source calibration. |
 | XMP base = `Camera Standard` if the target has one, else `Adobe Standard`. | Some targets (Olympus, OM, some Sony/Pentax/Leica) have no Camera Standard; before this they rendered with no base. |
+| XMP base: keep the source's base when the target has it (as a DCP, or built in for the same brand); `Camera Standard v2` before v1; no base added when the source has none. | Fujifilm to Fujifilm lost PROVIA, Nikon v2 targets got v1, and RICOH GR IV Monochrome copies gained a base the original never had. Rules: [camera-profiles.md](camera-profiles.md#xmp-text). |
 | New UUID for every XMP copy. | Same UUID as the original collides in Camera Raw. |
 | Install sequentially. | Disk bound; parallel buys little and complicates cancel and rollback. |
 | `ArrayPool` buffers for DCP reads. | Owner asked for low memory use; avoids large-object-heap allocations per install. |
