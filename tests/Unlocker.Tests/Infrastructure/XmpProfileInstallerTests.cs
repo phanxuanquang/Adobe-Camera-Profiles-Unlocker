@@ -68,6 +68,22 @@ public sealed class XmpProfileInstallerTests : TempFolderTest
     }
 
     [TestMethod]
+    public void Rewrite_does_not_keep_unknown_missing_base_for_same_brand()
+    {
+        Touch(Paths.CameraProfileFile("Nikon Z f", "Camera Standard"));
+
+        Assert.AreEqual("Camera Standard", Base("Camera Standard v2", "Nikon D780", "Nikon Z f"));
+    }
+
+    [TestMethod]
+    public void Rewrite_finds_underscore_file_names()
+    {
+        Touch(Paths.CameraProfileFile("Leica D-Lux 7", "Camera_Standard_v2"));
+
+        Assert.AreEqual("Camera Standard v2", Base("Camera PROVIA/Standard", "Fujifilm X-T5", "Leica D-Lux 7"));
+    }
+
+    [TestMethod]
     public void Rewrite_leaves_missing_base_missing()
     {
         var tags = new Dictionary<string, string> { ["Name"] = "Camera Monochrome Soft" };
