@@ -40,8 +40,8 @@ internal sealed class JsonInstalledStore(AppPaths paths, ILogger<JsonInstalledSt
         // Hand-edited manifest: drop null or incomplete entries instead of crashing at startup.
         var broken = items.RemoveAll(p => p?.Name is null || p.SourceModel is null || p.TargetModel is null || p.Files is null);
         if (broken > 0) logger.LogWarning("Skipped {Count} invalid entries in manifest {File}", broken, paths.ManifestFile);
-        // Drop entries the user deleted by hand.
-        items.RemoveAll(p => !p.Files.Any(File.Exists));
+        // Drop entries the user deleted by hand. The first file is the profile itself; the rest are shared base DCPs.
+        items.RemoveAll(p => p.Files.Count == 0 || !File.Exists(p.Files[0]));
         _items = items;
         Changed?.Invoke(this, EventArgs.Empty);
     }
@@ -60,9 +60,11 @@ internal sealed class JsonInstalledStore(AppPaths paths, ILogger<JsonInstalledSt
     public async Task RemoveAsync(IEnumerable<InstalledCameraProfile> items)
     {
         var list = items.ToList();
+        // An XMP's base DCP can be shared with other installed profiles: keep it while one of them remains.
+        var stillUsed = _items.Except(list).SelectMany(p => p.Files).ToHashSet(StringComparer.OrdinalIgnoreCase);
         foreach (var item in list)
         {
-            foreach (var file in item.Files.Where(File.Exists))
+            foreach (var file in item.Files.Where(f => File.Exists(f) && !stillUsed.Contains(f)))
             {
                 Directory.CreateDirectory(paths.TrashDir);
                 var trashed = Path.Combine(paths.TrashDir, $"{Guid.NewGuid():N}{Path.GetExtension(file)}");
@@ -82,14 +84,16 @@ internal sealed class JsonInstalledStore(AppPaths paths, ILogger<JsonInstalledSt
         foreach (var item in items)
         {
             // Reinstalled since removal, or a file now sits at the path: keep the newer one, leave ours in trash.
-            if (_items.Any(p => SameKey(p, item)) || item.Files.Any(f => _trash.ContainsKey(f) && File.Exists(f)))
+            // A shared base DCP that an installed profile uses again is not a conflict.
+            var inUse = _items.SelectMany(p => p.Files).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            if (_items.Any(p => SameKey(p, item)) || item.Files.Any(f => _trash.ContainsKey(f) && File.Exists(f) && !inUse.Contains(f)))
             {
                 logger.LogWarning("Not restoring {Name} for {Target}: already installed or file exists", item.Name, item.TargetModel);
                 continue;
             }
             foreach (var file in item.Files)
             {
-                if (!_trash.Remove(file, out var trashed) || !File.Exists(trashed)) continue;
+                if (File.Exists(file) || !_trash.Remove(file, out var trashed) || !File.Exists(trashed)) continue;
                 Directory.CreateDirectory(Path.GetDirectoryName(file)!);
                 File.Move(trashed, file);
             }

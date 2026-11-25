@@ -132,6 +132,36 @@ public sealed class JsonInstalledStoreTests : TempFolderTest
     }
 
     [TestMethod]
+    public async Task Remove_keeps_a_shared_file_while_another_profile_uses_it_and_restore_works()
+    {
+        var store = new JsonInstalledStore(Paths, NullLogger<JsonInstalledStore>.Instance);
+        var a = Installed("A", "Sony", "a.xmp", "base.dcp");
+        var b = Installed("B", "Sony", "b.xmp", "base.dcp");
+        await store.AddAsync(a);
+        await store.AddAsync(b);
+
+        await store.RemoveAsync([a]);
+
+        Assert.IsFalse(File.Exists(a.Files[0]));
+        Assert.IsTrue(File.Exists(a.Files[1]), "B still uses the base");
+
+        await store.RestoreAsync([a]); // the base on disk is B's, not a conflict
+
+        Assert.AreEqual(2, store.All.Count);
+        Assert.IsTrue(File.Exists(a.Files[0]));
+
+        await store.RemoveAsync([a, b]);
+
+        Assert.IsFalse(File.Exists(a.Files[1]), "last user removed");
+        await store.RestoreAsync([a, b]);
+        Assert.IsTrue(a.Files.Concat(b.Files).All(File.Exists));
+
+        File.Delete(a.Files[0]); // the user deletes A's XMP by hand; the shared base stays for B
+        await store.LoadAsync();
+        CollectionAssert.AreEqual(new[] { "B" }, store.All.Select(p => p.Name).ToArray());
+    }
+
+    [TestMethod]
     public async Task Load_drops_entries_whose_files_are_gone()
     {
         var first = new JsonInstalledStore(Paths, NullLogger<JsonInstalledStore>.Instance);
